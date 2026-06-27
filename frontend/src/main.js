@@ -10,8 +10,16 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 // Import custom styles
 import './assets/styles/custom.css'
+import { useAuthStore } from './stores/auth'
 
 const app = createApp(App)
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
+
+const authStore = useAuthStore(pinia)
+if (authStore.token) {
+  authStore.fetchMe().catch(() => authStore.logout())
+}
+
 app.mount('#app')

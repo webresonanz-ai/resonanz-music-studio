@@ -6,15 +6,8 @@
                 <span>{{ navigationStore.activeProgramInfo.name }}</span>
             </div>
 
-            <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#mainNav"
-                aria-controls="mainNav"
-                aria-expanded="false"
-                aria-label="Toggle section navigation"
-            >
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="Toggle section navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -52,21 +45,29 @@
                         <span class="input-group-text bg-transparent border-0 text-white-50">
                             <i class="bi bi-search"></i>
                         </span>
-                        <input type="text" class="form-control bg-transparent border-0 text-white"
-                            placeholder="Search" aria-label="Search">
+                        <input type="text" class="form-control bg-transparent border-0 text-white" placeholder="Search"
+                            aria-label="Search">
                     </div>
 
                     <div class="dropdown">
-                        <button class="btn btn-outline-light btn-sm dropdown-toggle nav-user-btn" data-bs-toggle="dropdown" type="button" aria-label="User menu">
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle nav-user-btn"
+                            data-bs-toggle="dropdown" type="button" aria-label="User menu">
                             <i class="bi bi-person-circle"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Settings</a></li>
-                            <li>
+                            <li v-if="authStore.user" class="dropdown-item-text text-white-50 px-3 py-2">
+                                <div class="fw-semibold">{{ authStore.user.name }}</div>
+                                <div class="small">{{ authStore.user.role }}</div>
+                            </li>
+                            <li v-if="authStore.user">
                                 <hr class="dropdown-divider">
                             </li>
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+                            <li>
+                                <button class="dropdown-item" type="button"
+                                    @click="authStore.user ? logout() : router.push('/auth')">
+                                    <i class="bi bi-box-arrow-right me-2"></i>
+                                    {{ authStore.user ? 'Logout' : 'Login' }}
+                                </button>
                             </li>
                         </ul>
                     </div>
@@ -78,14 +79,26 @@
 
 <script>
 import { useNavigationStore } from '../stores/navigation'
+import { useAuthStore } from '../stores/auth'
+import { useRouter } from 'vue-router'
 
 export default {
     name: 'AppNavbar',
     setup() {
         const navigationStore = useNavigationStore()
+        const authStore = useAuthStore()
+        const router = useRouter()
+
+        const logout = () => {
+            authStore.logout()
+            router.push('/auth')
+        }
 
         return {
-            navigationStore
+            navigationStore,
+            authStore,
+            logout,
+            router
         }
     }
 }

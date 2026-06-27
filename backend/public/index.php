@@ -24,6 +24,9 @@ $router = new Router();
 // Public routes
 $router->get('/', 'App\Http\Controllers\HomeController@index');
 $router->get('/programs', 'App\Http\Controllers\ProgramController@index');
+$router->post('/auth/register', 'App\Http\Controllers\AuthController@register');
+$router->post('/auth/login', 'App\Http\Controllers\AuthController@login');
+$router->get('/auth/me', 'App\Http\Controllers\AuthController@me');
 
 // Program-specific public routes
 $router->get('/trms/teachers', 'App\Http\Controllers\Trms\TeacherController@index');
@@ -48,7 +51,7 @@ $router->get('/trcc/about-us', 'App\Http\Controllers\Trcc\AboutController@index'
 $router->post('/trcc/contact', 'App\Http\Controllers\Trcc\ContactController@store');
 
 // Protected API routes
-$router->group(['middleware' => [AuthMiddleware::class]], function($router) {
+$router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
     $router->get('/bms/attendance', 'App\Http\Controllers\Bms\AttendanceController@index');
     $router->post('/bms/attendance', 'App\Http\Controllers\Bms\AttendanceController@store');
 });

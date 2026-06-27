@@ -32,6 +32,7 @@ import Achievements from '../views/trcc/Achievements.vue'
 import Testimonial from '../views/trcc/Testimonial.vue'
 import TRCCAboutUs from '../views/trcc/AboutUs.vue'
 import TRCCContact from '../views/trcc/Contact.vue'
+import Auth from '../views/Auth.vue'
 
 const routes = [
   {
@@ -86,6 +87,11 @@ const routes = [
       { path: 'about-us', component: TRCCAboutUs },
       { path: 'contact', component: TRCCContact }
     ]
+  },
+  {
+    path: '/auth',
+    name: 'Auth',
+    component: Auth
   }
 ]
 

@@ -18,7 +18,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     api_token VARCHAR(64) UNIQUE,
     api_token_exp TIMESTAMP NULL,
-    role ENUM('admin', 'teacher', 'member') DEFAULT 'member',
+    role ENUM('admin', 'manager', 'teacher', 'arranger', 'member') DEFAULT 'member',
     program_id VARCHAR(10),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
