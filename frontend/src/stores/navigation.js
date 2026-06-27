@@ -5,7 +5,7 @@ export const useNavigationStore = defineStore('navigation', {
     activeProgram: 'trms',
     sidebarItems: [
       { id: 'trms', name: 'TRMS', icon: 'bi-music-note-beamed', description: 'The Resonanz Music Studio' },
-      { id: 'bms', name: 'BMS', icon: 'bi-people-fill', description: 'Band Music School' },
+      { id: 'bms', name: 'BMS', icon: 'bi-people-fill', description: 'Batavia Madrigal Singers' },
       { id: 'jco', name: 'JCO', icon: 'bi-vinyl-fill', description: 'Jakarta Concert Orchestra' },
       { id: 'trcc', name: 'TRCC', icon: 'bi-trophy-fill', description: 'The Resonanz Children Choir' }
     ],

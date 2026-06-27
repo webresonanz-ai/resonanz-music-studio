@@ -1,7 +1,7 @@
 <template>
     <div class="fade-in-up">
         <div class="content-card">
-            <h1 class="display-4 fw-bold mb-4">Band Music School</h1>
+            <h1 class="display-4 fw-bold mb-4">Batavia Madrigal Singers</h1>
             <p class="lead text-muted">
                 Join our vibrant band community and experience the joy of ensemble performance.
             </p>

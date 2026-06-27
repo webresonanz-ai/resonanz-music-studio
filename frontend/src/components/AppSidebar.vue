@@ -1,19 +1,13 @@
 <template>
     <aside class="sidebar" :class="{ open: sidebarOpen }" aria-label="Program navigation">
         <div class="sidebar-header">
-            <h2><i class="bi bi-soundwave me-2"></i>Resonanz</h2>
-            <p>Music Foundation</p>
+            <img src="/logo_resonanz_bgwhite.png" alt="Resonanz Logo" class="sidebar-logo" />
         </div>
 
         <div class="sidebar-menu">
-            <button
-                v-for="item in navigationStore.sidebarItems"
-                :key="item.id"
-                class="sidebar-item"
-                :class="{ active: navigationStore.activeProgram === item.id }"
-                type="button"
-                @click="changeProgram(item.id)"
-            >
+            <button v-for="item in navigationStore.sidebarItems" :key="item.id" class="sidebar-item"
+                :class="{ active: navigationStore.activeProgram === item.id }" type="button"
+                @click="changeProgram(item.id)">
                 <i :class="'bi ' + item.icon"></i>
                 <span class="sidebar-item-content">
                     <span class="sidebar-item-title">{{ item.name }}</span>
@@ -62,3 +56,12 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.sidebar-logo {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 1rem;
+    border-radius: 2rem;
+}
+</style>
