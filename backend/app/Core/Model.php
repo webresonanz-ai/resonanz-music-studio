@@ -2,9 +2,11 @@
 
 namespace App\Core;
 
+use PDO;
+
 abstract class Model
 {
-    protected Database $db;
+    protected PDO $db;
     protected string $table;
     protected array $fillable = [];
 

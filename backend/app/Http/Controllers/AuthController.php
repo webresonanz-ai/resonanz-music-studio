@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Core\Database;
 use PDO;
-use PDOException;
 
 class AuthController
 {
-    private const ALLOWED_ROLES = ['admin', 'manager', 'composer/arranger', 'guest'];
+    private const ALLOWED_ROLES = ['admin', 'manager', 'teacher', 'arranger', 'member', 'composer/arranger', 'guest'];
+    private const DEFAULT_ROLE = 'member';
 
     public function register(): void
     {
@@ -16,7 +16,6 @@ class AuthController
         $name = trim($input['name'] ?? '');
         $email = strtolower(trim($input['email'] ?? ''));
         $password = $input['password'] ?? '';
-        $role = $this->normalizeRole($input['role'] ?? 'guest');
 
         if ($name === '' || $email === '' || $password === '') {
             $this->sendJson(422, ['error' => 'Name, email and password are required']);
@@ -34,7 +33,7 @@ class AuthController
         }
 
         $db = Database::getInstance();
-        $this->ensureUserTableCompatibility($db);
+        $role = $this->normalizeRole($input['role'] ?? self::DEFAULT_ROLE, $this->getSupportedRoles($db));
 
         $stmt = $db->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
         $stmt->execute(['email' => $email]);
@@ -76,7 +75,6 @@ class AuthController
         }
 
         $db = Database::getInstance();
-        $this->ensureUserTableCompatibility($db);
 
         $stmt = $db->prepare('SELECT * FROM users WHERE email = :email LIMIT 1');
         $stmt->execute(['email' => $email]);
@@ -130,15 +128,23 @@ class AuthController
         return is_array($data) ? $data : [];
     }
 
-    private function normalizeRole(string $role): string
+    private function normalizeRole(string $role, array $supportedRoles): string
     {
         $normalized = strtolower(trim($role));
 
         if ($normalized === 'composer_arranger' || $normalized === 'composer/arranger') {
-            return 'composer/arranger';
+            $normalized = 'composer/arranger';
         }
 
-        return in_array($normalized, self::ALLOWED_ROLES, true) ? $normalized : 'guest';
+        if (in_array($normalized, self::ALLOWED_ROLES, true) && in_array($normalized, $supportedRoles, true)) {
+            return $normalized;
+        }
+
+        if (in_array(self::DEFAULT_ROLE, $supportedRoles, true)) {
+            return self::DEFAULT_ROLE;
+        }
+
+        return $supportedRoles[0] ?? self::DEFAULT_ROLE;
     }
 
     private function generateToken(): string
@@ -170,13 +176,26 @@ class AuthController
         return $matches[1] ?? '';
     }
 
-    private function ensureUserTableCompatibility(PDO $db): void
+    private function getSupportedRoles(PDO $db): array
     {
-        try {
-            $db->exec("ALTER TABLE users MODIFY COLUMN role VARCHAR(50) DEFAULT 'guest'");
-        } catch (PDOException $e) {
-            // Ignore if the column is already compatible or the table is unavailable.
+        $stmt = $db->query("SHOW COLUMNS FROM users LIKE 'role'");
+        $column = $stmt->fetch();
+
+        if (!$column || empty($column['Type'])) {
+            return [self::DEFAULT_ROLE];
         }
+
+        if (!preg_match("/^enum\((.*)\)$/", $column['Type'], $matches)) {
+            return self::ALLOWED_ROLES;
+        }
+
+        preg_match_all("/'((?:[^'\\\\]|\\\\.)*)'/", $matches[1], $roleMatches);
+        $roles = array_map(
+            static fn (string $role): string => stripcslashes($role),
+            $roleMatches[1] ?? []
+        );
+
+        return $roles ?: [self::DEFAULT_ROLE];
     }
 
     private function sendJson(int $statusCode, array $payload): void

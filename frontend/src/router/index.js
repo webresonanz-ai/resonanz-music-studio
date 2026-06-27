@@ -8,6 +8,8 @@ import Schedules from '../views/trms/Schedules.vue'
 import Teachers from '../views/trms/Teachers.vue'
 import TRMSNews from '../views/trms/News.vue'
 import TRMSContact from '../views/trms/Contact.vue'
+import ConcertRegistration from '../views/trms/ConcertRegistration.vue'
+import ConcertAudiences from '../views/trms/ConcertAudiences.vue'
 
 // BMS Views
 import BMSHome from '../views/bms/BMSHome.vue'
@@ -49,7 +51,9 @@ const routes = [
       { path: 'schedules', component: Schedules },
       { path: 'teachers', component: Teachers },
       { path: 'news', component: TRMSNews },
-      { path: 'contact', component: TRMSContact }
+      { path: 'contact', component: TRMSContact },
+      { path: 'concert/registration', component: ConcertRegistration },
+      { path: 'concert/audiences', component: ConcertAudiences }
     ]
   },
   // BMS Routes

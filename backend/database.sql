@@ -103,6 +103,20 @@ CREATE TABLE concerts (
     FOREIGN KEY (program_id) REFERENCES programs(id)
 );
 
+-- Concert audiences table
+CREATE TABLE concert_audiences (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    program_id VARCHAR(10) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
+    concert_title VARCHAR(150) NOT NULL,
+    ticket_quantity INT NOT NULL DEFAULT 1,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (program_id) REFERENCES programs(id)
+);
+
 -- Gallery table
 CREATE TABLE gallery (
     id INT AUTO_INCREMENT PRIMARY KEY,

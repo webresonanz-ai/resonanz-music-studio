@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_ROOT = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_BASE = `${API_ROOT.replace(/\/$/, '')}/api`
 
 export const useApiStore = defineStore('api', {
   state: () => ({
@@ -57,7 +58,14 @@ export const useTrmsStore = defineStore('trms', {
     teachers: [],
     courses: [],
     news: [],
-    schedules: []
+    schedules: [],
+    concertAudiences: [],
+    concertAudiencesMeta: {
+      total: 0,
+      perPage: 10,
+      currentPage: 1,
+      lastPage: 1,
+    }
   }),
 
   actions: {
@@ -77,8 +85,28 @@ export const useTrmsStore = defineStore('trms', {
       this.schedules = await useApiStore().get('/trms/schedule')
     },
 
+    async fetchConcertAudiences(params = {}) {
+      const query = new URLSearchParams()
+      if (params.page) query.set('page', params.page)
+      if (params.perPage) query.set('per_page', params.perPage)
+      const qs = query.toString()
+      const response = await useApiStore().get('/trms/concert/audiences' + (qs ? `?${qs}` : ''))
+      this.concertAudiences = response.data
+      this.concertAudiencesMeta = {
+        total: response.total,
+        perPage: response.per_page,
+        currentPage: response.current_page,
+        lastPage: response.last_page,
+      }
+      return response
+    },
+
     async submitContact(form) {
       return useApiStore().post('/trms/contact', form)
+    },
+
+    async submitConcertRegistration(form) {
+      return useApiStore().post('/trms/concert/registration', form)
     }
   }
 })

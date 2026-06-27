@@ -2,6 +2,8 @@
 
 namespace App\Core;
 
+use Throwable;
+
 class Router
 {
     private array $routes = [];
@@ -94,12 +96,23 @@ class Router
             return;
         }
 
-        call_user_func_array([$controller, $method], $params);
+        try {
+            call_user_func_array([$controller, $method], $params);
+        } catch (Throwable $e) {
+            $payload = ['error' => 'Internal Server Error'];
+
+            if (($_ENV['APP_DEBUG'] ?? 'false') === 'true') {
+                $payload['message'] = $e->getMessage();
+            }
+
+            $this->sendResponse($payload, 500);
+        }
     }
 
     protected function sendResponse(array $data, int $status = 200): void
     {
         http_response_code($status);
+        header('Content-Type: application/json');
         echo json_encode($data);
     }
 }

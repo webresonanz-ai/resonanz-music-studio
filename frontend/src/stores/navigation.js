@@ -16,6 +16,14 @@ export const useNavigationStore = defineStore('navigation', {
         { path: '/trms/facilitation', label: 'Facilitation', icon: 'bi-building' },
         { path: '/trms/schedules', label: 'Schedules', icon: 'bi-calendar3' },
         { path: '/trms/teachers', label: 'Teachers', icon: 'bi-person-workspace' },
+        {
+          label: 'Concert',
+          icon: 'bi-ticket-perforated',
+          children: [
+            { path: '/trms/concert/registration', label: 'Registration', icon: 'bi-person-plus' },
+            { path: '/trms/concert/audiences', label: 'Audiences', icon: 'bi-people' }
+          ]
+        },
         { path: '/trms/news', label: 'News', icon: 'bi-newspaper' },
         { path: '/trms/contact', label: 'Contact', icon: 'bi-envelope' }
       ],
