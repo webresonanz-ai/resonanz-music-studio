@@ -85,6 +85,18 @@ export const useTrmsStore = defineStore('trms', {
       this.schedules = await useApiStore().get('/trms/schedule')
     },
 
+    async createSchedule(data) {
+      return useApiStore().post('/trms/schedule', data)
+    },
+
+    async updateSchedule(id, data) {
+      return useApiStore().post(`/trms/schedule/${id}`, data)
+    },
+
+    async deleteSchedule(id) {
+      return useApiStore().post(`/trms/schedule/${id}/delete`, {})
+    },
+
     async fetchConcertAudiences(params = {}) {
       const query = new URLSearchParams()
       if (params.page) query.set('page', params.page)

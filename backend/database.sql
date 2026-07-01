@@ -58,6 +58,21 @@ CREATE TABLE events (
     FOREIGN KEY (program_id) REFERENCES programs(id)
 );
 
+-- Schedules table
+CREATE TABLE schedules (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    program_id VARCHAR(10) NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    type VARCHAR(50) NOT NULL DEFAULT 'lesson',
+    date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (program_id) REFERENCES programs(id)
+);
+
 -- Members table
 CREATE TABLE members (
     id INT AUTO_INCREMENT PRIMARY KEY,
