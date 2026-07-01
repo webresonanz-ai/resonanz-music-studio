@@ -25,7 +25,14 @@ export const useApiStore = defineStore('api', {
           ...options
         })
         
-        const data = await response.json()
+        const responseText = await response.text()
+        let data
+
+        try {
+          data = responseText ? JSON.parse(responseText) : {}
+        } catch {
+          data = { error: 'API returned an invalid response' }
+        }
         
         if (!response.ok) {
           throw new Error(data.error || 'API request failed')

@@ -72,9 +72,12 @@
                             autocomplete="email"
                             required
                         >
+                        <div class="form-text">
+                            Please make sure your email address is valid. Your ticket will be sent to this email.
+                        </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-12">
                         <label for="audiencePhone" class="form-label">Phone</label>
                         <input
                             id="audiencePhone"
@@ -86,45 +89,6 @@
                         >
                     </div>
 
-                    <div class="col-md-6">
-                        <label for="ticketQuantity" class="form-label">Ticket Quantity</label>
-                        <input
-                            id="ticketQuantity"
-                            v-model.number="form.ticket_quantity"
-                            class="form-control"
-                            type="number"
-                            min="1"
-                            max="20"
-                            required
-                        >
-                    </div>
-
-                    <div class="col-12">
-                        <label for="concertTitle" class="form-label">Concert Title</label>
-                        <input
-                            id="concertTitle"
-                            v-model.trim="form.concert_title"
-                            class="form-control"
-                            type="text"
-                            placeholder="TRMS Concert"
-                            :readonly="!!selectedConcert"
-                            required
-                        >
-                        <div v-if="selectedConcert" class="form-text">
-                            {{ concertScheduleLabel }} · {{ concertTimeLabel }}
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="audienceNotes" class="form-label">Notes</label>
-                        <textarea
-                            id="audienceNotes"
-                            v-model.trim="form.notes"
-                            class="form-control"
-                            rows="4"
-                            placeholder="Seat preference, guest names, or other details"
-                        ></textarea>
-                    </div>
                 </div>
 
                 <div class="d-flex gap-3 mt-4">
@@ -155,7 +119,7 @@ const emptyForm = () => ({
     phone: '',
     ticket_quantity: 1,
     concert_title: 'TRMS Concert',
-    notes: ''
+    notes: 'Guest'
 })
 
 export default {
@@ -235,15 +199,25 @@ export default {
             this.errorMessage = ''
 
             try {
-                if (this.selectedConcert) {
-                    this.form.concert_title = this.selectedConcert.title
+                if (!this.selectedConcert) {
+                    this.errorMessage = 'Please select a concert before submitting registration.'
+                    return
                 }
 
-                await this.trmsStore.submitConcertRegistration(this.form)
+                const payload = {
+                    name: this.form.name,
+                    email: this.form.email,
+                    phone: this.form.phone,
+                    concert_title: this.selectedConcert.title,
+                    ticket_quantity: 1,
+                    notes: 'Guest'
+                }
+
+                await this.trmsStore.submitConcertRegistration(payload)
                 this.successMessage = 'Registration submitted successfully.'
                 this.form = {
                     ...emptyForm(),
-                    concert_title: this.selectedConcert ? this.selectedConcert.title : emptyForm().concert_title
+                    concert_title: this.selectedConcert.title
                 }
             } catch (error) {
                 this.errorMessage = error.message || 'Unable to submit registration.'
