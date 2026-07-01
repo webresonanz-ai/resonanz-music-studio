@@ -8,6 +8,7 @@ import Schedules from '../views/trms/Schedules.vue'
 import Teachers from '../views/trms/Teachers.vue'
 import TRMSNews from '../views/trms/News.vue'
 import TRMSContact from '../views/trms/Contact.vue'
+import ConcertSelection from '../views/trms/ConcertSelection.vue'
 import ConcertRegistration from '../views/trms/ConcertRegistration.vue'
 import ConcertAudiences from '../views/trms/ConcertAudiences.vue'
 
@@ -52,7 +53,9 @@ const routes = [
       { path: 'teachers', component: Teachers },
       { path: 'news', component: TRMSNews },
       { path: 'contact', component: TRMSContact },
-      { path: 'concert/registration', component: ConcertRegistration },
+      { path: 'concert/select', component: ConcertSelection },
+      { path: 'concert/registration', component: ConcertRegistration, meta: { hideShellNav: true } },
+      { path: 'concert/registration/:concertTitle', component: ConcertRegistration, meta: { hideShellNav: true } },
       { path: 'concert/audiences', component: ConcertAudiences }
     ]
   },

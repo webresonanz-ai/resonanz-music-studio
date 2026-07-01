@@ -10,7 +10,7 @@
                     </p>
                 </div>
 
-                <router-link class="btn btn-primary btn-lg" to="/trms/concert/registration">
+                <router-link class="btn btn-primary btn-lg" to="/trms/concert/select">
                     <i class="bi bi-person-plus me-2"></i>
                     Add Audience
                 </router-link>
@@ -103,7 +103,7 @@
                 <i class="bi bi-ticket-perforated display-1 d-block mb-3"></i>
                 <h2 class="h4 fw-bold">No audiences yet</h2>
                 <p class="mb-4">Submitted concert registrations will appear here.</p>
-                <router-link class="btn btn-primary" to="/trms/concert/registration">
+                <router-link class="btn btn-primary" to="/trms/concert/select">
                     <i class="bi bi-person-plus me-2"></i>
                     Register First Audience
                 </router-link>

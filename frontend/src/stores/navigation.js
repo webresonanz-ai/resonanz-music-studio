@@ -20,7 +20,7 @@ export const useNavigationStore = defineStore('navigation', {
           label: 'Concert',
           icon: 'bi-ticket-perforated',
           children: [
-            { path: '/trms/concert/registration', label: 'Registration', icon: 'bi-person-plus' },
+            { path: '/trms/concert/select', label: 'Registration', icon: 'bi-person-plus' },
             { path: '/trms/concert/audiences', label: 'Audiences', icon: 'bi-people' }
           ]
         },

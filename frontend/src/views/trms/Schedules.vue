@@ -199,6 +199,8 @@ export default {
         return {
             currentMonth: new Date(),
             loading: false,
+            successMessage: '',
+            errorMessage: '',
             selectedSchedule: null,
             scheduleDetailModalInstance: null
         }
@@ -253,12 +255,15 @@ export default {
             return map[type] || type
         },
         openAddModal() {
+            this.clearFormMessages()
             this.$refs.scheduleFormModal.openAdd()
         },
         openDayModal(dateKey) {
+            this.clearFormMessages()
             this.$refs.scheduleFormModal.openDay(dateKey)
         },
         openEditModal(schedule) {
+            this.clearFormMessages()
             this.$refs.scheduleFormModal.openEdit(schedule)
         },
         openEditFromDetail() {
@@ -269,20 +274,21 @@ export default {
         },
         async submitSchedule(payload) {
             this.loading = true
+            this.clearFormMessages()
             try {
                 if (payload.mode === 'edit') {
                     await this.updateSchedule(payload.scheduleId, payload.data)
-                    this.$refs.scheduleFormModal.successMessage = 'Schedule updated successfully.'
+                    this.successMessage = 'Schedule updated successfully.'
                 } else {
                     await this.createSchedule(payload.data)
-                    this.$refs.scheduleFormModal.successMessage = 'Schedule added successfully.'
+                    this.successMessage = 'Schedule added successfully.'
                 }
                 await this.fetchSchedules()
                 if (payload.mode === 'add') {
                     setTimeout(() => this.$refs.scheduleFormModal.hide(), 800)
                 }
             } catch (error) {
-                this.$refs.scheduleFormModal.errorMessage = error.message || 'Unable to save schedule.'
+                this.errorMessage = error.message || 'Unable to save schedule.'
             } finally {
                 this.loading = false
             }
@@ -291,13 +297,14 @@ export default {
             if (!confirm('Are you sure you want to delete this schedule?')) return
 
             this.loading = true
+            this.clearFormMessages()
             try {
                 await this.storeDeleteSchedule(scheduleId)
-                this.$refs.scheduleFormModal.successMessage = 'Schedule deleted successfully.'
+                this.successMessage = 'Schedule deleted successfully.'
                 await this.fetchSchedules()
                 setTimeout(() => this.$refs.scheduleFormModal.hide(), 800)
             } catch (error) {
-                this.$refs.scheduleFormModal.errorMessage = error.message || 'Unable to delete schedule.'
+                this.errorMessage = error.message || 'Unable to delete schedule.'
             } finally {
                 this.loading = false
             }
@@ -307,16 +314,21 @@ export default {
             if (!confirm('Are you sure you want to delete this schedule?')) return
 
             this.loading = true
+            this.clearFormMessages()
             try {
                 await this.storeDeleteSchedule(this.selectedSchedule.id)
-                this.$refs.scheduleFormModal.successMessage = 'Schedule deleted successfully.'
+                this.successMessage = 'Schedule deleted successfully.'
                 await this.fetchSchedules()
                 this.hideDetailModal()
             } catch (error) {
-                this.$refs.scheduleFormModal.errorMessage = error.message || 'Unable to delete schedule.'
+                this.errorMessage = error.message || 'Unable to delete schedule.'
             } finally {
                 this.loading = false
             }
+        },
+        clearFormMessages() {
+            this.successMessage = ''
+            this.errorMessage = ''
         },
         showDetailModal() {
             const el = this.$refs.scheduleDetailModal

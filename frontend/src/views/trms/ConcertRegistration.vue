@@ -4,9 +4,9 @@
             <div class="row g-4 align-items-center">
                 <div class="col-lg-7">
                     <p class="text-uppercase text-primary fw-bold small mb-2">TRMS Concert</p>
-                    <h1 class="display-4 fw-bold mb-3">Concert Registration</h1>
+                    <h1 class="display-4 fw-bold mb-3">{{ selectedConcert ? selectedConcert.title : 'Concert Registration' }}</h1>
                     <p class="lead text-muted mb-0">
-                        Reserve audience seats for the upcoming TRMS concert and keep the registration details ready for the front desk.
+                        {{ selectedConcert ? concertScheduleLabel : 'Select a concert first or reserve audience seats for the upcoming TRMS concert.' }}
                     </p>
                 </div>
                 <div class="col-lg-5">
@@ -14,12 +14,12 @@
                         <div class="d-flex align-items-center gap-3 mb-3">
                             <i class="bi bi-ticket-perforated display-6 text-warning"></i>
                             <div>
-                                <div class="fw-bold">Audience Pass</div>
-                                <div class="text-white-50 small">Registration confirmation</div>
+                                <div class="fw-bold">{{ selectedConcert ? 'Selected Concert' : 'Audience Pass' }}</div>
+                                <div class="text-white-50 small">{{ selectedConcert ? concertTimeLabel : 'Registration confirmation' }}</div>
                             </div>
                         </div>
                         <p class="mb-0 text-white-50">
-                            Each submission appears on the audiences page after the API saves it.
+                            {{ selectedConcert ? selectedConcert.description || 'Complete the form below to save this audience registration.' : 'Each submission appears on the audiences page after the API saves it.' }}
                         </p>
                     </div>
                 </div>
@@ -27,6 +27,17 @@
         </div>
 
         <div class="content-card">
+            <div v-if="loadingSchedule" class="py-4 text-center text-muted">
+                <div class="spinner-border text-primary mb-3" role="status"></div>
+                <div>Loading selected concert...</div>
+            </div>
+
+            <div v-else-if="concertTitleParam && !selectedConcert" class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>Concert not found. Please choose another upcoming concert.</span>
+                <router-link class="btn btn-sm btn-outline-primary ms-auto" to="/trms/concert/select">Select Concert</router-link>
+            </div>
+
             <form @submit.prevent="submitRegistration">
                 <div v-if="successMessage" class="alert alert-success d-flex align-items-center gap-2" role="alert">
                     <i class="bi bi-check-circle-fill"></i>
@@ -96,8 +107,12 @@
                             class="form-control"
                             type="text"
                             placeholder="TRMS Concert"
+                            :readonly="!!selectedConcert"
                             required
                         >
+                        <div v-if="selectedConcert" class="form-text">
+                            {{ concertScheduleLabel }} · {{ concertTimeLabel }}
+                        </div>
                     </div>
 
                     <div class="col-12">
@@ -113,16 +128,12 @@
                 </div>
 
                 <div class="d-flex gap-3 mt-4">
-                    <button class="btn btn-primary btn-lg" type="submit" :disabled="loading">
+                    <button class="btn btn-primary btn-lg" type="submit" :disabled="loading || loadingSchedule || (concertTitleParam && !selectedConcert)">
                         <span v-if="loading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                         <i v-else class="bi bi-send-check me-2"></i>
                         {{ loading ? 'Submitting...' : 'Submit Registration' }}
                     </button>
 
-                    <router-link class="btn btn-outline-primary btn-lg" to="/trms/concert/audiences">
-                        <i class="bi bi-people me-2"></i>
-                        View Audiences
-                    </router-link>
                 </div>
             </form>
         </div>
@@ -131,6 +142,12 @@
 
 <script>
 import { useTrmsStore } from '../../stores/api'
+
+const slugifyTitle = (title) => String(title || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 
 const emptyForm = () => ({
     name: '',
@@ -152,25 +169,106 @@ export default {
         return {
             form: emptyForm(),
             loading: false,
+            loadingSchedule: false,
             successMessage: '',
-            errorMessage: ''
+            errorMessage: '',
+            selectedConcert: null
         }
     },
+    computed: {
+        concertTitleParam() {
+            return this.$route.params.concertTitle || ''
+        },
+        concertScheduleLabel() {
+            if (!this.selectedConcert) return ''
+            return this.formatDate(this.selectedConcert.date)
+        },
+        concertTimeLabel() {
+            if (!this.selectedConcert) return ''
+            return `${this.formatTime(this.selectedConcert.start_time)} - ${this.formatTime(this.selectedConcert.end_time)}`
+        }
+    },
+    watch: {
+        concertTitleParam() {
+            this.loadSelectedConcert()
+        }
+    },
+    mounted() {
+        this.loadSelectedConcert()
+    },
     methods: {
+        async loadSelectedConcert() {
+            this.selectedConcert = null
+
+            if (!this.concertTitleParam) {
+                this.form.concert_title = emptyForm().concert_title
+                return
+            }
+
+            this.loadingSchedule = true
+            this.errorMessage = ''
+
+            try {
+                await this.trmsStore.fetchSchedules()
+
+                const todayKey = this.toDateKey(new Date())
+                this.selectedConcert = this.trmsStore.schedules
+                    .filter(schedule => schedule.type === 'concert' && schedule.date >= todayKey)
+                    .sort((a, b) => {
+                        const dateCompare = a.date.localeCompare(b.date)
+                        return dateCompare || a.start_time.localeCompare(b.start_time)
+                    })
+                    .find(schedule => slugifyTitle(schedule.title) === this.concertTitleParam)
+
+                if (this.selectedConcert) {
+                    this.form.concert_title = this.selectedConcert.title
+                }
+            } catch (error) {
+                this.errorMessage = error.message || 'Unable to load selected concert.'
+            } finally {
+                this.loadingSchedule = false
+            }
+        },
         async submitRegistration() {
             this.loading = true
             this.successMessage = ''
             this.errorMessage = ''
 
             try {
+                if (this.selectedConcert) {
+                    this.form.concert_title = this.selectedConcert.title
+                }
+
                 await this.trmsStore.submitConcertRegistration(this.form)
                 this.successMessage = 'Registration submitted successfully.'
-                this.form = emptyForm()
+                this.form = {
+                    ...emptyForm(),
+                    concert_title: this.selectedConcert ? this.selectedConcert.title : emptyForm().concert_title
+                }
             } catch (error) {
                 this.errorMessage = error.message || 'Unable to submit registration.'
             } finally {
                 this.loading = false
             }
+        },
+        toDateKey(date) {
+            const year = date.getFullYear()
+            const month = String(date.getMonth() + 1).padStart(2, '0')
+            const day = String(date.getDate()).padStart(2, '0')
+            return `${year}-${month}-${day}`
+        },
+        formatDate(dateStr) {
+            if (!dateStr) return ''
+            const [year, month, day] = dateStr.split('-').map(Number)
+            return new Date(year, month - 1, day).toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })
+        },
+        formatTime(value) {
+            return String(value || '').slice(0, 5)
         }
     }
 }

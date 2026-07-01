@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <button
+      v-if="!hideShellNav"
       @click="toggleSidebar"
       class="mobile-toggle"
       type="button"
@@ -10,12 +11,12 @@
       <i class="bi bi-list"></i>
     </button>
     
-    <div v-if="sidebarOpen" class="sidebar-backdrop" @click="closeSidebar"></div>
+    <div v-if="sidebarOpen && !hideShellNav" class="sidebar-backdrop" @click="closeSidebar"></div>
 
-    <AppSidebar :sidebar-open="sidebarOpen" @navigate="closeSidebar" />
+    <AppSidebar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @navigate="closeSidebar" />
     
-    <div class="main-content">
-      <AppNavbar />
+    <div class="main-content" :class="{ 'main-content-full': hideShellNav }">
+      <AppNavbar v-if="!hideShellNav" />
       
       <div class="content-area mt-4">
         <router-view v-slot="{ Component }">
@@ -31,7 +32,7 @@
 </template>
 
 <script>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useNavigationStore } from './stores/navigation'
 import AppSidebar from './components/AppSidebar.vue'
@@ -49,6 +50,7 @@ export default {
     const sidebarOpen = ref(false)
     const route = useRoute()
     const navigationStore = useNavigationStore()
+    const hideShellNav = computed(() => route.meta.hideShellNav === true)
     
     const toggleSidebar = () => {
       sidebarOpen.value = !sidebarOpen.value
@@ -72,6 +74,7 @@ export default {
     
     return {
       sidebarOpen,
+      hideShellNav,
       toggleSidebar,
       closeSidebar
     }
@@ -89,5 +92,9 @@ export default {
 .fade-leave-to {
   opacity: 0;
   transform: translateY(10px);
+}
+
+.main-content-full {
+  margin-left: 0;
 }
 </style>
