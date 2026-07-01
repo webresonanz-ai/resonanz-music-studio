@@ -19,7 +19,7 @@
 
         <div class="sidebar-footer p-3 mt-auto">
             <div class="text-white-50 small text-center">
-                <p class="mb-1">&copy; 2026 Resonanz Music Foundation</p>
+                <p class="mb-1">&copy; 2026 The Resonanz Music Studio</p>
                 <p class="mb-0">Empowering Through Music</p>
             </div>
         </div>

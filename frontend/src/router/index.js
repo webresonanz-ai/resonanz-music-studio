@@ -56,7 +56,7 @@ const routes = [
       { path: 'concert/select', component: ConcertSelection },
       { path: 'concert/registration', component: ConcertRegistration, meta: { hideShellNav: true } },
       { path: 'concert/registration/:concertTitle', component: ConcertRegistration, meta: { hideShellNav: true } },
-      { path: 'concert/audiences', component: ConcertAudiences }
+      { path: 'concert/audiences', component: ConcertAudiences, meta: { roles: ['admin', 'manager'] } }
     ]
   },
   // BMS Routes
@@ -105,6 +105,23 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
+})
+
+// Route guard — redirect unauthorized users away from role-restricted pages
+router.beforeEach((to, _from, next) => {
+  const requiredRoles = to.meta?.roles
+  if (!requiredRoles) return next()
+
+  const raw = localStorage.getItem('resonanz-user')
+  const user = raw ? JSON.parse(raw) : null
+  const userRole = user?.role?.toLowerCase()
+
+  if (user && requiredRoles.includes(userRole)) {
+    next()
+  } else {
+    // Not logged in → auth page; logged in but wrong role → back to home
+    next(user ? '/trms/home' : '/auth')
+  }
 })
 
 export default router

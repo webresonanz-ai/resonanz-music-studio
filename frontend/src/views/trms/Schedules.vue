@@ -18,7 +18,7 @@
                                 <div class="text-white-50 small">Lessons, practices & concerts</div>
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-lg" @click="openAddModal">
+                        <button class="btn btn-primary btn-lg" @click="openAddModal" v-if="canAddSchedule">
                             <i class="bi bi-plus-lg me-2"></i> Add Schedule
                         </button>
                     </div>
@@ -118,6 +118,7 @@
 import { Modal } from 'bootstrap'
 import { mapState, mapActions } from 'pinia'
 import { useTrmsStore } from '../../stores/api'
+import { useAuthStore } from '../../stores/auth'
 import ScheduleFormModal from '../../components/trms/ScheduleFormModal.vue'
 
 export default {
@@ -127,6 +128,11 @@ export default {
     },
     computed: {
         ...mapState(useTrmsStore, ['schedules']),
+        canAddSchedule() {
+            const authStore = useAuthStore()
+            const role = authStore.user?.role?.toLowerCase()
+            return role === 'admin' || role === 'manager'
+        },
         monthYearLabel() {
             return this.currentMonth.toLocaleDateString('id-ID', {
                 year: 'numeric',

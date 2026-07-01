@@ -213,7 +213,6 @@ input:focus-visible {
 
 /* Navbar */
 .main-navbar {
-  overflow: hidden;
   border: 1px solid rgba(234, 220, 194, 0.22);
   border-radius: var(--radius-md);
   background:

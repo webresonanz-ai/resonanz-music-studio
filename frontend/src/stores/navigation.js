@@ -21,7 +21,7 @@ export const useNavigationStore = defineStore('navigation', {
           icon: 'bi-ticket-perforated',
           children: [
             { path: '/trms/concert/select', label: 'Registration', icon: 'bi-person-plus' },
-            { path: '/trms/concert/audiences', label: 'Audiences', icon: 'bi-people' }
+            { path: '/trms/concert/audiences', label: 'Audiences', icon: 'bi-people', roles: ['admin', 'manager'] }
           ]
         },
         { path: '/trms/news', label: 'News', icon: 'bi-newspaper' },
@@ -36,8 +36,8 @@ export const useNavigationStore = defineStore('navigation', {
       ],
       jco: [
         { path: '/jco/home', label: 'Home', icon: 'bi-house-door' },
-        { 
-          label: 'Orchestra', 
+        {
+          label: 'Orchestra',
           icon: 'bi-music-note-list',
           children: [
             { path: '/jco/orchestra/profile', label: 'Profile', icon: 'bi-person-badge' },
