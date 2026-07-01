@@ -128,9 +128,13 @@ CREATE TABLE concert_audiences (
     concert_title VARCHAR(150) NOT NULL,
     ticket_quantity INT NOT NULL DEFAULT 1,
     notes TEXT,
+    qr_code VARCHAR(100) DEFAULT NULL COMMENT 'Format: {firstWord}_{id}_{timestamp}_{rand4}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (program_id) REFERENCES programs(id)
 );
+
+-- Migration: add qr_code to existing installations
+-- ALTER TABLE concert_audiences ADD COLUMN qr_code VARCHAR(100) DEFAULT NULL COMMENT 'Format: {firstWord}_{id}_{timestamp}_{rand4}' AFTER notes;
 
 -- Gallery table
 CREATE TABLE gallery (

@@ -70,16 +70,21 @@ class ConcertAudienceController
             return;
         }
 
+        // Generate the unique QR code string and persist it
+        $qrCode = ConcertAudience::buildQrCode(trim($data['concert_title']), $id);
+        $this->model->updateQrCode($id, $qrCode);
+
         http_response_code(201);
         echo json_encode([
             'success' => true,
             'message' => 'Registration submitted successfully',
             'id' => $id,
+            'qr_code' => $qrCode,
             'ticket_pdf_url' => '/api/trms/concert/ticket/' . $id
         ]);
 
-        // Merge the inserted ID so the QR code contains the correct record ID
-        $registrationData = array_merge($data, ['id' => $id]);
+        // Merge the inserted ID and qr_code so the PDF/email have full data
+        $registrationData = array_merge($data, ['id' => $id, 'qr_code' => $qrCode]);
 
         // Generate PDF once and reuse it for the email attachment
         $pdfContent = $this->generateTicketPdf($registrationData);
@@ -204,21 +209,42 @@ class ConcertAudienceController
         }
     }
 
-    public function downloadTicket(int $id): void
+    public function downloadTicket(string $id): void
     {
+        $id = (int) $id;
+
+        if ($id <= 0) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Invalid ticket ID']);
+            return;
+        }
+
         $audience = $this->model->find($id);
-        
+
         if (!$audience) {
             http_response_code(404);
+            header('Content-Type: application/json');
             echo json_encode(['error' => 'Registration not found']);
             return;
         }
 
-        $pdfContent = (new TicketPdfGenerator())->generate($audience);
-        
+        try {
+            $pdfContent = (new TicketPdfGenerator())->generate($audience);
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Failed to generate ticket PDF']);
+            error_log('TicketPdfGenerator error: ' . $e->getMessage());
+            return;
+        }
+
+        $safeName = 'ticket_' . preg_replace('/[^a-z0-9_\-]/i', '_', $audience['name'] ?? $id) . '.pdf';
+
         header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="ticket_' . $id . '.pdf"');
+        header('Content-Disposition: inline; filename="' . $safeName . '"');
         header('Content-Length: ' . strlen($pdfContent));
+        header('Cache-Control: private, no-cache');
         echo $pdfContent;
     }
 }

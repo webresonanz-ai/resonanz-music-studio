@@ -68,7 +68,7 @@ class Router
     private function convertToRegex(string $path): string
     {
         $path = str_replace('/', '\/', $path);
-        $path = preg_replace('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', '([^/]+)', $path);
+        $path = preg_replace('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', '([^\/]+)', $path);
         return '/^' . $path . '$/';
     }
 
