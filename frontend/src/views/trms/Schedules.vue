@@ -18,7 +18,7 @@
                                 <div class="text-white-50 small">Lessons, practices & concerts</div>
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-lg" @click="openAddModal" v-if="canAddSchedule">
+                        <button class="btn btn-primary btn-lg" @click="openAddModal" v-if="canManageSchedule">
                             <i class="bi bi-plus-lg me-2"></i> Add Schedule
                         </button>
                     </div>
@@ -27,45 +27,61 @@
         </div>
 
         <div class="content-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <button class="btn btn-outline-light" @click="prevMonth">
+            <div class="calendar-toolbar">
+                <button class="btn btn-outline-light calendar-nav-btn" @click="prevMonth" aria-label="Previous month">
                     <i class="bi bi-chevron-left"></i>
                 </button>
-                <h2 class="mb-0 fw-bold">{{ monthYearLabel }}</h2>
-                <button class="btn btn-outline-light" @click="nextMonth">
+                <h2 class="calendar-month-label">{{ monthYearLabel }}</h2>
+                <button class="btn btn-outline-light calendar-nav-btn" @click="nextMonth" aria-label="Next month">
                     <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
 
-            <div class="calendar-grid">
-                <div class="calendar-header-row row g-0">
-                    <div class="col" v-for="dayName in dayNames" :key="dayName">
-                        <div class="calendar-header">{{ dayName }}</div>
+            <div class="calendar-scroll">
+                <div class="calendar-grid">
+                    <div class="calendar-weekdays">
+                        <div class="calendar-header" v-for="(dayName, index) in dayNames" :key="dayName">
+                            <span class="calendar-header-full">{{ dayName }}</span>
+                            <span class="calendar-header-short">{{ dayNamesShort[index] }}</span>
+                        </div>
                     </div>
-                </div>
-                <div class="calendar-body">
-                    <div class="calendar-week row g-0" v-for="week in calendarWeeks" :key="week.key">
-                        <div class="col calendar-day-cell"
-                             v-for="day in week.days"
-                             :key="day.dateKey"
-                             :class="{
-                                 'other-month': !day.isCurrentMonth,
-                                 'today': day.isToday,
-                                 'has-schedules': getSchedulesForDate(day.dateKey).length > 0
-                             }"
-                             @click="day.isCurrentMonth ? openDayModal(day.dateKey) : null">
-                            <div class="day-number">{{ day.dayNumber }}</div>
-                            <div class="schedule-chips">
-                                <span class="schedule-chip"
-                                      v-for="schedule in getSchedulesForDate(day.dateKey).slice(0, 3)"
-                                      :key="schedule.id"
-                                      @click.stop="openEditModal(schedule)">
-                                    {{ schedule.title }}
-                                </span>
-                                <span class="more-schedules"
-                                      v-if="getSchedulesForDate(day.dateKey).length > 3">
-                                    +{{ getSchedulesForDate(day.dateKey).length - 3 }} more
-                                </span>
+                    <div class="calendar-body">
+                        <div class="calendar-week" v-for="week in calendarWeeks" :key="week.key">
+                            <div class="calendar-day-cell"
+                                 v-for="day in week.days"
+                                 :key="day.dateKey"
+                                 :class="{
+                                     'other-month': !day.isCurrentMonth,
+                                     'today': day.isToday,
+                                     'has-schedules': getSchedulesForDate(day.dateKey).length > 0,
+                                     'read-only': !canManageSchedule
+                                 }"
+                                 @click="handleDayClick(day)">
+                                <div class="day-number-wrap">
+                                    <span class="day-number">{{ day.dayNumber }}</span>
+                                </div>
+                                <div class="schedule-dots" v-if="getSchedulesForDate(day.dateKey).length > 0">
+                                    <span class="schedule-dot"
+                                          v-for="schedule in getSchedulesForDate(day.dateKey).slice(0, 3)"
+                                          :key="schedule.id"
+                                          :class="scheduleDotClass(schedule.type)"
+                                          @click.stop="handleScheduleClick(schedule)"></span>
+                                    <span class="schedule-dot schedule-dot-more"
+                                          v-if="getSchedulesForDate(day.dateKey).length > 3"></span>
+                                </div>
+                                <div class="schedule-chips">
+                                    <span class="schedule-chip"
+                                          v-for="schedule in getSchedulesForDate(day.dateKey).slice(0, 3)"
+                                          :key="schedule.id"
+                                          :class="{ 'schedule-chip-readonly': !canManageSchedule }"
+                                          @click.stop="handleScheduleClick(schedule)">
+                                        {{ schedule.title }}
+                                    </span>
+                                    <span class="more-schedules"
+                                          v-if="getSchedulesForDate(day.dateKey).length > 3">
+                                        +{{ getSchedulesForDate(day.dateKey).length - 3 }} more
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -82,35 +98,37 @@
             @delete="deleteSchedule"
         />
 
-        <div class="modal fade" id="scheduleDetailModal" tabindex="-1" ref="scheduleDetailModal">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{ selectedSchedule ? selectedSchedule.title : 'Schedule Detail' }}</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body" v-if="selectedSchedule">
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <span class="badge" :class="typeBadgeClass(selectedSchedule.type)">{{ typeLabel(selectedSchedule.type) }}</span>
-                            <span class="text-muted">{{ formatDate(selectedSchedule.date) }}</span>
+        <Teleport to="body">
+            <div class="modal fade" id="scheduleDetailModal" tabindex="-1" ref="scheduleDetailModal">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content schedule-detail-modal">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{{ selectedSchedule ? selectedSchedule.title : 'Schedule Detail' }}</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <p class="mb-3">{{ selectedSchedule.description || 'No description provided.' }}</p>
-                        <div class="d-flex gap-4 text-muted small">
-                            <span><i class="bi bi-clock me-1"></i> {{ selectedSchedule.start_time }} - {{ selectedSchedule.end_time }}</span>
+                        <div class="modal-body" v-if="selectedSchedule">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <span class="badge" :class="typeBadgeClass(selectedSchedule.type)">{{ typeLabel(selectedSchedule.type) }}</span>
+                                <span class="text-muted">{{ formatDate(selectedSchedule.date) }}</span>
+                            </div>
+                            <p class="mb-3">{{ selectedSchedule.description || 'No description provided.' }}</p>
+                            <div class="d-flex gap-4 text-muted small">
+                                <span><i class="bi bi-clock me-1"></i> {{ selectedSchedule.start_time }} - {{ selectedSchedule.end_time }}</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-outline-primary" @click="openEditFromDetail">
-                            <i class="bi bi-pencil me-2"></i> Edit
-                        </button>
-                        <button class="btn btn-outline-danger" @click="deleteFromDetail">
-                            <i class="bi bi-trash me-2"></i> Delete
-                        </button>
-                        <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Close</button>
+                        <div class="modal-footer">
+                            <button v-if="canManageSchedule" class="btn btn-outline-primary" @click="openEditFromDetail">
+                                <i class="bi bi-pencil me-2"></i> Edit
+                            </button>
+                            <button v-if="canManageSchedule" class="btn btn-outline-danger" @click="deleteFromDetail">
+                                <i class="bi bi-trash me-2"></i> Delete
+                            </button>
+                            <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </Teleport>
     </div>
 </template>
 
@@ -128,7 +146,7 @@ export default {
     },
     computed: {
         ...mapState(useTrmsStore, ['schedules']),
-        canAddSchedule() {
+        canManageSchedule() {
             const authStore = useAuthStore()
             const role = authStore.user?.role?.toLowerCase()
             return role === 'admin' || role === 'manager'
@@ -141,6 +159,9 @@ export default {
         },
         dayNames() {
             return ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+        },
+        dayNamesShort() {
+            return ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
         },
         calendarWeeks() {
             const weeks = []
@@ -260,25 +281,64 @@ export default {
             }
             return map[type] || type
         },
+        scheduleDotClass(type) {
+            const map = {
+                lesson: 'schedule-dot-lesson',
+                practice: 'schedule-dot-practice',
+                concert: 'schedule-dot-concert',
+                exam: 'schedule-dot-exam',
+                other: 'schedule-dot-other'
+            }
+            return map[type] || 'schedule-dot-other'
+        },
         openAddModal() {
+            if (!this.canManageSchedule) return
             this.clearFormMessages()
             this.$refs.scheduleFormModal.openAdd()
         },
+        handleDayClick(day) {
+            if (!day.isCurrentMonth) return
+
+            if (this.canManageSchedule) {
+                this.openDayModal(day.dateKey)
+                return
+            }
+
+            const schedules = this.getSchedulesForDate(day.dateKey)
+            if (schedules.length > 0) {
+                this.openDetailModal(schedules[0])
+            }
+        },
+        handleScheduleClick(schedule) {
+            if (this.canManageSchedule) {
+                this.openEditModal(schedule)
+                return
+            }
+            this.openDetailModal(schedule)
+        },
         openDayModal(dateKey) {
+            if (!this.canManageSchedule) return
             this.clearFormMessages()
             this.$refs.scheduleFormModal.openDay(dateKey)
         },
         openEditModal(schedule) {
+            if (!this.canManageSchedule) return
             this.clearFormMessages()
             this.$refs.scheduleFormModal.openEdit(schedule)
         },
+        openDetailModal(schedule) {
+            this.selectedSchedule = schedule
+            this.showDetailModal()
+        },
         openEditFromDetail() {
+            if (!this.canManageSchedule) return
             this.hideDetailModal()
             setTimeout(() => {
                 this.openEditModal(this.selectedSchedule)
             }, 300)
         },
         async submitSchedule(payload) {
+            if (!this.canManageSchedule) return
             this.loading = true
             this.clearFormMessages()
             try {
@@ -300,6 +360,7 @@ export default {
             }
         },
         async deleteSchedule(scheduleId) {
+            if (!this.canManageSchedule) return
             if (!confirm('Are you sure you want to delete this schedule?')) return
 
             this.loading = true
@@ -316,6 +377,7 @@ export default {
             }
         },
         async deleteFromDetail() {
+            if (!this.canManageSchedule) return
             if (!this.selectedSchedule) return
             if (!confirm('Are you sure you want to delete this schedule?')) return
 
@@ -339,89 +401,196 @@ export default {
         showDetailModal() {
             const el = this.$refs.scheduleDetailModal
             if (!el) return
-            this.scheduleDetailModalInstance = new Modal(el)
+            this.scheduleDetailModalInstance = Modal.getOrCreateInstance(el)
             this.scheduleDetailModalInstance.show()
         },
         hideDetailModal() {
-            const modal = this.scheduleDetailModalInstance
-            if (modal) {
-                modal.hide()
+            if (this.scheduleDetailModalInstance) {
+                this.scheduleDetailModalInstance.hide()
             }
+        }
+    },
+    beforeUnmount() {
+        if (this.scheduleDetailModalInstance) {
+            this.scheduleDetailModalInstance.dispose()
         }
     }
 }
 </script>
 
 <style scoped>
+.calendar-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.calendar-month-label {
+    margin: 0;
+    font-weight: 700;
+    font-size: clamp(1.1rem, 3vw, 1.75rem);
+    text-align: center;
+    flex: 1;
+    line-height: 1.3;
+}
+
+.calendar-nav-btn {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.calendar-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .calendar-grid {
     display: flex;
     flex-direction: column;
-    gap: 0;
+    min-width: 280px;
 }
 
-.calendar-header-row {
-    margin-bottom: 0;
+.calendar-weekdays,
+.calendar-week {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
 .calendar-header {
     text-align: center;
     font-weight: 700;
-    font-size: 0.85rem;
-    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+    padding: 0.65rem 0.25rem;
     color: var(--accent-color);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+    border-bottom: 2px solid rgba(127, 36, 50, 0.15);
+}
+
+.calendar-header-short {
+    display: none;
 }
 
 .calendar-day-cell {
-    min-height: 100px;
+    min-height: 6.5rem;
     border: 1px solid var(--hairline-color);
-    padding: 0.5rem;
+    border-top: none;
+    padding: 0.45rem 0.35rem 0.5rem;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
     background: rgba(255, 253, 248, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .calendar-day-cell:hover {
     background: rgba(200, 164, 93, 0.1);
+    z-index: 1;
+    box-shadow: inset 0 0 0 1px rgba(200, 164, 93, 0.35);
 }
 
 .calendar-day-cell.other-month {
     background: rgba(111, 106, 97, 0.08);
     color: var(--muted-color);
+    cursor: default;
 }
 
-.calendar-day-cell.today .day-number {
-    background: var(--accent-color);
-    color: #fff;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+.calendar-day-cell.other-month:hover {
+    background: rgba(111, 106, 97, 0.08);
+    box-shadow: none;
+}
+
+.calendar-day-cell.read-only {
+    cursor: default;
+}
+
+.calendar-day-cell.read-only:hover {
+    background: rgba(255, 253, 248, 0.6);
+    box-shadow: none;
+}
+
+.calendar-day-cell.read-only.has-schedules {
+    cursor: pointer;
+}
+
+.calendar-day-cell.read-only.has-schedules:hover {
+    background: rgba(200, 164, 93, 0.1);
+    box-shadow: inset 0 0 0 1px rgba(200, 164, 93, 0.25);
 }
 
 .calendar-day-cell.has-schedules {
     background: rgba(200, 164, 93, 0.06);
 }
 
-.day-number {
-    font-size: 0.9rem;
-    font-weight: 600;
+.day-number-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
     margin-bottom: 0.35rem;
-    display: inline-flex;
 }
+
+.day-number {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.calendar-day-cell.today .day-number {
+    background: var(--accent-color);
+    color: #fff;
+    border-radius: 50%;
+}
+
+.schedule-dots {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 0.2rem;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: auto;
+    padding-top: 0.15rem;
+}
+
+.schedule-dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.schedule-dot-lesson { background: #0d6efd; }
+.schedule-dot-practice { background: #198754; }
+.schedule-dot-concert { background: var(--gold-color); }
+.schedule-dot-exam { background: #dc3545; }
+.schedule-dot-other { background: var(--muted-color); }
+.schedule-dot-more { background: var(--muted-color); opacity: 0.55; }
 
 .schedule-chips {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    width: 100%;
+    margin-top: 0.15rem;
 }
 
 .schedule-chip {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.45rem;
+    font-size: 0.72rem;
+    padding: 0.2rem 0.4rem;
     border-radius: 4px;
     background: rgba(127, 36, 50, 0.12);
     color: var(--accent-color);
@@ -429,29 +598,85 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     transition: background 0.2s ease;
+    text-align: left;
 }
 
 .schedule-chip:hover {
     background: rgba(127, 36, 50, 0.24);
 }
 
+.schedule-chip-readonly {
+    cursor: pointer;
+}
+
+.schedule-chip-readonly:hover {
+    background: rgba(127, 36, 50, 0.18);
+}
+
 .more-schedules {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--muted-color);
-    padding: 0.2rem 0.45rem;
+    padding: 0.15rem 0.4rem;
+    text-align: center;
 }
 
 @media (max-width: 767.98px) {
-    .calendar-day-cell {
-        min-height: 70px;
-        padding: 0.35rem;
+    .calendar-header-full {
+        display: none;
     }
-    .schedule-chip {
+
+    .calendar-header-short {
+        display: inline;
+    }
+
+    .calendar-header {
         font-size: 0.7rem;
+        padding: 0.5rem 0.15rem;
+    }
+
+    .calendar-day-cell {
+        min-height: 3.75rem;
+        padding: 0.3rem 0.15rem 0.35rem;
+    }
+
+    .day-number {
+        width: 1.5rem;
+        height: 1.5rem;
+        font-size: 0.78rem;
+    }
+
+    .schedule-dots {
+        display: flex;
+    }
+
+    .schedule-chips {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .calendar-day-cell {
+        min-height: 5.5rem;
+    }
+
+    .schedule-chip {
+        font-size: 0.68rem;
         padding: 0.15rem 0.3rem;
     }
-    .day-number {
-        font-size: 0.8rem;
+}
+
+@media (min-width: 992px) {
+    .calendar-day-cell {
+        min-height: 7rem;
     }
+}
+
+:deep(.schedule-detail-modal) {
+    background: var(--surface-color);
+}
+
+:deep(.schedule-detail-modal .modal-header) {
+    background: linear-gradient(135deg, rgba(127, 36, 50, 0.16), rgba(200, 164, 93, 0.08));
+    border-bottom: 1px solid var(--hairline-color);
 }
 </style>
