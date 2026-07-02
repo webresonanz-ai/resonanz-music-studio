@@ -204,13 +204,17 @@ export default {
                     return
                 }
 
+                const now = new Date()
+                const localTimestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
+
                 const payload = {
                     name: this.form.name,
                     email: this.form.email,
                     phone: this.form.phone,
                     concert_title: this.selectedConcert.title,
                     ticket_quantity: 1,
-                    notes: 'Guest'
+                    notes: 'Guest',
+                    created_at: localTimestamp
                 }
 
                 await this.trmsStore.submitConcertRegistration(payload)

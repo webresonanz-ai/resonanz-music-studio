@@ -63,7 +63,7 @@ public function index(): void
         }
 
         try {
-            $id = $this->model->create([
+            $createData = [
                 'program_id' => 'trms',
                 'name' => trim($data['name']),
                 'email' => trim($data['email']),
@@ -71,7 +71,13 @@ public function index(): void
                 'concert_title' => trim($data['concert_title']),
                 'ticket_quantity' => 1,
                 'notes' => trim($data['notes'] ?? 'Guest')
-            ]);
+            ];
+
+            if (!empty($data['created_at'])) {
+                $createData['created_at'] = $data['created_at'];
+            }
+
+            $id = $this->model->create($createData);
         } catch (\Throwable $error) {
             http_response_code(500);
             echo json_encode(['error' => 'Unable to save registration. Please check the database setup.']);
