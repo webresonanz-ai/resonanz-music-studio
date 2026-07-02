@@ -82,6 +82,23 @@
                                         rows="3"
                                     ></textarea>
                                 </div>
+                                <div class="col-12">
+                                    <label class="form-label d-block">Programs / Collaborating Groups</label>
+                                    <div class="d-flex flex-wrap gap-4 p-3 rounded border border-secondary border-opacity-25 bg-light bg-opacity-10">
+                                        <div class="form-check" v-for="prog in availablePrograms" :key="prog.id">
+                                            <input
+                                                :id="'prog-' + prog.id"
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                :value="prog.id"
+                                                v-model="form.program_ids"
+                                            >
+                                            <label :for="'prog-' + prog.id" class="form-check-label select-none">
+                                                {{ prog.name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="d-flex gap-3 mt-4">
@@ -114,7 +131,8 @@ const emptyForm = () => ({
     date: '',
     start_time: '09:00',
     end_time: '10:00',
-    description: ''
+    description: '',
+    program_ids: ['trms']
 })
 
 export default {
@@ -129,7 +147,13 @@ export default {
         return {
             form: emptyForm(),
             editingSchedule: null,
-            modalInstance: null
+            modalInstance: null,
+            availablePrograms: [
+                { id: 'trms', name: 'TRMS' },
+                { id: 'bms', name: 'BMS' },
+                { id: 'jco', name: 'JCO' },
+                { id: 'trcc', name: 'TRCC' }
+            ]
         }
     },
     methods: {
@@ -144,20 +168,25 @@ export default {
                 this.modalInstance.hide()
             }
         },
-        openAdd() {
+        openAdd(defaultProgram = 'trms') {
             this.editingSchedule = null
             this.form = emptyForm()
+            this.form.program_ids = [defaultProgram]
             this.form.date = new Date().toISOString().split('T')[0]
             this.show()
         },
         openEdit(schedule) {
             this.editingSchedule = schedule
-            this.form = { ...schedule }
+            this.form = { 
+                ...schedule,
+                program_ids: schedule.program_ids ? [...schedule.program_ids] : ['trms']
+            }
             this.show()
         },
-        openDay(dateKey) {
+        openDay(dateKey, defaultProgram = 'trms') {
             this.editingSchedule = null
             this.form = emptyForm()
+            this.form.program_ids = [defaultProgram]
             this.form.date = dateKey
             this.show()
         },

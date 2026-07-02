@@ -28,11 +28,14 @@
 
         <div class="content-card">
             <div class="calendar-toolbar">
-                <button class="btn btn-outline-light calendar-nav-btn" @click="prevMonth" aria-label="Previous month">
+                <button class="btn btn-outline-secondary calendar-nav-btn" @click="prevMonth" aria-label="Previous month">
                     <i class="bi bi-chevron-left"></i>
                 </button>
                 <h2 class="calendar-month-label">{{ monthYearLabel }}</h2>
-                <button class="btn btn-outline-light calendar-nav-btn" @click="nextMonth" aria-label="Next month">
+                <button class="btn btn-outline-secondary calendar-nav-btn" @click="goToToday" aria-label="Go to today">
+                    <i class="bi bi-calendar-check"></i>
+                </button>
+                <button class="btn btn-outline-secondary calendar-nav-btn" @click="nextMonth" aria-label="Next month">
                     <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
@@ -112,6 +115,14 @@
                                 <span class="text-muted">{{ formatDate(selectedSchedule.date) }}</span>
                             </div>
                             <p class="mb-3">{{ selectedSchedule.description || 'No description provided.' }}</p>
+                            <div class="mb-3" v-if="selectedSchedule.program_ids && selectedSchedule.program_ids.length > 0">
+                                <span class="text-muted small d-block mb-1">Programs / Collaborating Groups</span>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span v-for="progId in selectedSchedule.program_ids" :key="progId" class="badge bg-dark bg-opacity-50 border border-secondary border-opacity-25 text-uppercase">
+                                        {{ getProgramName(progId) }}
+                                    </span>
+                                </div>
+                            </div>
                             <div class="d-flex gap-4 text-muted small">
                                 <span><i class="bi bi-clock me-1"></i> {{ selectedSchedule.start_time }} - {{ selectedSchedule.end_time }}</span>
                             </div>
@@ -248,6 +259,9 @@ export default {
         nextMonth() {
             this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1)
         },
+        goToToday() {
+            this.currentMonth = new Date()
+        },
         getSchedulesForDate(dateKey) {
             return this.schedules.filter(s => s.date === dateKey).sort((a, b) => a.start_time.localeCompare(b.start_time))
         },
@@ -280,6 +294,15 @@ export default {
                 other: 'Other'
             }
             return map[type] || type
+        },
+        getProgramName(progId) {
+            const map = {
+                trms: 'TRMS',
+                bms: 'BMS',
+                jco: 'JCO',
+                trcc: 'TRCC'
+            }
+            return map[progId] || progId.toUpperCase()
         },
         scheduleDotClass(type) {
             const map = {

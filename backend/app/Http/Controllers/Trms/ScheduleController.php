@@ -29,8 +29,11 @@ class ScheduleController
             return;
         }
 
+        $programIds = $data['program_ids'] ?? ['trms'];
+        $primaryProgramId = !empty($programIds) ? $programIds[0] : 'trms';
+
         $schedule = [
-            'program_id' => 'trms',
+            'program_id' => $primaryProgramId,
             'title' => trim($data['title']),
             'type' => $data['type'] ?? 'lesson',
             'date' => $data['date'],
@@ -40,6 +43,10 @@ class ScheduleController
         ];
 
         $id = $this->model->create($schedule);
+        
+        // Sync multiple program associations
+        $this->model->syncPrograms($id, $programIds);
+
         http_response_code(201);
         echo json_encode(['id' => $id, 'message' => 'Schedule created successfully']);
     }
@@ -63,7 +70,19 @@ class ScheduleController
         if (isset($data['end_time'])) $updateData['end_time'] = $data['end_time'];
         if (isset($data['description'])) $updateData['description'] = trim($data['description']);
 
+        if (isset($data['program_ids'])) {
+            $programIds = $data['program_ids'];
+            if (!empty($programIds)) {
+                $updateData['program_id'] = $programIds[0];
+            }
+        }
+
         $this->model->update((int)$id, $updateData);
+
+        if (isset($data['program_ids'])) {
+            $this->model->syncPrograms((int)$id, $data['program_ids']);
+        }
+
         echo json_encode(['message' => 'Schedule updated successfully']);
     }
 

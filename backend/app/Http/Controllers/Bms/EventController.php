@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Bms;
 
-use App\Models\Event;
+use App\Models\Schedule;
 
 class EventController
 {
-    private Event $model;
+    private Schedule $model;
 
     public function __construct()
     {
-        $this->model = new Event();
+        $this->model = new Schedule();
     }
 
     public function index(): void

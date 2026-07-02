@@ -73,6 +73,15 @@ CREATE TABLE schedules (
     FOREIGN KEY (program_id) REFERENCES programs(id)
 );
 
+-- Schedule programs pivot table for multi-program collaboration
+CREATE TABLE schedule_programs (
+    schedule_id INT NOT NULL,
+    program_id VARCHAR(10) NOT NULL,
+    PRIMARY KEY (schedule_id, program_id),
+    FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+    FOREIGN KEY (program_id) REFERENCES programs(id) ON DELETE CASCADE
+);
+
 -- Members table
 CREATE TABLE members (
     id INT AUTO_INCREMENT PRIMARY KEY,
