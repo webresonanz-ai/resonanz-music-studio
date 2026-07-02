@@ -377,8 +377,14 @@ public function index(): void
         $alreadyAttended = !empty($audience['attended_at']);
 
         if (!$alreadyAttended) {
-            // First scan — mark attendance and re-fetch to get the written timestamp
-            $this->model->markAttended((int) $audience['id']);
+            $localAttendedAt = trim((string) ($data['attended_at'] ?? ''));
+
+            if ($localAttendedAt !== '') {
+                $this->model->markAttended((int) $audience['id'], $localAttendedAt);
+            } else {
+                $this->model->markAttended((int) $audience['id']);
+            }
+
             $audience = $this->model->find((int) $audience['id']);
         }
 

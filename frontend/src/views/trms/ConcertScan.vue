@@ -417,7 +417,13 @@ export default {
             this.errorMessage = ''
 
             try {
-                const response = await this.trmsStore.scanConcertRegistration(payload)
+                const localTime = new Date()
+                const localTimestamp = `${localTime.getFullYear()}-${String(localTime.getMonth() + 1).padStart(2, '0')}-${String(localTime.getDate()).padStart(2, '0')} ${String(localTime.getHours()).padStart(2, '0')}:${String(localTime.getMinutes()).padStart(2, '0')}:${String(localTime.getSeconds()).padStart(2, '0')}`
+
+                const response = await this.trmsStore.scanConcertRegistration({
+                    ...payload,
+                    attended_at: localTimestamp
+                })
                 this.result = response.data
                 this.alreadyAttended = response.already_attended === true
                 this.state = 'found'

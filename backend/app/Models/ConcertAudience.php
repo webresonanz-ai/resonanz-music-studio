@@ -68,12 +68,20 @@ public function paginate(int $perPage = 10, int $page = 1, string $search = ''):
      * Mark a registration as attended (check-in).
      * Only sets attended_at if it is currently NULL — returns false if already checked in.
      */
-    public function markAttended(int $id): bool
+    public function markAttended(int $id, ?string $attendedAt = null): bool
     {
-        $stmt = $this->db->prepare(
-            "UPDATE {$this->table} SET attended_at = NOW() WHERE id = :id AND attended_at IS NULL"
-        );
-        $stmt->execute(['id' => $id]);
+        if ($attendedAt !== null && $attendedAt !== '') {
+            $stmt = $this->db->prepare(
+                "UPDATE {$this->table} SET attended_at = :attended_at WHERE id = :id AND attended_at IS NULL"
+            );
+            $stmt->execute(['attended_at' => $attendedAt, 'id' => $id]);
+        } else {
+            $stmt = $this->db->prepare(
+                "UPDATE {$this->table} SET attended_at = NOW() WHERE id = :id AND attended_at IS NULL"
+            );
+            $stmt->execute(['id' => $id]);
+        }
+
         return $stmt->rowCount() > 0;
     }
 
