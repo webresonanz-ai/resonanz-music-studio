@@ -646,11 +646,10 @@
                     <label class="form-lbl">Year Join</label>
                     <input
                       v-model="form.year_join"
-                      type="number"
+                      type="text"
                       class="form-inp"
-                      min="1900"
-                      max="2100"
-                      placeholder="YYYY"
+                      maxlength="10"
+                      placeholder="e.g. 2019"
                     />
                   </div>
                   <div class="form-group">

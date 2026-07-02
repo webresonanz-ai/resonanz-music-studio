@@ -71,7 +71,7 @@ class Member extends Model
             return 'Status must be active or passive';
         }
 
-        if (!empty($data['year_join']) && (!is_numeric($data['year_join']) || (int) $data['year_join'] < 1900 || (int) $data['year_join'] > 2100)) {
+        if (!empty($data['year_join']) && !preg_match('/^\d{4}$/', trim($data['year_join']))) {
             return 'year_join must be a valid 4-digit year';
         }
 
@@ -95,7 +95,7 @@ class Member extends Model
             'birth_date' => $this->sanitizeDate($raw['birth_date'] ?? null),
             'domicile' => trim($raw['domicile'] ?? '') ?: null,
             'phone' => trim($raw['phone'] ?? '') ?: null,
-            'year_join' => !empty($raw['year_join']) ? (int) $raw['year_join'] : null,
+            'year_join' => trim($raw['year_join'] ?? '') ?: null,
             'field_of_work' => trim($raw['field_of_work'] ?? '') ?: null,
             'role' => in_array($raw['role'] ?? '', self::VALID_ROLES, true) ? $raw['role'] : null,
             'section' => trim($raw['section'] ?? '') ?: null,
