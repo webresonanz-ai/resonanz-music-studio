@@ -15,14 +15,15 @@ class ConcertAudienceController
         $this->model = new ConcertAudience();
     }
 
-    public function index(): void
-    {
-        header('Content-Type: application/json');
+public function index(): void
+     {
+         header('Content-Type: application/json');
 
-        $page = max(1, (int) ($_GET['page'] ?? 1));
-        $perPage = max(1, min(100, (int) ($_GET['per_page'] ?? 10)));
+         $page = max(1, (int) ($_GET['page'] ?? 1));
+         $perPage = max(1, min(100, (int) ($_GET['per_page'] ?? 10)));
+         $search = trim($_GET['search'] ?? '');
 
-        $result = $this->model->paginate($perPage, $page);
+         $result = $this->model->paginate($perPage, $page, $search);
 
         echo json_encode([
             'data' => $result['items'],

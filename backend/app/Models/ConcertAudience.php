@@ -20,27 +20,39 @@ class ConcertAudience extends Model
         return (int) $stmt->fetchColumn();
     }
 
-    public function paginate(int $perPage = 10, int $page = 1): array
-    {
-        $offset = ($page - 1) * $perPage;
+public function paginate(int $perPage = 10, int $page = 1, string $search = ''): array
+     {
+         $offset = ($page - 1) * $perPage;
 
-        $countStmt = $this->db->query("SELECT COUNT(*) FROM {$this->table}");
-        $total = (int) $countStmt->fetchColumn();
+         $whereClause = '';
+         $params = [];
 
-        $stmt = $this->db->prepare("SELECT * FROM {$this->table} ORDER BY created_at DESC LIMIT :limit OFFSET :offset");
-        $stmt->bindValue(':limit', $perPage, \PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, \PDO::PARAM_INT);
-        $stmt->execute();
-        $items = $stmt->fetchAll();
+          if ($search !== '') {
+              $whereClause = "WHERE name LIKE :search_name OR email LIKE :search_email";
+              $params[':search_name'] = '%' . $search . '%';
+              $params[':search_email'] = '%' . $search . '%';
+          }
 
-        return [
-            'items' => $items,
-            'total' => $total,
-            'per_page' => $perPage,
-            'current_page' => $page,
-            'last_page' => (int) ceil($total / $perPage),
-        ];
-    }
+          $countSql = "SELECT COUNT(*) FROM {$this->table}" . ($whereClause ? " {$whereClause}" : '');
+          $countStmt = $this->db->prepare($countSql);
+          $countStmt->execute($params);
+          $total = (int) $countStmt->fetchColumn();
+
+          $dataParams = array_merge([':limit' => $perPage, ':offset' => $offset], $params);
+          $stmt = $this->db->prepare(
+              "SELECT * FROM {$this->table}" . ($whereClause ? " {$whereClause}" : '') . " ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
+          );
+          $stmt->execute($dataParams);
+         $items = $stmt->fetchAll();
+
+         return [
+             'items' => $items,
+             'total' => $total,
+             'per_page' => $perPage,
+             'current_page' => $page,
+             'last_page' => (int) ceil($total / $perPage),
+         ];
+     }
 
     /**
      * Look up a registration by its qr_code identifier.

@@ -105,21 +105,22 @@ export const useTrmsStore = defineStore('trms', {
       return useApiStore().post(`/trms/schedule/${id}/delete`, {})
     },
 
-    async fetchConcertAudiences(params = {}) {
-      const query = new URLSearchParams()
-      if (params.page) query.set('page', params.page)
-      if (params.perPage) query.set('per_page', params.perPage)
-      const qs = query.toString()
-      const response = await useApiStore().get('/trms/concert/audiences' + (qs ? `?${qs}` : ''))
-      this.concertAudiences = response.data
-      this.concertAudiencesMeta = {
-        total: response.total,
-        perPage: response.per_page,
-        currentPage: response.current_page,
-        lastPage: response.last_page,
-      }
-      return response
-    },
+async fetchConcertAudiences(params = {}) {
+       const query = new URLSearchParams()
+       if (params.page) query.set('page', params.page)
+       if (params.perPage) query.set('per_page', params.perPage)
+       if (params.search) query.set('search', params.search)
+       const qs = query.toString()
+       const response = await useApiStore().get('/trms/concert/audiences' + (qs ? `?${qs}` : ''))
+       this.concertAudiences = response.data
+       this.concertAudiencesMeta = {
+         total: response.total,
+         perPage: response.per_page,
+         currentPage: response.current_page,
+         lastPage: response.last_page,
+       }
+       return response
+     },
 
     async submitContact(form) {
       return useApiStore().post('/trms/contact', form)
