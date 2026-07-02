@@ -45,6 +45,14 @@ $router->get('/api/bms/events', 'App\Http\Controllers\Bms\EventController@index'
 $router->get('/api/bms/members', 'App\Http\Controllers\Bms\MemberController@index');
 $router->get('/api/bms/about-us', 'App\Http\Controllers\Bms\AboutController@index');
 
+// Protected BMS member CRUD routes
+$router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
+    $router->get('/api/bms/members/{id}', 'App\Http\Controllers\Bms\MemberController@show');
+    $router->post('/api/bms/members', 'App\Http\Controllers\Bms\MemberController@store');
+    $router->post('/api/bms/members/{id}', 'App\Http\Controllers\Bms\MemberController@update');
+    $router->post('/api/bms/members/{id}/delete', 'App\Http\Controllers\Bms\MemberController@destroy');
+});
+
 $router->get('/api/jco/orchestra/members', 'App\Http\Controllers\Jco\OrchestraMemberController@index');
 $router->get('/api/jco/concerts', 'App\Http\Controllers\Jco\ConcertController@index');
 $router->get('/api/jco/gallery', 'App\Http\Controllers\Jco\GalleryController@index');

@@ -184,3 +184,56 @@ INSERT INTO programs (id, name, description, icon) VALUES
 ('bms', 'BMS', 'Batavia Madrigal Singers', 'bi-people-fill'),
 ('jco', 'JCO', 'Jakarta Concert Orchestra', 'bi-vinyl-fill'),
 ('trcc', 'TRCC', 'The Resonanz Children Choir', 'bi-trophy-fill');
+
+-- ============================================================
+-- Migration: Expand members table for BMS full member profile
+-- Run this if you already have the members table from the
+-- initial schema above. If creating fresh, use the new
+-- CREATE TABLE below instead.
+-- ============================================================
+
+-- Option A: ALTER existing table
+ALTER TABLE members
+    ADD COLUMN nickname      VARCHAR(100)  NULL                                                         AFTER name,
+    ADD COLUMN email         VARCHAR(150)  NULL                                                         AFTER nickname,
+    ADD COLUMN stage_name    VARCHAR(100)  NULL                                                         AFTER email,
+    ADD COLUMN birth_place   VARCHAR(100)  NULL                                                         AFTER stage_name,
+    ADD COLUMN birth_date    DATE          NULL                                                         AFTER birth_place,
+    ADD COLUMN domicile      VARCHAR(150)  NULL                                                         AFTER birth_date,
+    ADD COLUMN phone         VARCHAR(30)   NULL                                                         AFTER domicile,
+    ADD COLUMN year_join     INT(4)        NULL                                                         AFTER phone,
+    ADD COLUMN field_of_work VARCHAR(100)  NULL                                                         AFTER year_join,
+    ADD COLUMN section       VARCHAR(100)  NULL                                                         AFTER instrument,
+    ADD COLUMN performances  INT           NOT NULL DEFAULT 0                                           AFTER section,
+    ADD COLUMN avatar        VARCHAR(255)  NOT NULL DEFAULT 'https://voca-land.sgp1.cdn.digitaloceanspaces.com/0/1757684222527/9465e2e8.jpg',
+    MODIFY COLUMN role       ENUM('Sopran','Alto','Tenor','Bass') NULL,
+    MODIFY COLUMN status     ENUM('active','passive') NOT NULL DEFAULT 'active',
+    ADD COLUMN updated_at    TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Option B: Full CREATE for a fresh install (replaces the earlier members table definition)
+-- DROP TABLE IF EXISTS members;
+-- CREATE TABLE members (
+--     id           INT AUTO_INCREMENT PRIMARY KEY,
+--     program_id   VARCHAR(10)  NOT NULL,
+--     user_id      INT          NULL,
+--     name         VARCHAR(100) NOT NULL,
+--     nickname     VARCHAR(100) NULL,
+--     email        VARCHAR(150) NULL,
+--     stage_name   VARCHAR(100) NULL,
+--     birth_place  VARCHAR(100) NULL,
+--     birth_date   DATE         NULL,
+--     domicile     VARCHAR(150) NULL,
+--     phone        VARCHAR(30)  NULL,
+--     year_join    INT(4)       NULL,
+--     field_of_work VARCHAR(100) NULL,
+--     role         ENUM('Sopran','Alto','Tenor','Bass') NULL,
+--     section      VARCHAR(100) NULL,
+--     join_date    DATE         NULL,
+--     status       ENUM('active','passive') NOT NULL DEFAULT 'active',
+--     performances INT          NOT NULL DEFAULT 0,
+--     avatar       VARCHAR(255) NOT NULL DEFAULT 'https://voca-land.sgp1.cdn.digitaloceanspaces.com/0/1757684222527/9465e2e8.jpg',
+--     created_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+--     updated_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+--     FOREIGN KEY (program_id) REFERENCES programs(id),
+--     FOREIGN KEY (user_id)    REFERENCES users(id)
+-- );

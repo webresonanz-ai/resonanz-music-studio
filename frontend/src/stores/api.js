@@ -13,7 +13,7 @@ export const useApiStore = defineStore('api', {
     async request(endpoint, options = {}) {
       this.loading = true
       this.error = null
-      
+
       try {
         const token = localStorage.getItem('resonanz-token') || ''
         const response = await fetch(`${API_BASE}${endpoint}`, {
@@ -24,7 +24,7 @@ export const useApiStore = defineStore('api', {
           },
           ...options
         })
-        
+
         const responseText = await response.text()
         let data
 
@@ -33,11 +33,11 @@ export const useApiStore = defineStore('api', {
         } catch {
           data = { error: 'API returned an invalid response' }
         }
-        
+
         if (!response.ok) {
           throw new Error(data.error || 'API request failed')
         }
-        
+
         return data
       } catch (error) {
         this.error = error.message
@@ -144,6 +144,31 @@ export const useBmsStore = defineStore('bms', {
 
     async fetchMembers() {
       this.members = await useApiStore().get('/bms/members')
+    },
+
+    async createMember(data) {
+      const result = await useApiStore().post('/bms/members', data)
+      if (result?.data) {
+        this.members.push(result.data)
+      }
+      return result
+    },
+
+    async updateMember(id, data) {
+      const result = await useApiStore().post(`/bms/members/${id}`, data)
+      if (result?.data) {
+        const idx = this.members.findIndex(m => m.id === id)
+        if (idx !== -1) this.members.splice(idx, 1, result.data)
+      }
+      return result
+    },
+
+    async deleteMember(id) {
+      const result = await useApiStore().post(`/bms/members/${id}/delete`, {})
+      if (result?.success) {
+        this.members = this.members.filter(m => m.id !== id)
+      }
+      return result
     },
 
     async fetchAttendance() {
