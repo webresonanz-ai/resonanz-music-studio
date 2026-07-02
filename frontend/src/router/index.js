@@ -108,19 +108,18 @@ const router = createRouter({
 })
 
 // Route guard — redirect unauthorized users away from role-restricted pages
-router.beforeEach((to, _from, next) => {
+router.beforeEach((to, _from) => {
   const requiredRoles = to.meta?.roles
-  if (!requiredRoles) return next()
+  if (!requiredRoles) return true
 
   const raw = localStorage.getItem('resonanz-user')
   const user = raw ? JSON.parse(raw) : null
   const userRole = user?.role?.toLowerCase()
 
   if (user && requiredRoles.includes(userRole)) {
-    next()
+    return true
   } else {
-    // Not logged in → auth page; logged in but wrong role → back to home
-    next(user ? '/trms/home' : '/auth')
+    return user ? '/trms/home' : '/auth'
   }
 })
 

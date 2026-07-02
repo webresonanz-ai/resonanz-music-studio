@@ -22,6 +22,7 @@ export const useApiStore = defineStore('api', {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...options.headers
           },
+          cache: 'no-store',
           ...options
         })
 
