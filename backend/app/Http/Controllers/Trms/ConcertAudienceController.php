@@ -216,6 +216,124 @@ class ConcertAudienceController
         }
     }
 
+    public function show(string $id): void
+    {
+        header('Content-Type: application/json');
+        $id = (int) $id;
+
+        if ($id <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid ID']);
+            return;
+        }
+
+        $audience = $this->model->find($id);
+
+        if (!$audience) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Registration not found']);
+            return;
+        }
+
+        echo json_encode(['data' => $audience]);
+    }
+
+    public function update(string $id): void
+    {
+        header('Content-Type: application/json');
+        $id = (int) $id;
+
+        if ($id <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid ID']);
+            return;
+        }
+
+        $audience = $this->model->find($id);
+        if (!$audience) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Registration not found']);
+            return;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+
+        $allowed = ['name', 'email', 'phone', 'concert_title', 'ticket_quantity', 'notes'];
+        $updateData = [];
+        foreach ($allowed as $field) {
+            if (isset($data[$field])) {
+                $updateData[$field] = trim((string) $data[$field]);
+            }
+        }
+
+        if (isset($updateData['email']) && !filter_var($updateData['email'], FILTER_VALIDATE_EMAIL)) {
+            http_response_code(422);
+            echo json_encode(['error' => 'A valid email address is required']);
+            return;
+        }
+
+        if (empty($updateData)) {
+            http_response_code(422);
+            echo json_encode(['error' => 'No valid fields provided for update']);
+            return;
+        }
+
+        $this->model->update($id, $updateData);
+        $updated = $this->model->find($id);
+
+        echo json_encode(['success' => true, 'data' => $updated]);
+    }
+
+    public function destroy(string $id): void
+    {
+        header('Content-Type: application/json');
+        $id = (int) $id;
+
+        if ($id <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid ID']);
+            return;
+        }
+
+        $audience = $this->model->find($id);
+        if (!$audience) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Registration not found']);
+            return;
+        }
+
+        $this->model->delete($id);
+        echo json_encode(['success' => true, 'message' => 'Registration deleted successfully']);
+    }
+
+    public function resendEmail(string $id): void
+    {
+        header('Content-Type: application/json');
+        $id = (int) $id;
+
+        if ($id <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid ID']);
+            return;
+        }
+
+        $audience = $this->model->find($id);
+        if (!$audience) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Registration not found']);
+            return;
+        }
+
+        try {
+            $pdfContent = $this->generateTicketPdf($audience);
+            $this->sendRegistrationEmail($audience, $pdfContent);
+            echo json_encode(['success' => true, 'message' => 'Email resent successfully']);
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Failed to resend email: ' . $e->getMessage()]);
+        }
+    }
+
     public function downloadTicket(string $id): void
     {
         $id = (int) $id;

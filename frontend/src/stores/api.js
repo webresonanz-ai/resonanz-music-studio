@@ -127,6 +127,28 @@ export const useTrmsStore = defineStore('trms', {
 
     async submitConcertRegistration(form) {
       return useApiStore().post('/trms/concert/registration', form)
+    },
+
+    async updateConcertAudience(id, data) {
+      const result = await useApiStore().post(`/trms/concert/audiences/${id}`, data)
+      if (result?.data) {
+        const idx = this.concertAudiences.findIndex(a => a.id === id)
+        if (idx !== -1) this.concertAudiences.splice(idx, 1, result.data)
+      }
+      return result
+    },
+
+    async deleteConcertAudience(id) {
+      const result = await useApiStore().post(`/trms/concert/audiences/${id}/delete`, {})
+      if (result?.success) {
+        this.concertAudiences = this.concertAudiences.filter(a => a.id !== id)
+        this.concertAudiencesMeta.total = Math.max(0, this.concertAudiencesMeta.total - 1)
+      }
+      return result
+    },
+
+    async resendConcertEmail(id) {
+      return useApiStore().post(`/trms/concert/audiences/${id}/resend-email`, {})
     }
   }
 })
