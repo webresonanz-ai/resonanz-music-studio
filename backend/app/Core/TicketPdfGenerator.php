@@ -40,13 +40,13 @@ class TicketPdfGenerator
     private const NAME_FONT_SIZE = 18;
 
     /** QR code — top-left X (mm) */
-    private const QR_X = 79;
+    private const QR_X = 72;
 
     /** QR code — top-left Y (mm) */
-    private const QR_Y = 158;
+    private const QR_Y = 149;
 
     /** QR code — width = height (mm) */
-    private const QR_SIZE = 50;
+    private const QR_SIZE = 65;
 
     // ─────────────────────────────────────────────────────────────────────────
 
