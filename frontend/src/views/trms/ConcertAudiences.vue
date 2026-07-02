@@ -55,6 +55,7 @@
                             <th scope="col">Concert</th>
                             <th scope="col" class="text-center">Tickets</th>
                             <th scope="col">Registered</th>
+                            <th scope="col" class="text-center">Attended</th>
                             <th scope="col">Notes</th>
                             <th scope="col" class="text-center">Actions</th>
                         </tr>
@@ -71,6 +72,12 @@
                                 <span class="badge rounded-pill text-bg-warning">{{ audience.ticket_quantity }}</span>
                             </td>
                             <td>{{ formatDate(audience.created_at) }}</td>
+                            <td class="text-center">
+                                <span v-if="audience.attended_at" class="badge text-bg-success" :title="formatDate(audience.attended_at)">
+                                    <i class="bi bi-check-lg me-1"></i>{{ formatDate(audience.attended_at) }}
+                                </span>
+                                <span v-else class="badge text-bg-secondary">—</span>
+                            </td>
                             <td class="text-muted">{{ audience.notes || '-' }}</td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm" role="group" aria-label="Audience actions">

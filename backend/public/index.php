@@ -38,6 +38,7 @@ $router->post('/api/trms/schedule/{id}', 'App\Http\Controllers\Trms\ScheduleCont
 $router->post('/api/trms/schedule/{id}/delete', 'App\Http\Controllers\Trms\ScheduleController@destroy');
 $router->post('/api/trms/contact', 'App\Http\Controllers\Trms\ContactController@store');
 $router->post('/api/trms/concert/registration', 'App\Http\Controllers\Trms\ConcertAudienceController@store');
+$router->post('/api/trms/concert/scan', 'App\Http\Controllers\Trms\ConcertAudienceController@scan');
 $router->get('/api/trms/concert/audiences', 'App\Http\Controllers\Trms\ConcertAudienceController@index');
 $router->get('/api/trms/concert/audiences/{id}', 'App\Http\Controllers\Trms\ConcertAudienceController@show');
 $router->post('/api/trms/concert/audiences/{id}', 'App\Http\Controllers\Trms\ConcertAudienceController@update');

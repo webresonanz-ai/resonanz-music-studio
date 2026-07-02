@@ -334,6 +334,60 @@ class ConcertAudienceController
         }
     }
 
+    /**
+     * POST /api/trms/concert/scan
+     *
+     * Accepts { "qr_code": "SOLI_42_..." } OR { "reg_number": "42" }
+     * Looks up the registration, marks attended_at on first scan, and returns the record.
+     *
+     * Response shape:
+     *   { success: true, already_attended: false, data: {...} }  — first check-in
+     *   { success: true, already_attended: true,  data: {...} }  — duplicate scan
+     */
+    public function scan(): void
+    {
+        header('Content-Type: application/json');
+
+        $data = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+
+        $qrCode    = trim($data['qr_code'] ?? '');
+        $regNumber = trim($data['reg_number'] ?? '');
+
+        if ($qrCode === '' && $regNumber === '') {
+            http_response_code(422);
+            echo json_encode(['error' => 'Provide either qr_code or reg_number']);
+            return;
+        }
+
+        if ($qrCode !== '') {
+            $audience = $this->model->findByQrCode($qrCode);
+        } else {
+            $id = (int) $regNumber;
+            $audience = $id > 0 ? $this->model->find($id) : false;
+        }
+
+        if (!$audience) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Registration not found']);
+            return;
+        }
+
+        // Already checked in before this scan?
+        $alreadyAttended = !empty($audience['attended_at']);
+
+        if (!$alreadyAttended) {
+            // First scan — mark attendance and re-fetch to get the written timestamp
+            $this->model->markAttended((int) $audience['id']);
+            $audience = $this->model->find((int) $audience['id']);
+        }
+
+        echo json_encode([
+            'success'          => true,
+            'already_attended' => $alreadyAttended,
+            'data'             => $audience,
+        ]);
+    }
+
     public function downloadTicket(string $id): void
     {
         $id = (int) $id;

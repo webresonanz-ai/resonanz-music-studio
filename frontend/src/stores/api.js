@@ -149,6 +149,11 @@ export const useTrmsStore = defineStore('trms', {
 
     async resendConcertEmail(id) {
       return useApiStore().post(`/trms/concert/audiences/${id}/resend-email`, {})
+    },
+
+    async scanConcertRegistration(payload) {
+      // payload: { qr_code: '...' } or { reg_number: '...' }
+      return useApiStore().post('/trms/concert/scan', payload)
     }
   }
 })

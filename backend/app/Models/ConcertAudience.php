@@ -43,6 +43,29 @@ class ConcertAudience extends Model
     }
 
     /**
+     * Look up a registration by its qr_code identifier.
+     */
+    public function findByQrCode(string $qrCode): array|false
+    {
+        $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE qr_code = :qr_code LIMIT 1");
+        $stmt->execute(['qr_code' => $qrCode]);
+        return $stmt->fetch();
+    }
+
+    /**
+     * Mark a registration as attended (check-in).
+     * Only sets attended_at if it is currently NULL — returns false if already checked in.
+     */
+    public function markAttended(int $id): bool
+    {
+        $stmt = $this->db->prepare(
+            "UPDATE {$this->table} SET attended_at = NOW() WHERE id = :id AND attended_at IS NULL"
+        );
+        $stmt->execute(['id' => $id]);
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
      * Persist the generated QR code string for a registration record.
      */
     public function updateQrCode(int $id, string $qrCode): bool
