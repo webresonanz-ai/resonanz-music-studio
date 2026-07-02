@@ -54,6 +54,13 @@ class ConcertAudienceController
             return;
         }
 
+        $maxCapacity = 600;
+        if ($this->model->count() >= $maxCapacity) {
+            http_response_code(409);
+            echo json_encode(['error' => 'We\'re sorry, the maximum capacity for this concert has been reached. Registration is now closed.']);
+            return;
+        }
+
         try {
             $id = $this->model->create([
                 'program_id' => 'trms',

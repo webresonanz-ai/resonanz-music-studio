@@ -14,6 +14,12 @@ class ConcertAudience extends Model
         return $stmt->fetchAll();
     }
 
+    public function count(): int
+    {
+        $stmt = $this->db->query("SELECT COUNT(*) FROM {$this->table}");
+        return (int) $stmt->fetchColumn();
+    }
+
     public function paginate(int $perPage = 10, int $page = 1): array
     {
         $offset = ($page - 1) * $perPage;

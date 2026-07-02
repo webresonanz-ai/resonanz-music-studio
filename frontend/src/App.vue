@@ -10,22 +10,22 @@
     >
       <i class="bi bi-list"></i>
     </button>
-    
+
     <div v-if="sidebarOpen && !hideShellNav" class="sidebar-backdrop" @click="closeSidebar"></div>
 
     <AppSidebar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @navigate="closeSidebar" />
-    
+
     <div class="main-content" :class="{ 'main-content-full': hideShellNav }">
       <AppNavbar v-if="!hideShellNav" />
-      
+
       <div class="content-area mt-4">
         <router-view v-slot="{ Component }">
           <transition name="fade" mode="out-in">
-            <component :is="Component" :key="$route.fullPath" />
+            <component :is="Component" />
           </transition>
         </router-view>
       </div>
-      
+
       <AppFooter />
     </div>
   </div>
@@ -51,7 +51,7 @@ export default {
     const route = useRoute()
     const navigationStore = useNavigationStore()
     const hideShellNav = computed(() => route.meta.hideShellNav === true)
-    
+
     const toggleSidebar = () => {
       sidebarOpen.value = !sidebarOpen.value
     }
@@ -71,7 +71,7 @@ export default {
       },
       { immediate: true }
     )
-    
+
     return {
       sidebarOpen,
       hideShellNav,

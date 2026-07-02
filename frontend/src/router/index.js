@@ -46,6 +46,7 @@ const routes = [
   {
     path: '/trms',
     children: [
+      { path: '', redirect: '/trms/home' },
       { path: 'home', component: TRMSHome },
       { path: 'courses-fees', component: CoursesFees },
       { path: 'facilitation', component: Facilitation },
@@ -63,6 +64,7 @@ const routes = [
   {
     path: '/bms',
     children: [
+      { path: '', redirect: '/bms/home' },
       { path: 'home', component: BMSHome },
       { path: 'events', component: Events },
       { path: 'members', component: Members },
@@ -74,6 +76,7 @@ const routes = [
   {
     path: '/jco',
     children: [
+      { path: '', redirect: '/jco/home' },
       { path: 'home', component: JCOHome },
       { path: 'orchestra', component: Orchestra },
       { path: 'orchestra/profile', component: OrchestraProfile },
@@ -88,6 +91,7 @@ const routes = [
   {
     path: '/trcc',
     children: [
+      { path: '', redirect: '/trcc/home' },
       { path: 'home', component: TRCCHome },
       { path: 'achievements', component: Achievements },
       { path: 'testimonial', component: Testimonial },
