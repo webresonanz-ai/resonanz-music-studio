@@ -119,6 +119,10 @@
                                 <span class="text-muted small d-block mb-1">Venue</span>
                                 <span><i class="bi bi-geo-alt me-1"></i>{{ selectedSchedule.venue }}</span>
                             </div>
+                            <div class="mb-3" v-if="selectedSchedule.concert_code">
+                                <span class="text-muted small d-block mb-1">Concert Code</span>
+                                <span class="badge bg-warning text-dark">{{ selectedSchedule.concert_code }}</span>
+                            </div>
                             <div class="mb-3" v-if="selectedSchedule.program_ids && selectedSchedule.program_ids.length > 0">
                                 <span class="text-muted small d-block mb-1">Programs / Collaborating Groups</span>
                                 <div class="d-flex flex-wrap gap-1">

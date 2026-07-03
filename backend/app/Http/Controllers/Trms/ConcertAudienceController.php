@@ -112,8 +112,9 @@ public function index(): void
             return;
         }
 
-        // Generate the unique QR code string and persist it
-        $qrCode = ConcertAudience::buildQrCode(trim($data['concert_title']), $id);
+        // Generate the unique QR code string from the schedule concert_code and persist it.
+        $concertCode = trim((string) ($schedule['concert_code'] ?? ''));
+        $qrCode = ConcertAudience::buildQrCode($concertCode, $id);
         $this->model->updateQrCode($id, $qrCode);
 
         http_response_code(201);
@@ -372,7 +373,7 @@ public function index(): void
     /**
      * POST /api/trms/concert/scan
      *
-     * Accepts { "qr_code": "SOLI_42_..." } OR { "reg_number": "42" }
+     * Accepts { "qr_code": "SDG_42_..." } OR { "reg_number": "42" }
      * Looks up the registration, marks attended_at on first scan, and returns the record.
      *
      * Response shape:

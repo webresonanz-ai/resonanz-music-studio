@@ -40,6 +40,7 @@ class ScheduleController
             'start_time' => $data['start_time'],
             'end_time' => $data['end_time'],
             'venue' => trim($data['venue'] ?? ''),
+            'concert_code' => $this->normalizeConcertCode($data['concert_code'] ?? ''),
             'description' => $data['description'] ?? '',
             'banner_url' => trim($data['banner_url'] ?? ''),
             'is_open_register' => !empty($data['is_open_register']) ? 1 : 0,
@@ -73,6 +74,7 @@ class ScheduleController
         if (isset($data['start_time'])) $updateData['start_time'] = $data['start_time'];
         if (isset($data['end_time'])) $updateData['end_time'] = $data['end_time'];
         if (array_key_exists('venue', $data)) $updateData['venue'] = trim($data['venue'] ?? '');
+        if (array_key_exists('concert_code', $data)) $updateData['concert_code'] = $this->normalizeConcertCode($data['concert_code'] ?? '');
         if (isset($data['description'])) $updateData['description'] = trim($data['description']);
         if (array_key_exists('banner_url', $data)) $updateData['banner_url'] = trim($data['banner_url'] ?? '');
         if (array_key_exists('is_open_register', $data)) $updateData['is_open_register'] = !empty($data['is_open_register']) ? 1 : 0;
@@ -105,5 +107,10 @@ class ScheduleController
 
         $this->model->delete((int)$id);
         echo json_encode(['message' => 'Schedule deleted successfully']);
+    }
+
+    private function normalizeConcertCode(string $value): string
+    {
+        return strtoupper(preg_replace('/[^A-Za-z0-9]/', '', trim($value)));
     }
 }

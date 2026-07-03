@@ -94,6 +94,18 @@
                                     ></textarea>
                                 </div>
                                 <div class="col-12" v-if="form.type === 'concert'">
+                                    <label for="scheduleConcertCode" class="form-label">Concert Code</label>
+                                    <input
+                                        id="scheduleConcertCode"
+                                        v-model.trim="form.concert_code"
+                                        class="form-control text-uppercase"
+                                        type="text"
+                                        maxlength="50"
+                                        placeholder="e.g. SDG"
+                                    >
+                                    <div class="form-text">Used as the QR code prefix for audience tickets.</div>
+                                </div>
+                                <div class="col-12" v-if="form.type === 'concert'">
                                     <label for="scheduleBannerUrl" class="form-label">Concert Banner URL</label>
                                     <input
                                         id="scheduleBannerUrl"
@@ -183,6 +195,7 @@ const emptyForm = () => ({
     start_time: '09:00',
     end_time: '10:00',
     venue: '',
+    concert_code: '',
     description: '',
     banner_url: '',
     is_open_register: false,

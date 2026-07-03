@@ -68,6 +68,7 @@ CREATE TABLE schedules (
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
     venue VARCHAR(150),
+    concert_code VARCHAR(50),
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -172,14 +173,14 @@ CREATE TABLE concert_audiences (
     concert_title VARCHAR(150) NOT NULL,
     ticket_quantity INT NOT NULL DEFAULT 1,
     notes TEXT,
-    qr_code VARCHAR(100) DEFAULT NULL COMMENT 'Format: {firstWord}_{id}_{timestamp}_{rand4}',
+    qr_code VARCHAR(100) DEFAULT NULL COMMENT 'Format: {concertCode}_{id}_{timestamp}_{rand4}',
     attended_at TIMESTAMP NULL DEFAULT NULL COMMENT 'Set when the ticket QR is scanned at the door',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (program_id) REFERENCES programs(id)
 );
 
 -- Migration: add qr_code to existing installations
--- ALTER TABLE concert_audiences ADD COLUMN qr_code VARCHAR(100) DEFAULT NULL COMMENT 'Format: {firstWord}_{id}_{timestamp}_{rand4}' AFTER notes;
+-- ALTER TABLE concert_audiences ADD COLUMN qr_code VARCHAR(100) DEFAULT NULL COMMENT 'Format: {concertCode}_{id}_{timestamp}_{rand4}' AFTER notes;
 
 -- Migration: add attended_at for ticket scan check-in
 -- ALTER TABLE concert_audiences ADD COLUMN attended_at TIMESTAMP NULL DEFAULT NULL AFTER qr_code;

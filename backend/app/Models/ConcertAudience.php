@@ -109,15 +109,14 @@ public function paginate(int $perPage = 10, int $page = 1, string $search = ''):
     /**
      * Build the unique QR code identifier string.
      *
-     * Format: {firstWordOfConcert}_{id}_{timestamp}_{rand4}
-     * Example: SOLI_42_1751234567_A3kZ
+     * Format: {concertCode}_{id}_{timestamp}_{rand4}
+     * Example: SDG_42_1751234567_A3KZ
      */
-    public static function buildQrCode(string $concertTitle, int $id): string
+    public static function buildQrCode(string $concertCode, int $id): string
     {
-        // First word of the concert title, uppercased, non-alphanumeric chars stripped
-        $firstWord = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', explode(' ', trim($concertTitle))[0]));
-        if ($firstWord === '') {
-            $firstWord = 'CONCERT';
+        $code = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', trim($concertCode)));
+        if ($code === '') {
+            $code = 'CONCERT';
         }
 
         $timestamp = time();
@@ -129,6 +128,6 @@ public function paginate(int $perPage = 10, int $page = 1, string $search = ''):
             $rand4 .= $chars[random_int(0, strlen($chars) - 1)];
         }
 
-        return "{$firstWord}_{$id}_{$timestamp}_{$rand4}";
+        return "{$code}_{$id}_{$timestamp}_{$rand4}";
     }
 }

@@ -122,7 +122,7 @@
                                         v-model.trim="manualValue"
                                         type="text"
                                         class="form-control form-control-lg"
-                                        placeholder="e.g. SOLI_42_… or 42"
+                                        placeholder="e.g. SDG_42_… or 42"
                                         autocomplete="off"
                                         autofocus
                                         @keydown.enter.prevent="submitManual"
