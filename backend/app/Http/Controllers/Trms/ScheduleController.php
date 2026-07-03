@@ -40,7 +40,9 @@ class ScheduleController
             'start_time' => $data['start_time'],
             'end_time' => $data['end_time'],
             'description' => $data['description'] ?? '',
-            'banner_url' => trim($data['banner_url'] ?? '')
+            'banner_url' => trim($data['banner_url'] ?? ''),
+            'is_open_register' => !empty($data['is_open_register']) ? 1 : 0,
+            'audience_capacity' => isset($data['audience_capacity']) && $data['audience_capacity'] !== '' ? (int) $data['audience_capacity'] : null,
         ];
 
         $id = $this->model->create($schedule);
@@ -71,6 +73,8 @@ class ScheduleController
         if (isset($data['end_time'])) $updateData['end_time'] = $data['end_time'];
         if (isset($data['description'])) $updateData['description'] = trim($data['description']);
         if (array_key_exists('banner_url', $data)) $updateData['banner_url'] = trim($data['banner_url'] ?? '');
+        if (array_key_exists('is_open_register', $data)) $updateData['is_open_register'] = !empty($data['is_open_register']) ? 1 : 0;
+        if (array_key_exists('audience_capacity', $data)) $updateData['audience_capacity'] = ($data['audience_capacity'] !== '' && $data['audience_capacity'] !== null) ? (int) $data['audience_capacity'] : null;
 
         if (isset($data['program_ids'])) {
             $programIds = $data['program_ids'];

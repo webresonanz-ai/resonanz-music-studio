@@ -32,11 +32,15 @@
                             </div>
                             <p v-if="concert.description" class="concert-slide__desc">{{ concert.description }}</p>
                             <router-link
+                                v-if="concert.is_open_register"
                                 :to="`/trms/concert/registration/${slugify(concert.title)}`"
                                 class="btn btn-warning btn-lg mt-3 fw-bold"
                             >
                                 <i class="bi bi-ticket-perforated me-2"></i>Register Now
                             </router-link>
+                            <div v-else class="mt-3">
+                                <span class="badge bg-secondary text-white px-3 py-2 fs-6">Registration Closed</span>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -93,6 +93,35 @@
                                     >
                                     <div class="form-text">Optional banner image shown on the homepage slideshow.</div>
                                 </div>
+                                <div class="col-md-6" v-if="form.type === 'concert'">
+                                    <label for="scheduleAudienceCapacity" class="form-label">Audience Capacity</label>
+                                    <input
+                                        id="scheduleAudienceCapacity"
+                                        v-model.number="form.audience_capacity"
+                                        class="form-control"
+                                        type="number"
+                                        min="1"
+                                        placeholder="e.g. 500"
+                                    >
+                                    <div class="form-text">Leave empty for unlimited registrations.</div>
+                                </div>
+                                <div class="col-md-6 d-flex align-items-center" v-if="form.type === 'concert'">
+                                    <div class="form-check form-switch">
+                                        <input
+                                            id="scheduleIsOpenRegister"
+                                            v-model="form.is_open_register"
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            role="switch"
+                                        >
+                                        <label for="scheduleIsOpenRegister" class="form-check-label fw-semibold">
+                                            Open for Registration
+                                        </label>
+                                        <div class="form-text mt-1">
+                                            When enabled, the "Register Now" button appears publicly.
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="col-12">
                                     <label class="form-label d-block">Programs / Collaborating Groups</label>
                                     <div class="d-flex flex-wrap gap-4 p-3 rounded border border-secondary border-opacity-25 bg-light bg-opacity-10">
@@ -144,6 +173,8 @@ const emptyForm = () => ({
     end_time: '10:00',
     description: '',
     banner_url: '',
+    is_open_register: false,
+    audience_capacity: null,
     program_ids: ['trms']
 })
 

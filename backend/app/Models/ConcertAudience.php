@@ -20,6 +20,16 @@ class ConcertAudience extends Model
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Count registrations for a specific concert schedule.
+     */
+    public function countBySchedule(int $scheduleId): int
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM {$this->table} WHERE schedule_id = :schedule_id");
+        $stmt->execute(['schedule_id' => $scheduleId]);
+        return (int) $stmt->fetchColumn();
+    }
+
 public function paginate(int $perPage = 10, int $page = 1, string $search = ''): array
      {
          $offset = ($page - 1) * $perPage;

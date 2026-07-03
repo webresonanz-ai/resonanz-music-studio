@@ -38,7 +38,15 @@
                 <router-link class="btn btn-sm btn-outline-primary ms-auto" to="/trms/concert/select">Select Concert</router-link>
             </div>
 
-            <form @submit.prevent="submitRegistration">
+            <!-- Registration closed notice -->
+            <div v-else-if="selectedConcert && !selectedConcert.is_open_register" class="py-4 text-center">
+                <i class="bi bi-lock-fill display-1 text-muted d-block mb-3 opacity-50"></i>
+                <h2 class="h4 fw-bold mb-2">Registration is Closed</h2>
+                <p class="text-muted mb-4">Registration for <strong>{{ selectedConcert.title }}</strong> is currently not open.<br>Please check back later.</p>
+                <router-link class="btn btn-outline-primary" to="/trms/home">Back to Home</router-link>
+            </div>
+
+            <form v-else @submit.prevent="submitRegistration">
                 <div v-if="successMessage" class="alert alert-success d-flex align-items-center gap-2" role="alert">
                     <i class="bi bi-check-circle-fill"></i>
                     <span>{{ successMessage }}</span>
@@ -91,7 +99,7 @@
                 </div>
 
                 <div class="d-flex gap-3 mt-4">
-                    <button class="btn btn-primary btn-lg" type="submit" :disabled="loading || loadingSchedule || (concertTitleParam && !selectedConcert)">
+                    <button class="btn btn-primary btn-lg" type="submit" :disabled="loading || loadingSchedule || (concertTitleParam && !selectedConcert) || (selectedConcert && !selectedConcert.is_open_register)">
                         <span v-if="loading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                         <i v-else class="bi bi-send-check me-2"></i>
                         {{ loading ? 'Submitting...' : 'Submit Registration' }}
@@ -227,6 +235,7 @@ export default {
                     email: this.form.email,
                     phone: this.form.phone,
                     concert_title: this.selectedConcert.title,
+                    schedule_id: this.selectedConcert.id,
                     ticket_quantity: 1,
                     notes: 'Guest',
                     created_at: localTimestamp

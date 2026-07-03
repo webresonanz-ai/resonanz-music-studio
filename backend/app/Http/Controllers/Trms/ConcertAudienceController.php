@@ -5,14 +5,17 @@ namespace App\Http\Controllers\Trms;
 use App\Core\Mail;
 use App\Core\TicketPdfGenerator;
 use App\Models\ConcertAudience;
+use App\Models\Schedule;
 
 class ConcertAudienceController
 {
     private ConcertAudience $model;
+    private Schedule $scheduleModel;
 
     public function __construct()
     {
         $this->model = new ConcertAudience();
+        $this->scheduleModel = new Schedule();
     }
 
 public function index(): void
@@ -55,22 +58,47 @@ public function index(): void
             return;
         }
 
-        $maxCapacity = 600;
-        if ($this->model->count() >= $maxCapacity) {
-            http_response_code(409);
-            echo json_encode(['error' => 'We\'re sorry, the maximum capacity for this concert has been reached. Registration is now closed.']);
-            return;
+        // ── Resolve schedule and enforce open-register + capacity ──────────
+        $scheduleId = !empty($data['schedule_id']) ? (int) $data['schedule_id'] : null;
+        $schedule   = $scheduleId ? $this->scheduleModel->find($scheduleId) : null;
+
+        if ($schedule) {
+            // Check registration is open
+            if (empty($schedule['is_open_register'])) {
+                http_response_code(409);
+                echo json_encode(['error' => 'Registration for this concert is currently closed.']);
+                return;
+            }
+
+            // Check per-concert capacity
+            if (!empty($schedule['audience_capacity'])) {
+                $registered = $this->model->countBySchedule($scheduleId);
+                if ($registered >= (int) $schedule['audience_capacity']) {
+                    http_response_code(409);
+                    echo json_encode(['error' => 'We\'re sorry, the maximum capacity for this concert has been reached. Registration is now closed.']);
+                    return;
+                }
+            }
+        } else {
+            // Fallback: no schedule_id sent — use legacy global cap of 600
+            $maxCapacity = 600;
+            if ($this->model->count() >= $maxCapacity) {
+                http_response_code(409);
+                echo json_encode(['error' => 'We\'re sorry, the maximum capacity for this concert has been reached. Registration is now closed.']);
+                return;
+            }
         }
 
         try {
             $createData = [
-                'program_id' => 'trms',
-                'name' => trim($data['name']),
-                'email' => trim($data['email']),
-                'phone' => trim($data['phone']),
+                'program_id'    => 'trms',
+                'schedule_id'   => $scheduleId,
+                'name'          => trim($data['name']),
+                'email'         => trim($data['email']),
+                'phone'         => trim($data['phone']),
                 'concert_title' => trim($data['concert_title']),
                 'ticket_quantity' => 1,
-                'notes' => trim($data['notes'] ?? 'Guest')
+                'notes'         => trim($data['notes'] ?? 'Guest')
             ];
 
             if (!empty($data['created_at'])) {
