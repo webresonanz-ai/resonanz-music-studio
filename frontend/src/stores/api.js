@@ -57,6 +57,29 @@ export const useApiStore = defineStore('api', {
         method: 'POST',
         body: JSON.stringify(data)
       })
+    },
+
+    async fetchBlob(endpoint) {
+      const token = localStorage.getItem('resonanz-token') || ''
+      const API_ROOT = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const base = `${API_ROOT.replace(/\/$/, '')}/api`
+
+      const response = await fetch(`${base}${endpoint}`, {
+        method: 'GET',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        cache: 'no-store'
+      })
+
+      if (!response.ok) {
+        const text = await response.text()
+        let msg = 'Request failed'
+        try { msg = JSON.parse(text).error || msg } catch {}
+        throw new Error(msg)
+      }
+
+      return response.blob()
     }
   }
 })

@@ -8,17 +8,22 @@ class AuthMiddleware
 {
     public function handle(): void
     {
-        $token = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        // Try Authorization header first
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $token = '';
+        
+        if (!empty($authHeader) && preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
+            $token = $matches[1] ?? '';
+        }
+        
+        // Fallback to query parameter for direct browser access (e.g. PDF downloads)
+        if (empty($token)) {
+            $token = $_GET['token'] ?? '';
+        }
         
         if (empty($token)) {
             $this->unauthorized('No token provided');
         }
-
-        if (!preg_match('/Bearer\s+(.*)$/i', $token, $matches)) {
-            $this->unauthorized('Invalid token format');
-        }
-
-        $token = $matches[1] ?? '';
         
         if (!$this->validateToken($token)) {
             $this->unauthorized('Invalid or expired token');

@@ -12,6 +12,7 @@ import ConcertSelection from '../views/trms/ConcertSelection.vue'
 import ConcertRegistration from '../views/trms/ConcertRegistration.vue'
 import ConcertAudiences from '../views/trms/ConcertAudiences.vue'
 import ConcertScan from '../views/trms/ConcertScan.vue'
+import TicketPreview from '../views/trms/TicketPreview.vue'
 
 // BMS Views
 import BMSHome from '../views/bms/BMSHome.vue'
@@ -59,7 +60,8 @@ const routes = [
       { path: 'concert/registration', component: ConcertRegistration, meta: { hideShellNav: true } },
       { path: 'concert/registration/:concertTitle', component: ConcertRegistration, meta: { hideShellNav: true } },
       { path: 'concert/audiences', component: ConcertAudiences, meta: { roles: ['admin', 'manager'] } },
-      { path: 'concert/scan', component: ConcertScan, meta: { roles: ['admin', 'manager'] } }
+      { path: 'concert/scan', component: ConcertScan, meta: { roles: ['admin', 'manager'] } },
+      { path: 'concert/ticket/:id', component: TicketPreview, meta: { roles: ['admin', 'manager'] } }
     ]
   },
   // BMS Routes

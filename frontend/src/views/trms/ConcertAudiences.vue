@@ -1,4 +1,5 @@
 <template>
+  <div>
   <div class="fade-in-up">
     <div class="content-card mb-4">
       <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
@@ -477,6 +478,7 @@
     </Transition>
     <div v-if="emailModal.visible" class="modal-backdrop fade show"></div>
   </Teleport>
+  </div>
 </template>
 
 <script>
@@ -600,9 +602,7 @@ export default {
     },
 
     downloadTicketPdf(id) {
-      const apiRoot = import.meta.env.VITE_API_URL || "http://localhost:8000";
-      const url = `${apiRoot.replace(/\/$/, "")}/api/trms/concert/ticket/${id}`;
-      window.open(url, "_blank", "noopener,noreferrer");
+      this.$router.push(`/trms/concert/ticket/${id}`);
     },
 
     // ── Edit ──────────────────────────────────────────────────────────

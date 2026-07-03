@@ -24,12 +24,20 @@ class RoleMiddleware
         // Token is already validated by AuthMiddleware which runs first.
         // We still need the user's role, so we re-fetch from the token.
         $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $token = '';
 
-        if (!preg_match('/Bearer\s+(.+)$/i', $authHeader, $matches)) {
-            $this->deny(401, 'Authentication required');
+        if (!empty($authHeader) && preg_match('/Bearer\s+(.+)$/i', $authHeader, $matches)) {
+            $token = $matches[1];
         }
 
-        $token = $matches[1];
+        // Fallback to query parameter (same as AuthMiddleware)
+        if (empty($token)) {
+            $token = $_GET['token'] ?? '';
+        }
+
+        if (empty($token)) {
+            $this->deny(401, 'Authentication required');
+        }
 
         $stmt = Database::getInstance()->prepare(
             'SELECT role FROM users
