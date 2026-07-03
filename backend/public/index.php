@@ -6,6 +6,7 @@ use App\Core\Router;
 use App\Http\Middleware\CorsMiddleware;
 use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\JsonMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use Dotenv\Dotenv;
 
 $dotenv = Dotenv::createImmutable(__DIR__ . '/..');
@@ -51,6 +52,7 @@ $router->get('/api/bms/members', 'App\Http\Controllers\Bms\MemberController@inde
 $router->get('/api/bms/about-us', 'App\Http\Controllers\Bms\AboutController@index');
 $router->get('/api/bms/attendance/concerts', 'App\Http\Controllers\Bms\AttendanceController@concerts');
 $router->get('/api/bms/attendance/concerts/{id}', 'App\Http\Controllers\Bms\AttendanceController@show');
+$router->get('/api/bms/attendance/concerts/{id}/by-date/{date}', 'App\Http\Controllers\Bms\AttendanceController@byDate');
 
 // Protected BMS member CRUD routes
 $router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
@@ -71,11 +73,12 @@ $router->get('/api/trcc/testimonials', 'App\Http\Controllers\Trcc\TestimonialCon
 $router->get('/api/trcc/about-us', 'App\Http\Controllers\Trcc\AboutController@index');
 $router->post('/api/trcc/contact', 'App\Http\Controllers\Trcc\ContactController@store');
 
-// Protected BMS attendance routes
-$router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
+// Protected BMS attendance routes — admin, manager, singers_manager only
+RoleMiddleware::$roles = ['admin', 'manager', 'singers_manager'];
+$router->group(['middleware' => [AuthMiddleware::class, RoleMiddleware::class]], function ($router) {
     $router->post('/api/bms/attendance/roster', 'App\Http\Controllers\Bms\AttendanceController@updateRoster');
+    $router->post('/api/bms/attendance/rehearsals', 'App\Http\Controllers\Bms\AttendanceController@updateRehearsals');
     $router->post('/api/bms/attendance/record', 'App\Http\Controllers\Bms\AttendanceController@record');
-});
-
-// Run the application
+    $router->post('/api/bms/attendance/record/bulk', 'App\Http\Controllers\Bms\AttendanceController@recordBulk');
+});// Run the application
 $router->dispatch();

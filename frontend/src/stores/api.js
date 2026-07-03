@@ -232,6 +232,44 @@ export const useBmsStore = defineStore('bms', {
         member_id: memberId,
         status
       })
+    },
+
+    async fetchAttendanceByDate(concertId, date) {
+      return useApiStore().get(`/bms/attendance/concerts/${concertId}/by-date/${date}`)
+    },
+
+    async updateConcertRehearsals(concertScheduleId, rehearsalIds) {
+      const result = await useApiStore().post('/bms/attendance/rehearsals', {
+        concert_schedule_id: concertScheduleId,
+        rehearsal_ids: rehearsalIds
+      })
+      if (result?.rehearsals && this.attendanceDetail) {
+        this.attendanceDetail.rehearsals = result.rehearsals
+        this.attendanceDetail.linked_rehearsal_ids = rehearsalIds
+      }
+      return result
+    },
+
+    async linkRehearsal(concertScheduleId, rehearsalId, action = 'link') {
+      const result = await useApiStore().post('/bms/attendance/rehearsals', {
+        concert_schedule_id: concertScheduleId,
+        rehearsal_id: rehearsalId,
+        action
+      })
+      if (result?.rehearsals && this.attendanceDetail) {
+        this.attendanceDetail.rehearsals = result.rehearsals
+        this.attendanceDetail.linked_rehearsal_ids = result.rehearsals.map(r => r.id)
+      }
+      return result
+    },
+
+    async recordBulkAttendance({ concertScheduleId, scheduleId, presentMemberIds, markAbsent = false }) {
+      return useApiStore().post('/bms/attendance/record/bulk', {
+        concert_schedule_id: concertScheduleId,
+        schedule_id: scheduleId,
+        present_member_ids: presentMemberIds,
+        mark_absent: markAbsent
+      })
     }
   }
 })

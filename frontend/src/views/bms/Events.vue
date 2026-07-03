@@ -168,7 +168,7 @@
                                 <span class="text-muted">{{ formatDate(selectedEvent.date) }}</span>
                             </div>
                             <p class="mb-3">{{ selectedEvent.description || 'No description provided.' }}</p>
-                            
+
                             <div class="mb-3" v-if="selectedEvent.program_ids && selectedEvent.program_ids.length > 0">
                                 <span class="text-muted small d-block mb-1">Programs / Collaborating Groups</span>
                                 <div class="d-flex flex-wrap gap-1">
@@ -233,10 +233,14 @@ export default {
             if (!this.events || !Array.isArray(this.events)) return []
 
             const today = new Date().toISOString().split('T')[0]
-            
+            const internalTypes = ['practice', 'rehearsal']
+
             return this.events
                 .filter(event => {
                     if (event.date < today) return false
+                    // Hide BMS-only practice/rehearsal schedules — those belong in Attendance only
+                    const isBms = Array.isArray(event.program_ids) && event.program_ids.includes('bms')
+                    if (isBms && internalTypes.includes(event.type)) return false
                     if (this.activeTypeFilter && event.type !== this.activeTypeFilter) return false
                     if (this.searchQuery) {
                         const q = this.searchQuery.toLowerCase()
@@ -263,7 +267,7 @@ export default {
     methods: {
         ...mapActions(useBmsStore, ['fetchEvents']),
         ...mapActions(useTrmsStore, { storeDeleteSchedule: 'deleteSchedule', createSchedule: 'createSchedule', updateSchedule: 'updateSchedule' }),
-        
+
         formatTime(value) {
             return String(value || '').slice(0, 5)
         },

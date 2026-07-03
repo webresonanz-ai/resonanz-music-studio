@@ -70,7 +70,7 @@ const routes = [
       { path: 'home', component: BMSHome },
       { path: 'events', component: Events },
       { path: 'members', component: Members },
-      { path: 'attendance', component: Attendance },
+      { path: 'attendance', component: Attendance, meta: { roles: ['admin', 'manager', 'singers_manager'] } },
       { path: 'about-us', component: BMSAboutUs }
     ]
   },
@@ -122,11 +122,17 @@ router.beforeEach((to, _from) => {
   const user = raw ? JSON.parse(raw) : null
   const userRole = user?.role?.toLowerCase()
 
-  if (user && requiredRoles.includes(userRole)) {
-    return true
-  } else {
-    return user ? '/trms/home' : '/auth'
+  if (!user) {
+    // Not logged in — send to auth, then back here after login
+    return { path: '/auth', query: { redirect: to.fullPath } }
   }
+
+  if (requiredRoles.includes(userRole)) {
+    return true
+  }
+
+  // Logged in but wrong role — send to their home with a flag
+  return { path: '/bms/home', query: { unauthorized: '1' } }
 })
 
 export default router

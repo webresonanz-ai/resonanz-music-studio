@@ -43,42 +43,53 @@
     <div class="filters-bar mb-4">
       <!-- Row 1: search + view toggle + per-page -->
       <div class="filters-top-row">
-        <div class="search-wrap" style="flex:1;min-width:0">
-        <i class="bi bi-search search-icon"></i>
-        <input
-          v-model="search"
-          type="text"
-          class="search-input"
-          placeholder="Search by name, nickname, or stage name…"
-        />
-        <button v-if="search" class="search-clear" @click="search = ''" aria-label="Clear search">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
+        <div class="search-wrap" style="flex: 1; min-width: 0">
+          <i class="bi bi-search search-icon"></i>
+          <input
+            v-model="search"
+            type="text"
+            class="search-input"
+            placeholder="Search by name, nickname, or stage name…"
+          />
+          <button v-if="search" class="search-clear" @click="search = ''" aria-label="Clear search">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
 
-      <!-- View toggle + per-page -->
-      <div class="view-controls">
-        <div class="view-toggle" role="group" aria-label="View mode">
-          <button class="view-btn" :class="{ active: viewMode === 'card' }"
-            @click="viewMode = 'card'" title="Card view" aria-pressed="viewMode === 'card'">
-            <i class="bi bi-grid-3x3-gap-fill"></i>
-          </button>
-          <button class="view-btn" :class="{ active: viewMode === 'list' }"
-            @click="viewMode = 'list'" title="List view" aria-pressed="viewMode === 'list'">
-            <i class="bi bi-list-ul"></i>
-          </button>
-        </div>
-        <div class="perpage-wrap">
-          <label class="perpage-label" :for="'perpage-select'">Show</label>
-          <select id="perpage-select" v-model="perPage" class="perpage-select">
-            <option :value="8">8</option>
-            <option :value="16">16</option>
-            <option :value="24">24</option>
-            <option :value="48">48</option>
-          </select>
+        <!-- View toggle + per-page -->
+        <div class="view-controls">
+          <div class="view-toggle" role="group" aria-label="View mode">
+            <button
+              class="view-btn"
+              :class="{ active: viewMode === 'card' }"
+              @click="viewMode = 'card'"
+              title="Card view"
+              aria-pressed="viewMode === 'card'"
+            >
+              <i class="bi bi-grid-3x3-gap-fill"></i>
+            </button>
+            <button
+              class="view-btn"
+              :class="{ active: viewMode === 'list' }"
+              @click="viewMode = 'list'"
+              title="List view"
+              aria-pressed="viewMode === 'list'"
+            >
+              <i class="bi bi-list-ul"></i>
+            </button>
+          </div>
+          <div class="perpage-wrap">
+            <label class="perpage-label" :for="'perpage-select'">Show</label>
+            <select id="perpage-select" v-model="perPage" class="perpage-select">
+              <option :value="8">8</option>
+              <option :value="16">16</option>
+              <option :value="24">24</option>
+              <option :value="48">48</option>
+            </select>
+          </div>
         </div>
       </div>
-      </div><!-- /.filters-top-row -->
+      <!-- /.filters-top-row -->
       <div class="filter-chips">
         <button
           v-for="r in ['', ...ROLES]"
@@ -184,14 +195,14 @@
           <!-- Body -->
           <div class="member-body">
             <div class="member-name-row">
-              <h6 class="member-name" :title="member.name">{{ member.name }}</h6>
+              <h6 class="member-name" :title="member.nickname">{{ member.nickname }}</h6>
               <span
                 class="status-dot"
                 :class="member.status === 'active' ? 'is-active' : 'is-passive'"
                 :title="member.status"
               ></span>
             </div>
-            <p class="member-sub">{{ member.stage_name || member.nickname || "–" }}</p>
+            <p class="member-sub">{{ member.stage_name || "–" }}</p>
 
             <div class="member-meta">
               <span class="meta-item" :title="'Section: ' + (member.section || 'N/A')">
@@ -248,33 +259,70 @@
           :style="`animation-delay:${idx * 0.03}s`"
         >
           <span class="lh-avatar">
-            <img :src="member.avatar || defaultAvatar" :alt="member.name"
-              class="list-avatar" loading="lazy" @error="onImgError" />
+            <img
+              :src="member.avatar || defaultAvatar"
+              :alt="member.name"
+              class="list-avatar"
+              loading="lazy"
+              @error="onImgError"
+            />
           </span>
           <span class="lh-name">
-            <span class="list-name" :title="member.name">{{ member.name }}</span>
-            <span class="list-sub">{{ member.stage_name || member.nickname || '–' }}</span>
+            <span class="list-name" :title="member.nickname">{{ member.nickname }}</span>
+            <span class="list-sub">{{ member.stage_name || member.nickname || "–" }}</span>
           </span>
           <span class="lh-role">
-            <span v-if="member.role" class="list-role-dot"
-              :style="`background:${roleColor(member.role)}`"></span>
-            <span class="list-role-text">{{ member.role || '–' }}</span>
+            <span
+              v-if="member.role"
+              class="list-role-dot"
+              :style="`background:${roleColor(member.role)}`"
+            ></span>
+            <span class="list-role-text">{{ member.role || "–" }}</span>
           </span>
-          <span class="lh-section list-muted">{{ member.section || '–' }}</span>
-          <span class="lh-year list-muted d-none d-md-table-cell">{{ member.year_join || '–' }}</span>
+          <span class="lh-section list-muted">{{ member.section || "–" }}</span>
+          <span class="lh-year list-muted d-none d-md-table-cell">{{
+            member.year_join || "–"
+          }}</span>
           <span class="lh-shows list-muted d-none d-lg-table-cell">
-            <i class="bi bi-star-fill" style="color:var(--gold-color);font-size:.7rem;margin-right:2px"></i>
-            {{ member.performances ?? '0' }}
+            <i
+              class="bi bi-star-fill"
+              style="color: var(--gold-color); font-size: 0.7rem; margin-right: 2px"
+            ></i>
+            {{ member.performances ?? "0" }}
           </span>
           <span class="lh-status">
-            <span class="list-status-badge" :class="member.status === 'active' ? 'badge-active' : 'badge-passive'">
+            <span
+              class="list-status-badge"
+              :class="member.status === 'active' ? 'badge-active' : 'badge-passive'"
+            >
               {{ member.status }}
             </span>
           </span>
           <span class="lh-actions">
-            <button class="action-btn" title="View" @click="openDetail(member)" aria-label="View details"><i class="bi bi-eye"></i></button>
-            <button class="action-btn action-edit" title="Edit" @click="openEdit(member)" aria-label="Edit member"><i class="bi bi-pencil"></i></button>
-            <button class="action-btn action-delete" title="Delete" @click="confirmDelete(member)" aria-label="Delete member"><i class="bi bi-trash3"></i></button>
+            <button
+              class="action-btn"
+              title="View"
+              @click="openDetail(member)"
+              aria-label="View details"
+            >
+              <i class="bi bi-eye"></i>
+            </button>
+            <button
+              class="action-btn action-edit"
+              title="Edit"
+              @click="openEdit(member)"
+              aria-label="Edit member"
+            >
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button
+              class="action-btn action-delete"
+              title="Delete"
+              @click="confirmDelete(member)"
+              aria-label="Delete member"
+            >
+              <i class="bi bi-trash3"></i>
+            </button>
           </span>
         </div>
       </div>
@@ -286,10 +334,20 @@
         </span>
         <div class="pagination-controls-wrap">
           <div class="pagination-controls">
-            <button class="page-btn" :disabled="currentPage === 1" @click="goPage(1)" title="First page">
+            <button
+              class="page-btn"
+              :disabled="currentPage === 1"
+              @click="goPage(1)"
+              title="First page"
+            >
               <i class="bi bi-chevron-double-left"></i>
             </button>
-            <button class="page-btn" :disabled="currentPage === 1" @click="goPage(currentPage - 1)" title="Previous page">
+            <button
+              class="page-btn"
+              :disabled="currentPage === 1"
+              @click="goPage(currentPage - 1)"
+              title="Previous page"
+            >
               <i class="bi bi-chevron-left"></i>
             </button>
             <button
@@ -299,11 +357,23 @@
               :class="{ active: p === currentPage, ellipsis: p === '…' }"
               :disabled="p === '…'"
               @click="p !== '…' && goPage(p)"
-            >{{ p }}</button>
-            <button class="page-btn" :disabled="currentPage === totalPages" @click="goPage(currentPage + 1)" title="Next page">
+            >
+              {{ p }}
+            </button>
+            <button
+              class="page-btn"
+              :disabled="currentPage === totalPages"
+              @click="goPage(currentPage + 1)"
+              title="Next page"
+            >
               <i class="bi bi-chevron-right"></i>
             </button>
-            <button class="page-btn" :disabled="currentPage === totalPages" @click="goPage(totalPages)" title="Last page">
+            <button
+              class="page-btn"
+              :disabled="currentPage === totalPages"
+              @click="goPage(totalPages)"
+              title="Last page"
+            >
               <i class="bi bi-chevron-double-right"></i>
             </button>
           </div>
@@ -311,8 +381,10 @@
       </div>
 
       <!-- result summary (no pagination) -->
-      <p v-else-if="filteredMembers.length > 0 && (search || filterRole || filterStatus)"
-        class="result-count">
+      <p
+        v-else-if="filteredMembers.length > 0 && (search || filterRole || filterStatus)"
+        class="result-count"
+      >
         Showing {{ filteredMembers.length }} of {{ members.length }} members
       </p>
     </template>
@@ -831,35 +903,35 @@ export default {
     },
 
     pagedMembers() {
-      const start = (this.currentPage - 1) * this.perPage
-      return this.filteredMembers.slice(start, start + this.perPage)
+      const start = (this.currentPage - 1) * this.perPage;
+      return this.filteredMembers.slice(start, start + this.perPage);
     },
 
     totalPages() {
-      return Math.max(1, Math.ceil(this.filteredMembers.length / this.perPage))
+      return Math.max(1, Math.ceil(this.filteredMembers.length / this.perPage));
     },
 
     paginationStart() {
-      return this.filteredMembers.length === 0 ? 0 : (this.currentPage - 1) * this.perPage + 1
+      return this.filteredMembers.length === 0 ? 0 : (this.currentPage - 1) * this.perPage + 1;
     },
 
     paginationEnd() {
-      return Math.min(this.currentPage * this.perPage, this.filteredMembers.length)
+      return Math.min(this.currentPage * this.perPage, this.filteredMembers.length);
     },
 
     pageNumbers() {
-      const total = this.totalPages
-      const cur   = this.currentPage
-      if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1)
-      const pages = []
+      const total = this.totalPages;
+      const cur = this.currentPage;
+      if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
+      const pages = [];
       if (cur <= 2) {
-        pages.push(1, 2, 3, '…', total)
+        pages.push(1, 2, 3, "…", total);
       } else if (cur >= total - 1) {
-        pages.push(1, '…', total - 2, total - 1, total)
+        pages.push(1, "…", total - 2, total - 1, total);
       } else {
-        pages.push(1, '…', cur, '…', total)
+        pages.push(1, "…", cur, "…", total);
       }
-      return pages
+      return pages;
     },
   },
 
@@ -868,7 +940,7 @@ export default {
       ROLES,
       defaultAvatar: DEFAULT_AVATAR,
       loading: false,
-      viewMode: 'card',
+      viewMode: "card",
       search: "",
       filterRole: "",
       filterStatus: "",
@@ -887,10 +959,18 @@ export default {
   },
 
   watch: {
-    search()       { this.currentPage = 1 },
-    filterRole()   { this.currentPage = 1 },
-    filterStatus() { this.currentPage = 1 },
-    perPage()      { this.currentPage = 1 },
+    search() {
+      this.currentPage = 1;
+    },
+    filterRole() {
+      this.currentPage = 1;
+    },
+    filterStatus() {
+      this.currentPage = 1;
+    },
+    perPage() {
+      this.currentPage = 1;
+    },
   },
 
   async mounted() {
@@ -910,7 +990,7 @@ export default {
     },
 
     goPage(p) {
-      this.currentPage = Math.min(Math.max(1, p), this.totalPages)
+      this.currentPage = Math.min(Math.max(1, p), this.totalPages);
     },
 
     formatDate(date) {
@@ -1935,303 +2015,432 @@ export default {
     margin: 0 0.75rem 0 0;
   }
 
-  .filters-top-row { flex-direction: column; align-items: stretch; }
-  .view-controls    { justify-content: flex-end; }
+  .filters-top-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .view-controls {
+    justify-content: flex-end;
+  }
 
-  .pagination-bar { flex-direction: column; gap: 0.6rem; align-items: center; }
+  .pagination-bar {
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: center;
+  }
 }
 
 /* ── View toggle ─────────────────────────────────────────────────── */
 .filters-top-row {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 .view-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 .view-toggle {
-    display: flex;
-    border: 1px solid var(--hairline-color, rgba(34,29,20,.12));
-    border-radius: 8px;
-    overflow: hidden;
+  display: flex;
+  border: 1px solid var(--hairline-color, rgba(34, 29, 20, 0.12));
+  border-radius: 8px;
+  overflow: hidden;
 }
 .view-btn {
-    width: 36px;
-    height: 34px;
-    border: 0;
-    background: rgba(255,253,248,0.8);
-    color: var(--muted-color, #6f6a61);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background 0.16s, color 0.16s;
-    display: grid;
-    place-items: center;
+  width: 36px;
+  height: 34px;
+  border: 0;
+  background: rgba(255, 253, 248, 0.8);
+  color: var(--muted-color, #6f6a61);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition:
+    background 0.16s,
+    color 0.16s;
+  display: grid;
+  place-items: center;
 }
-.view-btn + .view-btn { border-left: 1px solid var(--hairline-color, rgba(34,29,20,.12)); }
-.view-btn:hover { background: rgba(200,164,93,0.1); color: var(--ink-color,#191b24); }
+.view-btn + .view-btn {
+  border-left: 1px solid var(--hairline-color, rgba(34, 29, 20, 0.12));
+}
+.view-btn:hover {
+  background: rgba(200, 164, 93, 0.1);
+  color: var(--ink-color, #191b24);
+}
 .view-btn.active {
-    background: linear-gradient(135deg, rgba(200,164,93,0.2), rgba(127,36,50,0.12));
-    color: var(--ink-color, #191b24);
-    font-weight: 700;
+  background: linear-gradient(135deg, rgba(200, 164, 93, 0.2), rgba(127, 36, 50, 0.12));
+  color: var(--ink-color, #191b24);
+  font-weight: 700;
 }
 .perpage-wrap {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 .perpage-label {
-    font-size: 0.75rem;
-    color: var(--muted-color, #6f6a61);
-    font-weight: 600;
-    white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--muted-color, #6f6a61);
+  font-weight: 600;
+  white-space: nowrap;
 }
 .perpage-select {
-    padding: 0.3rem 1.8rem 0.3rem 0.6rem;
-    border: 1px solid var(--hairline-color, rgba(34,29,20,.12));
-    border-radius: 7px;
-    background: rgba(255,253,248,0.9) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%236f6a61' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") no-repeat right 0.5rem center;
-    appearance: none;
-    font-size: 0.82rem;
-    color: var(--ink-color, #191b24);
-    cursor: pointer;
-    transition: border-color 0.16s;
+  padding: 0.3rem 1.8rem 0.3rem 0.6rem;
+  border: 1px solid var(--hairline-color, rgba(34, 29, 20, 0.12));
+  border-radius: 7px;
+  background: rgba(255, 253, 248, 0.9)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%236f6a61' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E")
+    no-repeat right 0.5rem center;
+  appearance: none;
+  font-size: 0.82rem;
+  color: var(--ink-color, #191b24);
+  cursor: pointer;
+  transition: border-color 0.16s;
 }
 .perpage-select:focus {
-    outline: none;
-    border-color: var(--gold-color, #c8a45d);
-    box-shadow: 0 0 0 3px rgba(200,164,93,0.15);
+  outline: none;
+  border-color: var(--gold-color, #c8a45d);
+  box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.15);
 }
 
 /* ── List view ───────────────────────────────────────────────────── */
 .members-list {
-    border: 1px solid var(--hairline-color);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    background: var(--surface-color);
-    box-shadow: 0 2px 12px rgba(19, 18, 16, 0.05);
+  border: 1px solid var(--hairline-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface-color);
+  box-shadow: 0 2px 12px rgba(19, 18, 16, 0.05);
 }
 .list-header {
-    display: grid;
-    grid-template-columns: 48px 1fr 100px 120px 80px 70px 100px 120px;
-    align-items: center;
-    padding: 0 1.25rem;
-    height: 40px;
-    background: linear-gradient(135deg, rgba(200,164,93,0.1), rgba(127,36,50,0.05));
-    border-bottom: 1px solid var(--hairline-color);
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--muted-color);
-    gap: 0.75rem;
-    position: sticky;
-    top: 0;
-    z-index: 2;
+  display: grid;
+  grid-template-columns: 48px 1fr 100px 120px 80px 70px 100px 120px;
+  align-items: center;
+  padding: 0 1.25rem;
+  height: 40px;
+  background: linear-gradient(135deg, rgba(200, 164, 93, 0.1), rgba(127, 36, 50, 0.05));
+  border-bottom: 1px solid var(--hairline-color);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted-color);
+  gap: 0.75rem;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 .list-row {
-    display: grid;
-    grid-template-columns: 48px 1fr 100px 120px 80px 70px 100px 120px;
-    align-items: center;
-    padding: 0.7rem 1.25rem;
-    gap: 0.75rem;
-    border-bottom: 1px solid var(--hairline-color);
-    transition: background 0.2s ease, transform 0.15s ease;
-    animation: fadeInUp 0.35s ease-out both;
+  display: grid;
+  grid-template-columns: 48px 1fr 100px 120px 80px 70px 100px 120px;
+  align-items: center;
+  padding: 0.7rem 1.25rem;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--hairline-color);
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+  animation: fadeInUp 0.35s ease-out both;
 }
-.list-row:last-child { border-bottom: 0; }
-.list-row:hover { background: rgba(200,164,93,0.06); }
-.list-row.is-passive { opacity: 0.5; filter: grayscale(0.4); }
-.list-row.is-passive:hover { opacity: 0.8; filter: none; }
+.list-row:last-child {
+  border-bottom: 0;
+}
+.list-row:hover {
+  background: rgba(200, 164, 93, 0.06);
+}
+.list-row.is-passive {
+  opacity: 0.5;
+  filter: grayscale(0.4);
+}
+.list-row.is-passive:hover {
+  opacity: 0.8;
+  filter: none;
+}
 
-.list-row:nth-child(even) { background: rgba(34, 29, 20, 0.015); }
-.list-row:nth-child(even):hover { background: rgba(200,164,93,0.06); }
+.list-row:nth-child(even) {
+  background: rgba(34, 29, 20, 0.015);
+}
+.list-row:nth-child(even):hover {
+  background: rgba(200, 164, 93, 0.06);
+}
 
-.lh-avatar { display: flex; align-items: center; }
+.lh-avatar {
+  display: flex;
+  align-items: center;
+}
 .list-avatar {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: top;
-    border: 2px solid var(--hairline-color);
-    transition: border-color 0.2s ease, transform 0.2s ease;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+  border: 2px solid var(--hairline-color);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 .list-row:hover .list-avatar {
-    border-color: var(--gold-color);
-    transform: scale(1.05);
+  border-color: var(--gold-color);
+  transform: scale(1.05);
 }
 
-.lh-name   { display: flex; flex-direction: column; min-width: 0; }
-.list-name { font-size: 0.9rem; font-weight: 700; color: var(--ink-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.list-sub  { font-size: 0.75rem; color: var(--muted-color); font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top: 0.05rem; }
+.lh-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.list-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.list-sub {
+  font-size: 0.75rem;
+  color: var(--muted-color);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0.05rem;
+}
 
-.lh-role   { display: flex; align-items: center; gap: 0.4rem; }
-.list-role-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 0 2px rgba(200,164,93,0.15); }
-.list-role-text { font-size: 0.82rem; font-weight: 600; color: var(--ink-color); }
+.lh-role {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.list-role-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(200, 164, 93, 0.15);
+}
+.list-role-text {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-color);
+}
 
-.list-muted { font-size: 0.82rem; color: var(--muted-color); }
+.list-muted {
+  font-size: 0.82rem;
+  color: var(--muted-color);
+}
 
-.lh-status  { display: flex; align-items: center; }
+.lh-status {
+  display: flex;
+  align-items: center;
+}
 .list-status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.22rem 0.7rem;
-    border-radius: 999px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
 }
-.list-status-badge.badge-active  { background: rgba(74,124,89,0.1); color:#4a7c59; border-color:rgba(74,124,89,0.25); }
-.list-status-badge.badge-passive { background: rgba(180,180,180,0.12); color:#888; border-color:rgba(180,180,180,0.25); }
-.list-row:hover .list-status-badge { transform: translateY(-1px); }
+.list-status-badge.badge-active {
+  background: rgba(74, 124, 89, 0.1);
+  color: #4a7c59;
+  border-color: rgba(74, 124, 89, 0.25);
+}
+.list-status-badge.badge-passive {
+  background: rgba(180, 180, 180, 0.12);
+  color: #888;
+  border-color: rgba(180, 180, 180, 0.25);
+}
+.list-row:hover .list-status-badge {
+  transform: translateY(-1px);
+}
 
-.lh-actions { display: flex; align-items: center; gap: 0.35rem; justify-content: flex-end; }
+.lh-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}
 
 /* Tablet */
 @media (max-width: 991.98px) {
-    .list-header, .list-row {
-        grid-template-columns: 44px 1fr 90px 110px 70px 90px;
-    }
-    .lh-year { display: none; }
+  .list-header,
+  .list-row {
+    grid-template-columns: 44px 1fr 90px 110px 70px 90px;
+  }
+  .lh-year {
+    display: none;
+  }
 }
 
 /* Mobile */
 @media (max-width: 767.98px) {
-    .list-header { display: none; }
-    
-    .list-row {
-        grid-template-columns: 44px 1fr auto;
-        grid-template-rows: auto auto auto;
-        gap: 0.35rem 0.75rem;
-        padding: 0.85rem 1rem;
-        align-items: center;
-        border-radius: var(--radius-md);
-        margin-bottom: 0.5rem;
-        border: 1px solid var(--hairline-color);
-        background: var(--surface-color);
-        box-shadow: 0 1px 4px rgba(19,18,16,0.04);
-    }
-    
-    .list-row:last-child { margin-bottom: 0; border-bottom: 1px solid var(--hairline-color); }
-    
-    .lh-avatar  { grid-column: 1; grid-row: 1; }
-    .lh-name    { grid-column: 2; grid-row: 1; }
-    .lh-role    { grid-column: 2; grid-row: 2; font-size: 0.75rem; }
-    .lh-section { display: none; }
-    .lh-year, .lh-shows { display: none; }
-    .lh-status  { grid-column: 3; grid-row: 1 / 3; align-self: center; }
-    .lh-actions { grid-column: 1 / -1; grid-row: 3; justify-content: flex-start; padding-top: 0.5rem; border-top: 1px solid var(--hairline-color); margin-top: 0.25rem; }
+  .list-header {
+    display: none;
+  }
 
-    .action-btn {
-        min-width: 36px;
-        min-height: 36px;
-        padding: 0.4rem;
-    }
+  .list-row {
+    grid-template-columns: 44px 1fr auto;
+    grid-template-rows: auto auto auto;
+    gap: 0.35rem 0.75rem;
+    padding: 0.85rem 1rem;
+    align-items: center;
+    border-radius: var(--radius-md);
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--hairline-color);
+    background: var(--surface-color);
+    box-shadow: 0 1px 4px rgba(19, 18, 16, 0.04);
+  }
+
+  .list-row:last-child {
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--hairline-color);
+  }
+
+  .lh-avatar {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .lh-name {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .lh-role {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 0.75rem;
+  }
+  .lh-section {
+    display: none;
+  }
+  .lh-year,
+  .lh-shows {
+    display: none;
+  }
+  .lh-status {
+    grid-column: 3;
+    grid-row: 1 / 3;
+    align-self: center;
+  }
+  .lh-actions {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-content: flex-start;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--hairline-color);
+    margin-top: 0.25rem;
+  }
+
+  .action-btn {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0.4rem;
+  }
 }
 
 /* ── Pagination ──────────────────────────────────────────────────── */
 .pagination-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 1.5rem;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 .pagination-info {
-    font-size: 0.8rem;
-    color: var(--muted-color);
-    font-weight: 600;
-    white-space: nowrap;
+  font-size: 0.8rem;
+  color: var(--muted-color);
+  font-weight: 600;
+  white-space: nowrap;
 }
 .pagination-controls-wrap {
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
-.pagination-controls-wrap::-webkit-scrollbar { display: none; }
+.pagination-controls-wrap::-webkit-scrollbar {
+  display: none;
+}
 .pagination-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    margin-left: auto;
-    padding: 2px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: auto;
+  padding: 2px;
 }
 .page-btn {
-    min-width: 34px;
-    height: 34px;
-    padding: 0 0.5rem;
-    border: 1px solid var(--hairline-color);
-    border-radius: 7px;
-    background: rgba(255,253,248,0.9);
-    color: var(--ink-color);
-    font-size: 0.82rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-grid;
-    place-items: center;
-    transition: all 0.16s ease;
-    flex-shrink: 0;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 0.5rem;
+  border: 1px solid var(--hairline-color);
+  border-radius: 7px;
+  background: rgba(255, 253, 248, 0.9);
+  color: var(--ink-color);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  transition: all 0.16s ease;
+  flex-shrink: 0;
 }
 .page-btn:hover:not(:disabled) {
-    border-color: var(--gold-color);
-    background: rgba(200,164,93,0.1);
+  border-color: var(--gold-color);
+  background: rgba(200, 164, 93, 0.1);
 }
 .page-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 .page-btn.active {
-    background: linear-gradient(135deg, rgba(200,164,93,0.25), rgba(127,36,50,0.15));
-    border-color: var(--gold-color);
-    color: var(--ink-color);
-    font-weight: 800;
-    box-shadow: 0 2px 8px rgba(200,164,93,0.2);
+  background: linear-gradient(135deg, rgba(200, 164, 93, 0.25), rgba(127, 36, 50, 0.15));
+  border-color: var(--gold-color);
+  color: var(--ink-color);
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(200, 164, 93, 0.2);
 }
 .page-btn.ellipsis {
-    border-color: transparent;
-    background: transparent;
-    cursor: default;
-    color: var(--muted-color);
+  border-color: transparent;
+  background: transparent;
+  cursor: default;
+  color: var(--muted-color);
 }
 
 /* Mobile pagination */
 @media (max-width: 767.98px) {
-    .pagination-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.6rem;
-    }
-    
-    .pagination-info {
-        text-align: center;
-        font-size: 0.75rem;
-    }
-    
-    .pagination-controls-wrap {
-        overflow-x: auto;
-        padding-bottom: 2px;
-    }
-    
-    .pagination-controls {
-        justify-content: center;
-        gap: 0.25rem;
-    }
-    
-    .page-btn {
-        min-width: 30px;
-        height: 30px;
-        font-size: 0.78rem;
-        padding: 0 0.4rem;
-    }
+  .pagination-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+
+  .pagination-info {
+    text-align: center;
+    font-size: 0.75rem;
+  }
+
+  .pagination-controls-wrap {
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+    gap: 0.25rem;
+  }
+
+  .page-btn {
+    min-width: 30px;
+    height: 30px;
+    font-size: 0.78rem;
+    padding: 0 0.4rem;
+  }
 }
 </style>
