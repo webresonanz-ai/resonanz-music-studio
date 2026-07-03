@@ -88,7 +88,6 @@
                             required
                         >
                     </div>
-
                 </div>
 
                 <div class="d-flex gap-3 mt-4">
@@ -97,7 +96,6 @@
                         <i v-else class="bi bi-send-check me-2"></i>
                         {{ loading ? 'Submitting...' : 'Submit Registration' }}
                     </button>
-
                 </div>
             </form>
         </div>
@@ -106,6 +104,7 @@
 
 <script>
 import { useTrmsStore } from '../../stores/api'
+import { useBannerStore } from '../../stores/banner'
 
 const slugifyTitle = (title) => String(title || '')
     .toLowerCase()
@@ -126,7 +125,8 @@ export default {
     name: 'ConcertRegistration',
     setup() {
         return {
-            trmsStore: useTrmsStore()
+            trmsStore: useTrmsStore(),
+            bannerStore: useBannerStore()
         }
     },
     data() {
@@ -155,10 +155,25 @@ export default {
     watch: {
         concertTitleParam() {
             this.loadSelectedConcert()
+        },
+        // Update banner whenever selectedConcert changes
+        selectedConcert: {
+            handler(concert) {
+                if (concert?.banner_url) {
+                    this.bannerStore.setBanner(concert.banner_url)
+                } else {
+                    this.bannerStore.clearBanner()
+                }
+            },
+            immediate: false
         }
     },
     mounted() {
         this.loadSelectedConcert()
+    },
+    beforeUnmount() {
+        // Clean up banner when leaving the page
+        this.bannerStore.clearBanner()
     },
     methods: {
         async loadSelectedConcert() {

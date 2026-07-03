@@ -52,3 +52,16 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.app-footer {
+    background: var(--surface-color, #fffdf8);
+    border-top: 1px solid var(--hairline-color, rgba(34, 29, 20, 0.12));
+    border-radius: var(--radius-md, 8px) var(--radius-md, 8px) 0 0;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+</style>
