@@ -82,6 +82,17 @@
                                         rows="3"
                                     ></textarea>
                                 </div>
+                                <div class="col-12" v-if="form.type === 'concert'">
+                                    <label for="scheduleBannerUrl" class="form-label">Concert Banner URL</label>
+                                    <input
+                                        id="scheduleBannerUrl"
+                                        v-model.trim="form.banner_url"
+                                        class="form-control"
+                                        type="url"
+                                        placeholder="https://example.com/banner.jpg"
+                                    >
+                                    <div class="form-text">Optional banner image shown on the homepage slideshow.</div>
+                                </div>
                                 <div class="col-12">
                                     <label class="form-label d-block">Programs / Collaborating Groups</label>
                                     <div class="d-flex flex-wrap gap-4 p-3 rounded border border-secondary border-opacity-25 bg-light bg-opacity-10">
@@ -132,6 +143,7 @@ const emptyForm = () => ({
     start_time: '09:00',
     end_time: '10:00',
     description: '',
+    banner_url: '',
     program_ids: ['trms']
 })
 
@@ -177,7 +189,7 @@ export default {
         },
         openEdit(schedule) {
             this.editingSchedule = schedule
-            this.form = { 
+            this.form = {
                 ...schedule,
                 program_ids: schedule.program_ids ? [...schedule.program_ids] : ['trms']
             }

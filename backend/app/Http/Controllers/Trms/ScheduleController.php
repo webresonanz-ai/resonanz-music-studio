@@ -39,7 +39,8 @@ class ScheduleController
             'date' => $data['date'],
             'start_time' => $data['start_time'],
             'end_time' => $data['end_time'],
-            'description' => $data['description'] ?? ''
+            'description' => $data['description'] ?? '',
+            'banner_url' => trim($data['banner_url'] ?? '')
         ];
 
         $id = $this->model->create($schedule);
@@ -69,6 +70,7 @@ class ScheduleController
         if (isset($data['start_time'])) $updateData['start_time'] = $data['start_time'];
         if (isset($data['end_time'])) $updateData['end_time'] = $data['end_time'];
         if (isset($data['description'])) $updateData['description'] = trim($data['description']);
+        if (array_key_exists('banner_url', $data)) $updateData['banner_url'] = trim($data['banner_url'] ?? '');
 
         if (isset($data['program_ids'])) {
             $programIds = $data['program_ids'];
