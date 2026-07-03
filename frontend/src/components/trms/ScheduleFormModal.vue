@@ -74,6 +74,17 @@
                                     >
                                 </div>
                                 <div class="col-12">
+                                    <label for="scheduleVenue" class="form-label">Venue</label>
+                                    <input
+                                        id="scheduleVenue"
+                                        v-model.trim="form.venue"
+                                        class="form-control"
+                                        type="text"
+                                        maxlength="150"
+                                        placeholder="e.g. Aula Simfonia Jakarta"
+                                    >
+                                </div>
+                                <div class="col-12">
                                     <label for="scheduleDescription" class="form-label">Description</label>
                                     <textarea
                                         id="scheduleDescription"
@@ -171,6 +182,7 @@ const emptyForm = () => ({
     date: '',
     start_time: '09:00',
     end_time: '10:00',
+    venue: '',
     description: '',
     banner_url: '',
     is_open_register: false,

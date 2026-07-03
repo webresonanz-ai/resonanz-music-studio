@@ -115,6 +115,10 @@
                                 <span class="text-muted">{{ formatDate(selectedSchedule.date) }}</span>
                             </div>
                             <p class="mb-3">{{ selectedSchedule.description || 'No description provided.' }}</p>
+                            <div class="mb-3" v-if="selectedSchedule.venue">
+                                <span class="text-muted small d-block mb-1">Venue</span>
+                                <span><i class="bi bi-geo-alt me-1"></i>{{ selectedSchedule.venue }}</span>
+                            </div>
                             <div class="mb-3" v-if="selectedSchedule.program_ids && selectedSchedule.program_ids.length > 0">
                                 <span class="text-muted small d-block mb-1">Programs / Collaborating Groups</span>
                                 <div class="d-flex flex-wrap gap-1">

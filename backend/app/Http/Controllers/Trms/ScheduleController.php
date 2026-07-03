@@ -39,6 +39,7 @@ class ScheduleController
             'date' => $data['date'],
             'start_time' => $data['start_time'],
             'end_time' => $data['end_time'],
+            'venue' => trim($data['venue'] ?? ''),
             'description' => $data['description'] ?? '',
             'banner_url' => trim($data['banner_url'] ?? ''),
             'is_open_register' => !empty($data['is_open_register']) ? 1 : 0,
@@ -71,6 +72,7 @@ class ScheduleController
         if (isset($data['date'])) $updateData['date'] = $data['date'];
         if (isset($data['start_time'])) $updateData['start_time'] = $data['start_time'];
         if (isset($data['end_time'])) $updateData['end_time'] = $data['end_time'];
+        if (array_key_exists('venue', $data)) $updateData['venue'] = trim($data['venue'] ?? '');
         if (isset($data['description'])) $updateData['description'] = trim($data['description']);
         if (array_key_exists('banner_url', $data)) $updateData['banner_url'] = trim($data['banner_url'] ?? '');
         if (array_key_exists('is_open_register', $data)) $updateData['is_open_register'] = !empty($data['is_open_register']) ? 1 : 0;
