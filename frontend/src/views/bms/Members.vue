@@ -232,19 +232,20 @@
       <div v-if="viewMode === 'list'" class="members-list">
         <div class="list-header">
           <span class="lh-avatar"></span>
-          <span class="lh-name">Name</span>
+          <span class="lh-name">Member</span>
           <span class="lh-role">Role</span>
           <span class="lh-section">Section</span>
-          <span class="lh-year">Year</span>
-          <span class="lh-shows">Shows</span>
+          <span class="lh-year d-none d-md-table-cell">Year</span>
+          <span class="lh-shows d-none d-lg-table-cell">Shows</span>
           <span class="lh-status">Status</span>
           <span class="lh-actions"></span>
         </div>
         <div
-          v-for="member in pagedMembers"
+          v-for="(member, idx) in pagedMembers"
           :key="member.id"
           class="list-row"
           :class="{ 'is-passive': member.status === 'passive' }"
+          :style="`animation-delay:${idx * 0.03}s`"
         >
           <span class="lh-avatar">
             <img :src="member.avatar || defaultAvatar" :alt="member.name"
@@ -260,8 +261,8 @@
             <span class="list-role-text">{{ member.role || '–' }}</span>
           </span>
           <span class="lh-section list-muted">{{ member.section || '–' }}</span>
-          <span class="lh-year list-muted">{{ member.year_join || '–' }}</span>
-          <span class="lh-shows list-muted">
+          <span class="lh-year list-muted d-none d-md-table-cell">{{ member.year_join || '–' }}</span>
+          <span class="lh-shows list-muted d-none d-lg-table-cell">
             <i class="bi bi-star-fill" style="color:var(--gold-color);font-size:.7rem;margin-right:2px"></i>
             {{ member.performances ?? '0' }}
           </span>
@@ -271,9 +272,9 @@
             </span>
           </span>
           <span class="lh-actions">
-            <button class="action-btn" title="View" @click="openDetail(member)"><i class="bi bi-eye"></i></button>
-            <button class="action-btn action-edit" title="Edit" @click="openEdit(member)"><i class="bi bi-pencil"></i></button>
-            <button class="action-btn action-delete" title="Delete" @click="confirmDelete(member)"><i class="bi bi-trash3"></i></button>
+            <button class="action-btn" title="View" @click="openDetail(member)" aria-label="View details"><i class="bi bi-eye"></i></button>
+            <button class="action-btn action-edit" title="Edit" @click="openEdit(member)" aria-label="Edit member"><i class="bi bi-pencil"></i></button>
+            <button class="action-btn action-delete" title="Delete" @click="confirmDelete(member)" aria-label="Delete member"><i class="bi bi-trash3"></i></button>
           </span>
         </div>
       </div>
@@ -283,27 +284,29 @@
         <span class="pagination-info">
           {{ paginationStart }}–{{ paginationEnd }} of {{ filteredMembers.length }}
         </span>
-        <div class="pagination-controls">
-          <button class="page-btn" :disabled="currentPage === 1" @click="goPage(1)" title="First page">
-            <i class="bi bi-chevron-double-left"></i>
-          </button>
-          <button class="page-btn" :disabled="currentPage === 1" @click="goPage(currentPage - 1)" title="Previous page">
-            <i class="bi bi-chevron-left"></i>
-          </button>
-          <button
-            v-for="p in pageNumbers"
-            :key="p"
-            class="page-btn page-num"
-            :class="{ active: p === currentPage, ellipsis: p === '…' }"
-            :disabled="p === '…'"
-            @click="p !== '…' && goPage(p)"
-          >{{ p }}</button>
-          <button class="page-btn" :disabled="currentPage === totalPages" @click="goPage(currentPage + 1)" title="Next page">
-            <i class="bi bi-chevron-right"></i>
-          </button>
-          <button class="page-btn" :disabled="currentPage === totalPages" @click="goPage(totalPages)" title="Last page">
-            <i class="bi bi-chevron-double-right"></i>
-          </button>
+        <div class="pagination-controls-wrap">
+          <div class="pagination-controls">
+            <button class="page-btn" :disabled="currentPage === 1" @click="goPage(1)" title="First page">
+              <i class="bi bi-chevron-double-left"></i>
+            </button>
+            <button class="page-btn" :disabled="currentPage === 1" @click="goPage(currentPage - 1)" title="Previous page">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <button
+              v-for="p in pageNumbers"
+              :key="p"
+              class="page-btn page-num"
+              :class="{ active: p === currentPage, ellipsis: p === '…' }"
+              :disabled="p === '…'"
+              @click="p !== '…' && goPage(p)"
+            >{{ p }}</button>
+            <button class="page-btn" :disabled="currentPage === totalPages" @click="goPage(currentPage + 1)" title="Next page">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+            <button class="page-btn" :disabled="currentPage === totalPages" @click="goPage(totalPages)" title="Last page">
+              <i class="bi bi-chevron-double-right"></i>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -847,14 +850,14 @@ export default {
     pageNumbers() {
       const total = this.totalPages
       const cur   = this.currentPage
-      if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+      if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1)
       const pages = []
-      if (cur <= 4) {
-        pages.push(1, 2, 3, 4, 5, '…', total)
-      } else if (cur >= total - 3) {
-        pages.push(1, '…', total - 4, total - 3, total - 2, total - 1, total)
+      if (cur <= 2) {
+        pages.push(1, 2, 3, '…', total)
+      } else if (cur >= total - 1) {
+        pages.push(1, '…', total - 2, total - 1, total)
       } else {
-        pages.push(1, '…', cur - 1, cur, cur + 1, '…', total)
+        pages.push(1, '…', cur, '…', total)
       }
       return pages
     },
@@ -1036,17 +1039,6 @@ export default {
 </script>
 
 <style scoped>
-/* ── Design tokens (mirror global vars) ──────────────────────────── */
-:root {
-  --gold: #c8a45d;
-  --accent: #7f2432;
-  --ink: #191b24;
-  --muted: #6f6a61;
-  --surface: #fffdf8;
-  --hairline: rgba(34, 29, 20, 0.12);
-  --radius: 8px;
-}
-
 /* ── Page header ─────────────────────────────────────────────────── */
 .members-eyebrow {
   font-size: 0.75rem;
@@ -1946,19 +1938,6 @@ export default {
   .filters-top-row { flex-direction: column; align-items: stretch; }
   .view-controls    { justify-content: flex-end; }
 
-  /* List view collapses on mobile */
-  .list-header { display: none; }
-  .list-row {
-    grid-template-columns: 44px 1fr auto;
-    grid-template-rows: auto auto;
-    gap: 0.3rem 0.6rem;
-    padding: 0.75rem;
-  }
-  .lh-role, .lh-section, .lh-year, .lh-shows { display: none; }
-  .lh-name  { grid-column: 2; grid-row: 1; }
-  .lh-status { grid-column: 3; grid-row: 1; align-self: center; }
-  .lh-actions { grid-column: 2 / -1; grid-row: 2; justify-content: flex-start; }
-
   .pagination-bar { flex-direction: column; gap: 0.6rem; align-items: center; }
 }
 
@@ -2029,70 +2008,132 @@ export default {
 
 /* ── List view ───────────────────────────────────────────────────── */
 .members-list {
-    border: 1px solid var(--hairline-color, rgba(34,29,20,.12));
-    border-radius: var(--radius-md, 8px);
+    border: 1px solid var(--hairline-color);
+    border-radius: var(--radius-md);
     overflow: hidden;
-    background: rgba(255,253,248,0.97);
+    background: var(--surface-color);
+    box-shadow: 0 2px 12px rgba(19, 18, 16, 0.05);
 }
 .list-header {
     display: grid;
-    grid-template-columns: 48px 1fr 90px 110px 70px 60px 90px 110px;
+    grid-template-columns: 48px 1fr 100px 120px 80px 70px 100px 120px;
     align-items: center;
-    padding: 0 1rem;
-    height: 38px;
-    background: linear-gradient(135deg, rgba(200,164,93,0.08), rgba(127,36,50,0.04));
-    border-bottom: 1px solid var(--hairline-color, rgba(34,29,20,.12));
-    font-size: 0.68rem;
+    padding: 0 1.25rem;
+    height: 40px;
+    background: linear-gradient(135deg, rgba(200,164,93,0.1), rgba(127,36,50,0.05));
+    border-bottom: 1px solid var(--hairline-color);
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted-color, #6f6a61);
-    gap: 0.5rem;
+    letter-spacing: 0.1em;
+    color: var(--muted-color);
+    gap: 0.75rem;
+    position: sticky;
+    top: 0;
+    z-index: 2;
 }
 .list-row {
     display: grid;
-    grid-template-columns: 48px 1fr 90px 110px 70px 60px 90px 110px;
+    grid-template-columns: 48px 1fr 100px 120px 80px 70px 100px 120px;
     align-items: center;
-    padding: 0.55rem 1rem;
-    gap: 0.5rem;
-    border-bottom: 1px solid var(--hairline-color, rgba(34,29,20,.08));
-    transition: background 0.15s;
+    padding: 0.7rem 1.25rem;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--hairline-color);
+    transition: background 0.2s ease, transform 0.15s ease;
+    animation: fadeInUp 0.35s ease-out both;
 }
 .list-row:last-child { border-bottom: 0; }
-.list-row:hover { background: rgba(200,164,93,0.05); }
-.list-row.is-passive { opacity: 0.55; filter: grayscale(0.3); }
-.list-row.is-passive:hover { opacity: 0.85; filter: none; }
+.list-row:hover { background: rgba(200,164,93,0.06); }
+.list-row.is-passive { opacity: 0.5; filter: grayscale(0.4); }
+.list-row.is-passive:hover { opacity: 0.8; filter: none; }
+
+.list-row:nth-child(even) { background: rgba(34, 29, 20, 0.015); }
+.list-row:nth-child(even):hover { background: rgba(200,164,93,0.06); }
 
 .lh-avatar { display: flex; align-items: center; }
 .list-avatar {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     object-fit: cover;
     object-position: top;
-    border: 1px solid var(--hairline-color, rgba(34,29,20,.12));
+    border: 2px solid var(--hairline-color);
+    transition: border-color 0.2s ease, transform 0.2s ease;
 }
+.list-row:hover .list-avatar {
+    border-color: var(--gold-color);
+    transform: scale(1.05);
+}
+
 .lh-name   { display: flex; flex-direction: column; min-width: 0; }
-.list-name { font-size: 0.875rem; font-weight: 700; color: var(--ink-color,#191b24); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.list-sub  { font-size: 0.72rem; color: var(--muted-color,#6f6a61); font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.lh-role   { display: flex; align-items: center; gap: 0.35rem; }
-.list-role-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.list-role-text { font-size: 0.8rem; font-weight: 600; color: var(--ink-color,#191b24); }
-.list-muted { font-size: 0.8rem; color: var(--muted-color,#6f6a61); }
+.list-name { font-size: 0.9rem; font-weight: 700; color: var(--ink-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.list-sub  { font-size: 0.75rem; color: var(--muted-color); font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top: 0.05rem; }
+
+.lh-role   { display: flex; align-items: center; gap: 0.4rem; }
+.list-role-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 0 2px rgba(200,164,93,0.15); }
+.list-role-text { font-size: 0.82rem; font-weight: 600; color: var(--ink-color); }
+
+.list-muted { font-size: 0.82rem; color: var(--muted-color); }
+
 .lh-status  { display: flex; align-items: center; }
 .list-status-badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.18rem 0.6rem;
+    padding: 0.22rem 0.7rem;
     border-radius: 999px;
     font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     border: 1px solid transparent;
+    transition: all 0.2s ease;
 }
 .list-status-badge.badge-active  { background: rgba(74,124,89,0.1); color:#4a7c59; border-color:rgba(74,124,89,0.25); }
 .list-status-badge.badge-passive { background: rgba(180,180,180,0.12); color:#888; border-color:rgba(180,180,180,0.25); }
-.lh-actions { display: flex; align-items: center; gap: 0.3rem; justify-content: flex-end; }
+.list-row:hover .list-status-badge { transform: translateY(-1px); }
+
+.lh-actions { display: flex; align-items: center; gap: 0.35rem; justify-content: flex-end; }
+
+/* Tablet */
+@media (max-width: 991.98px) {
+    .list-header, .list-row {
+        grid-template-columns: 44px 1fr 90px 110px 70px 90px;
+    }
+    .lh-year { display: none; }
+}
+
+/* Mobile */
+@media (max-width: 767.98px) {
+    .list-header { display: none; }
+    
+    .list-row {
+        grid-template-columns: 44px 1fr auto;
+        grid-template-rows: auto auto auto;
+        gap: 0.35rem 0.75rem;
+        padding: 0.85rem 1rem;
+        align-items: center;
+        border-radius: var(--radius-md);
+        margin-bottom: 0.5rem;
+        border: 1px solid var(--hairline-color);
+        background: var(--surface-color);
+        box-shadow: 0 1px 4px rgba(19,18,16,0.04);
+    }
+    
+    .list-row:last-child { margin-bottom: 0; border-bottom: 1px solid var(--hairline-color); }
+    
+    .lh-avatar  { grid-column: 1; grid-row: 1; }
+    .lh-name    { grid-column: 2; grid-row: 1; }
+    .lh-role    { grid-column: 2; grid-row: 2; font-size: 0.75rem; }
+    .lh-section { display: none; }
+    .lh-year, .lh-shows { display: none; }
+    .lh-status  { grid-column: 3; grid-row: 1 / 3; align-self: center; }
+    .lh-actions { grid-column: 1 / -1; grid-row: 3; justify-content: flex-start; padding-top: 0.5rem; border-top: 1px solid var(--hairline-color); margin-top: 0.25rem; }
+
+    .action-btn {
+        min-width: 36px;
+        min-height: 36px;
+        padding: 0.4rem;
+    }
+}
 
 /* ── Pagination ──────────────────────────────────────────────────── */
 .pagination-bar {
@@ -2105,31 +2146,44 @@ export default {
 }
 .pagination-info {
     font-size: 0.8rem;
-    color: var(--muted-color, #6f6a61);
+    color: var(--muted-color);
     font-weight: 600;
+    white-space: nowrap;
 }
+.pagination-controls-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+.pagination-controls-wrap::-webkit-scrollbar { display: none; }
 .pagination-controls {
     display: flex;
     align-items: center;
     gap: 0.3rem;
+    margin-left: auto;
+    padding: 2px;
 }
 .page-btn {
     min-width: 34px;
     height: 34px;
     padding: 0 0.5rem;
-    border: 1px solid var(--hairline-color, rgba(34,29,20,.12));
+    border: 1px solid var(--hairline-color);
     border-radius: 7px;
     background: rgba(255,253,248,0.9);
-    color: var(--ink-color, #191b24);
+    color: var(--ink-color);
     font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
     display: inline-grid;
     place-items: center;
     transition: all 0.16s ease;
+    flex-shrink: 0;
 }
 .page-btn:hover:not(:disabled) {
-    border-color: var(--gold-color, #c8a45d);
+    border-color: var(--gold-color);
     background: rgba(200,164,93,0.1);
 }
 .page-btn:disabled {
@@ -2138,8 +2192,8 @@ export default {
 }
 .page-btn.active {
     background: linear-gradient(135deg, rgba(200,164,93,0.25), rgba(127,36,50,0.15));
-    border-color: var(--gold-color, #c8a45d);
-    color: var(--ink-color, #191b24);
+    border-color: var(--gold-color);
+    color: var(--ink-color);
     font-weight: 800;
     box-shadow: 0 2px 8px rgba(200,164,93,0.2);
 }
@@ -2147,6 +2201,37 @@ export default {
     border-color: transparent;
     background: transparent;
     cursor: default;
-    color: var(--muted-color, #6f6a61);
+    color: var(--muted-color);
+}
+
+/* Mobile pagination */
+@media (max-width: 767.98px) {
+    .pagination-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+    }
+    
+    .pagination-info {
+        text-align: center;
+        font-size: 0.75rem;
+    }
+    
+    .pagination-controls-wrap {
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+    
+    .pagination-controls {
+        justify-content: center;
+        gap: 0.25rem;
+    }
+    
+    .page-btn {
+        min-width: 30px;
+        height: 30px;
+        font-size: 0.78rem;
+        padding: 0 0.4rem;
+    }
 }
 </style>

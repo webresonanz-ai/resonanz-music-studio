@@ -58,4 +58,62 @@ class Schedule extends Model
             }
         }
     }
+
+    public function findConcertsByProgram(string $programId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT s.*,
+                   (SELECT GROUP_CONCAT(sp.program_id) FROM schedule_programs sp WHERE sp.schedule_id = s.id) as program_ids
+            FROM {$this->table} s
+            WHERE s.type = 'concert'
+              AND s.id IN (
+                  SELECT schedule_id FROM schedule_programs WHERE program_id = :program_id
+              )
+            ORDER BY s.date ASC, s.start_time ASC
+        ");
+        $stmt->execute(['program_id' => $programId]);
+        $results = $stmt->fetchAll();
+        foreach ($results as &$row) {
+            $row['program_ids'] = $row['program_ids'] ? explode(',', $row['program_ids']) : [];
+        }
+        return $results;
+    }
+
+    public function findRehearsalsBeforeDate(string $programId, string $beforeDate): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT s.*,
+                   (SELECT GROUP_CONCAT(sp.program_id) FROM schedule_programs sp WHERE sp.schedule_id = s.id) as program_ids
+            FROM {$this->table} s
+            WHERE s.type = 'practice'
+              AND s.date <= :before_date
+              AND s.id IN (
+                  SELECT schedule_id FROM schedule_programs WHERE program_id = :program_id
+              )
+            ORDER BY s.date ASC, s.start_time ASC
+        ");
+        $stmt->execute([
+            'program_id' => $programId,
+            'before_date' => $beforeDate,
+        ]);
+        $results = $stmt->fetchAll();
+        foreach ($results as &$row) {
+            $row['program_ids'] = $row['program_ids'] ? explode(',', $row['program_ids']) : [];
+        }
+        return $results;
+    }
+
+    public function belongsToProgram(int $scheduleId, string $programId): bool
+    {
+        $stmt = $this->db->prepare("
+            SELECT 1 FROM schedule_programs
+            WHERE schedule_id = :schedule_id AND program_id = :program_id
+            LIMIT 1
+        ");
+        $stmt->execute([
+            'schedule_id' => $scheduleId,
+            'program_id' => $programId,
+        ]);
+        return (bool) $stmt->fetch();
+    }
 }

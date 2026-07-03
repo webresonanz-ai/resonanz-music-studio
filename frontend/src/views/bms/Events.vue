@@ -3,25 +3,29 @@
         <!-- ══ PAGE HEADER ══════════════════════════════════════════════ -->
         <div class="content-card mb-4">
             <div class="row g-4 align-items-center">
-                <div class="col-lg-7">
+                <div class="col-12 col-lg-7">
                     <p class="text-uppercase text-primary fw-bold small mb-2">Batavia Madrigal Singers</p>
                     <h1 class="display-4 fw-bold mb-3">Upcoming Events</h1>
                     <p class="lead text-muted mb-0">
                         Stay updated with the Batavia Madrigal Singers rehearsals, concerts, and scheduled performances.
                     </p>
                 </div>
-                <div class="col-lg-5">
-                    <div class="bg-dark text-white rounded p-4 h-100 d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center gap-3">
-                            <i class="bi bi-calendar2-week display-6 text-warning"></i>
-                            <div>
-                                <div class="fw-bold">BMS Schedule</div>
-                                <div class="text-white-50 small">{{ filteredEvents.length }} upcoming schedule{{ filteredEvents.length === 1 ? '' : 's' }}</div>
+                <div class="col-12 col-lg-5">
+                    <div class="schedule-header-card h-100">
+                        <div class="schedule-header-inner">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="schedule-icon-circle flex-shrink-0">
+                                    <i class="bi bi-calendar2-week display-6 text-warning"></i>
+                                </div>
+                                <div class="flex-grow-1 min-width-0">
+                                    <div class="fw-bold fs-5">BMS Schedule</div>
+                                    <div class="text-white-50 small">{{ filteredEvents.length }} upcoming schedule{{ filteredEvents.length === 1 ? '' : 's' }}</div>
+                                </div>
                             </div>
+                            <button class="btn btn-primary btn-lg mt-3 mt-lg-0 w-100 w-lg-auto" @click="openAddModal" v-if="canManageSchedule">
+                                <i class="bi bi-plus-lg me-2"></i> Add Schedule
+                            </button>
                         </div>
-                        <button class="btn btn-primary btn-lg" @click="openAddModal" v-if="canManageSchedule">
-                            <i class="bi bi-plus-lg me-2"></i> Add Schedule
-                        </button>
                     </div>
                 </div>
             </div>
@@ -30,8 +34,8 @@
         <!-- ══ FILTERS BAR ══════════════════════════════════════════════ -->
         <div class="content-card mb-4">
             <div class="row g-3 align-items-center">
-                <div class="col-md-6 col-lg-4">
-                    <div class="input-group">
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="input-group search-group">
                         <span class="input-group-text bg-transparent border-end-0 border-secondary border-opacity-25 text-muted">
                             <i class="bi bi-search"></i>
                         </span>
@@ -43,8 +47,8 @@
                         >
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-8">
-                    <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                <div class="col-12 col-md-6 col-lg-8">
+                    <div class="filter-pills-scroll d-flex flex-wrap gap-2">
                         <button
                             class="btn btn-sm filter-pill-btn"
                             :class="{ 'btn-primary': activeTypeFilter === '', 'btn-outline-secondary': activeTypeFilter !== '' }"
@@ -74,7 +78,9 @@
 
         <div v-else>
             <div v-if="filteredEvents.length === 0" class="content-card py-5 text-center text-muted">
-                <i class="bi bi-calendar-x display-2 mb-3 d-block text-secondary"></i>
+                <div class="empty-state-icon">
+                    <i class="bi bi-calendar-x display-2 mb-3 text-secondary"></i>
+                </div>
                 <h3 class="fw-bold mb-2">No upcoming events</h3>
                 <p class="mb-0">Please check back later or modify your search filters.</p>
             </div>
@@ -82,9 +88,9 @@
             <div v-else class="row g-4">
                 <div class="col-12 col-xl-6" v-for="event in filteredEvents" :key="event.id">
                     <div class="event-premium-card h-100" @click="openDetailModal(event)">
-                        <div class="d-flex gap-4 align-items-start">
+                        <div class="event-card-inner d-flex flex-column flex-sm-row gap-3 gap-sm-4 align-items-start">
                             <!-- Calendar Sheet Widget -->
-                            <div class="calendar-widget-sheet flex-shrink-0">
+                            <div class="calendar-widget-sheet flex-shrink-0 mx-auto mx-sm-0">
                                 <div class="calendar-widget-header text-uppercase">
                                     {{ getMonthAbbreviation(event.date) }}
                                 </div>
@@ -95,7 +101,7 @@
                             </div>
 
                             <!-- Event Details -->
-                            <div class="flex-grow-1 min-width-0">
+                            <div class="flex-grow-1 min-width-0 event-details-col">
                                 <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                                     <span class="badge" :class="typeBadgeClass(event.type)">{{ typeLabel(event.type) }}</span>
                                     <span class="text-muted small">
@@ -157,7 +163,7 @@
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body" v-if="selectedEvent">
-                            <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
                                 <span class="badge" :class="typeBadgeClass(selectedEvent.type)">{{ typeLabel(selectedEvent.type) }}</span>
                                 <span class="text-muted">{{ formatDate(selectedEvent.date) }}</span>
                             </div>
@@ -172,18 +178,18 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex gap-4 text-muted small">
-                                <span><i class="bi bi-clock me-1"></i> {{ selectedEvent.start_time }} - {{ selectedEvent.end_time }}</span>
+                            <div class="d-flex gap-4 text-muted small flex-wrap">
+                                <span><i class="bi bi-clock me-1"></i> {{ formatTime(selectedEvent.start_time) }} - {{ formatTime(selectedEvent.end_time) }}</span>
                             </div>
                         </div>
-                        <div class="modal-footer">
+                        <div class="modal-footer flex-wrap gap-2">
                             <button v-if="canManageSchedule" class="btn btn-outline-primary" @click="openEditFromDetail">
                                 <i class="bi bi-pencil me-2"></i> Edit
                             </button>
                             <button v-if="canManageSchedule" class="btn btn-outline-danger" @click="deleteFromDetail">
                                 <i class="bi bi-trash me-2"></i> Delete
                             </button>
-                            <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Close</button>
+                            <button class="btn btn-secondary ms-auto" type="button" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
@@ -230,24 +236,17 @@ export default {
             
             return this.events
                 .filter(event => {
-                    // 1. Only show upcoming events (date >= today)
                     if (event.date < today) return false
-
-                    // 2. Filter by schedule type pill
                     if (this.activeTypeFilter && event.type !== this.activeTypeFilter) return false
-
-                    // 3. Filter by search query (title or description)
                     if (this.searchQuery) {
                         const q = this.searchQuery.toLowerCase()
                         const titleMatch = event.title?.toLowerCase().includes(q)
                         const descMatch = event.description?.toLowerCase().includes(q)
                         if (!titleMatch && !descMatch) return false
                     }
-
                     return true
                 })
                 .sort((a, b) => {
-                    // Sort soonest first
                     const dateCompare = a.date.localeCompare(b.date)
                     return dateCompare || a.start_time.localeCompare(b.start_time)
                 })
@@ -285,7 +284,7 @@ export default {
         },
         getDayNumber(dateStr) {
             if (!dateStr) return ''
-            const [year, month, day] = dateStr.split('-').map(Number)
+            const [, , day] = dateStr.split('-').map(Number)
             return day
         },
         getWeekdayAbbreviation(dateStr) {
@@ -425,13 +424,98 @@ export default {
 </script>
 
 <style scoped>
+/* ══ RESPONSIVE HEADER CARD ═══════════════════════════════════════ */
+.schedule-header-card {
+    background: var(--primary-color);
+    border: 1px solid rgba(234, 220, 194, 0.16);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 24px rgba(13, 13, 18, 0.18);
+    overflow: hidden;
+}
+
+.schedule-header-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-color), var(--gold-color));
+    opacity: 0;
+    transition: opacity 0.24s ease;
+}
+
+.schedule-header-card:hover::before {
+    opacity: 1;
+}
+
+.schedule-header-inner {
+    position: relative;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, rgba(200, 164, 93, 0.12), transparent 40%);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.schedule-icon-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(234, 220, 194, 0.18);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+/* ══ FILTER PILLS ══════════════════════════════════════════════════ */
+.filter-pills-scroll {
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-color) transparent;
+}
+
+.filter-pills-scroll::-webkit-scrollbar {
+    height: 4px;
+}
+
+.filter-pills-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.filter-pills-scroll::-webkit-scrollbar-thumb {
+    background: var(--gold-color);
+    border-radius: 999px;
+}
+
 .filter-pill-btn {
     border-radius: 50px;
-    padding: 0.35rem 1rem;
-    font-weight: 500;
+    padding: 0.4rem 1.1rem;
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
     transition: all 0.2s ease;
 }
 
+.filter-pill-btn:hover {
+    transform: translateY(-1px);
+}
+
+.search-group {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--hairline-color);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-group:focus-within {
+    border-color: var(--gold-color);
+    box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.12);
+}
+
+/* ══ EVENT CARD ═══════════════════════════════════════════════════ */
 .event-premium-card {
     background: var(--surface-color);
     border: 1px solid var(--hairline-color);
@@ -447,15 +531,25 @@ export default {
     border-color: rgba(200, 164, 93, 0.4);
 }
 
+.event-card-inner {
+    align-items: stretch;
+}
+
+.event-details-col {
+    display: flex;
+    flex-direction: column;
+}
+
 /* Calendar Widget Badge */
 .calendar-widget-sheet {
-    width: 4.5rem;
-    background: rgba(255, 253, 248, 0.9);
+    width: 5rem;
+    background: rgba(255, 253, 248, 0.95);
     border: 1px solid var(--hairline-color);
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     text-align: center;
+    align-self: flex-start;
 }
 
 .calendar-widget-header {
@@ -463,16 +557,16 @@ export default {
     color: #fff;
     font-size: 0.72rem;
     font-weight: 700;
-    padding: 0.2rem 0;
-    letter-spacing: 0.05em;
+    padding: 0.25rem 0;
+    letter-spacing: 0.08em;
 }
 
 .calendar-widget-body {
-    padding: 0.4rem 0 0.5rem;
+    padding: 0.5rem 0 0.6rem;
 }
 
 .calendar-widget-day {
-    font-size: 1.8rem;
+    font-size: 1.9rem;
     font-weight: 800;
     color: var(--text-color);
     line-height: 1;
@@ -481,8 +575,8 @@ export default {
 .calendar-widget-weekday {
     font-size: 0.65rem;
     font-weight: 600;
-    letter-spacing: 0.04em;
-    margin-top: 0.15rem;
+    letter-spacing: 0.05em;
+    margin-top: 0.2rem;
 }
 
 .text-truncate-custom {
@@ -507,9 +601,19 @@ export default {
 }
 
 .btn-xs {
-    padding: 0.15rem 0.35rem;
-    font-size: 0.75rem;
-    border-radius: 4px;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.78rem;
+    border-radius: 6px;
+    line-height: 1;
+}
+
+/* Empty state */
+.empty-state-icon {
+    display: inline-block;
+    padding: 1rem;
+    border-radius: 50%;
+    background: rgba(108, 117, 125, 0.08);
+    margin-bottom: 0.5rem;
 }
 
 :deep(.schedule-detail-modal) {
@@ -519,5 +623,97 @@ export default {
 :deep(.schedule-detail-modal .modal-header) {
     background: linear-gradient(135deg, rgba(127, 36, 50, 0.16), rgba(200, 164, 93, 0.08));
     border-bottom: 1px solid var(--hairline-color);
+}
+
+/* ══ RESPONSIVE BREAKPOINTS ═══════════════════════════════════════ */
+@media (max-width: 991.98px) {
+    .event-premium-card {
+        padding: 1.25rem;
+    }
+
+    .calendar-widget-sheet {
+        width: 4.75rem;
+    }
+
+    .calendar-widget-day {
+        font-size: 1.7rem;
+    }
+
+    .schedule-header-inner {
+        padding: 1rem 1.25rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .event-premium-card {
+        padding: 1rem;
+    }
+
+    .calendar-widget-sheet {
+        width: 4.5rem;
+        align-self: center;
+    }
+
+    .calendar-widget-day {
+        font-size: 1.5rem;
+    }
+
+    .calendar-widget-weekday {
+        font-size: 0.6rem;
+    }
+
+    .calendar-widget-header {
+        font-size: 0.65rem;
+    }
+
+    .filter-pill-btn {
+        padding: 0.3rem 0.85rem;
+        font-size: 0.78rem;
+    }
+
+    .btn-lg {
+        --bs-btn-padding-y: 0.55rem;
+        --bs-btn-padding-x: 0.75rem;
+        --bs-btn-font-size: 0.95rem;
+    }
+
+    .schedule-header-inner {
+        padding: 0.9rem 1rem;
+    }
+
+    .schedule-icon-circle {
+        width: 44px;
+        height: 44px;
+    }
+
+    .schedule-icon-circle i {
+        font-size: 1.4rem;
+    }
+
+    :deep(.schedule-detail-modal .modal-footer) {
+        flex-direction: column;
+    }
+
+    :deep(.schedule-detail-modal .modal-footer .btn) {
+        width: 100%;
+    }
+
+    :deep(.schedule-detail-modal .modal-footer .ms-auto) {
+        margin-left: 0 !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .calendar-widget-sheet {
+        width: 4rem;
+    }
+
+    .calendar-widget-day {
+        font-size: 1.3rem;
+    }
+
+    .event-premium-card {
+        padding: 0.85rem;
+    }
 }
 </style>

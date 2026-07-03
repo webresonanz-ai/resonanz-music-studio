@@ -49,6 +49,8 @@ $router->get('/api/trms/concert/ticket/{id}', 'App\Http\Controllers\Trms\Concert
 $router->get('/api/bms/events', 'App\Http\Controllers\Bms\EventController@index');
 $router->get('/api/bms/members', 'App\Http\Controllers\Bms\MemberController@index');
 $router->get('/api/bms/about-us', 'App\Http\Controllers\Bms\AboutController@index');
+$router->get('/api/bms/attendance/concerts', 'App\Http\Controllers\Bms\AttendanceController@concerts');
+$router->get('/api/bms/attendance/concerts/{id}', 'App\Http\Controllers\Bms\AttendanceController@show');
 
 // Protected BMS member CRUD routes
 $router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
@@ -69,10 +71,10 @@ $router->get('/api/trcc/testimonials', 'App\Http\Controllers\Trcc\TestimonialCon
 $router->get('/api/trcc/about-us', 'App\Http\Controllers\Trcc\AboutController@index');
 $router->post('/api/trcc/contact', 'App\Http\Controllers\Trcc\ContactController@store');
 
-// Protected API routes
+// Protected BMS attendance routes
 $router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
-    $router->get('/api/bms/attendance', 'App\Http\Controllers\Bms\AttendanceController@index');
-    $router->post('/api/bms/attendance', 'App\Http\Controllers\Bms\AttendanceController@store');
+    $router->post('/api/bms/attendance/roster', 'App\Http\Controllers\Bms\AttendanceController@updateRoster');
+    $router->post('/api/bms/attendance/record', 'App\Http\Controllers\Bms\AttendanceController@record');
 });
 
 // Run the application

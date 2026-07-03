@@ -95,7 +95,7 @@ CREATE TABLE members (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Attendance table
+-- Attendance table (legacy — tied to events)
 CREATE TABLE attendance (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
@@ -103,6 +103,29 @@ CREATE TABLE attendance (
     status ENUM('present', 'absent', 'late') DEFAULT 'present',
     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+    FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+);
+
+-- Concert roster — singers assigned to a BMS concert schedule
+CREATE TABLE concert_roster (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    concert_schedule_id INT NOT NULL,
+    member_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_concert_member (concert_schedule_id, member_id),
+    FOREIGN KEY (concert_schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+    FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+);
+
+-- Schedule attendance — rehearsal attendance per singer
+CREATE TABLE schedule_attendance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    schedule_id INT NOT NULL,
+    member_id INT NOT NULL,
+    status ENUM('present', 'absent', 'late', 'excused') NOT NULL DEFAULT 'present',
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_schedule_member (schedule_id, member_id),
+    FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
     FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
 );
 
@@ -250,3 +273,27 @@ CREATE TABLE members (
     FOREIGN KEY (program_id) REFERENCES programs(id),
     FOREIGN KEY (user_id)    REFERENCES users(id)
 );
+
+-- ============================================================
+-- Migration: BMS concert roster & schedule attendance
+-- Run on existing installations that already have schedules.
+-- ============================================================
+-- CREATE TABLE concert_roster (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     concert_schedule_id INT NOT NULL,
+--     member_id INT NOT NULL,
+--     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     UNIQUE KEY uk_concert_member (concert_schedule_id, member_id),
+--     FOREIGN KEY (concert_schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+--     FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+-- );
+-- CREATE TABLE schedule_attendance (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     schedule_id INT NOT NULL,
+--     member_id INT NOT NULL,
+--     status ENUM('present', 'absent', 'late', 'excused') NOT NULL DEFAULT 'present',
+--     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+--     UNIQUE KEY uk_schedule_member (schedule_id, member_id),
+--     FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+--     FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+-- );

@@ -163,7 +163,8 @@ export const useBmsStore = defineStore('bms', {
   state: () => ({
     events: [],
     members: [],
-    attendance: []
+    attendanceConcerts: [],
+    attendanceDetail: null
   }),
 
   actions: {
@@ -200,12 +201,37 @@ export const useBmsStore = defineStore('bms', {
       return result
     },
 
-    async fetchAttendance() {
-      this.attendance = await useApiStore().get('/bms/attendance')
+    async fetchAttendanceConcerts() {
+      const result = await useApiStore().get('/bms/attendance/concerts')
+      this.attendanceConcerts = result.concerts || result.all_concerts || []
+      return result
     },
 
-    async recordAttendance(data) {
-      return useApiStore().post('/bms/attendance', data)
+    async fetchAttendanceDetail(concertId) {
+      const result = await useApiStore().get(`/bms/attendance/concerts/${concertId}`)
+      this.attendanceDetail = result
+      return result
+    },
+
+    async updateConcertRoster(concertScheduleId, memberId, action) {
+      const result = await useApiStore().post('/bms/attendance/roster', {
+        concert_schedule_id: concertScheduleId,
+        member_id: memberId,
+        action
+      })
+      if (result?.roster && this.attendanceDetail) {
+        this.attendanceDetail.roster = result.roster
+      }
+      return result
+    },
+
+    async recordScheduleAttendance({ concertScheduleId, scheduleId, memberId, status }) {
+      return useApiStore().post('/bms/attendance/record', {
+        concert_schedule_id: concertScheduleId,
+        schedule_id: scheduleId,
+        member_id: memberId,
+        status
+      })
     }
   }
 })
