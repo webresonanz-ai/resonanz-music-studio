@@ -87,7 +87,7 @@ export default {
         }
         closeSidebar()
 
-        if (!fullPath.includes('/concert/registration')) {
+        if (!fullPath.includes('/concert-reg')) {
           bannerStore.clearBanner()
         }
       },

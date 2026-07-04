@@ -31,24 +31,33 @@ class ScheduleController
 
         $programIds = $data['program_ids'] ?? ['trms'];
         $primaryProgramId = !empty($programIds) ? $programIds[0] : 'trms';
+        $type = $data['type'] ?? 'lesson';
+        $concertCode = $this->normalizeConcertCode($data['concert_code'] ?? '');
+        $isOpenRegister = !empty($data['is_open_register']) ? 1 : 0;
+
+        if ($type === 'concert' && $isOpenRegister && $concertCode === '') {
+            http_response_code(422);
+            echo json_encode(['error' => 'Concert Code is required before opening registration']);
+            return;
+        }
 
         $schedule = [
             'program_id' => $primaryProgramId,
             'title' => trim($data['title']),
-            'type' => $data['type'] ?? 'lesson',
+            'type' => $type,
             'date' => $data['date'],
             'start_time' => $data['start_time'],
             'end_time' => $data['end_time'],
             'venue' => trim($data['venue'] ?? ''),
-            'concert_code' => $this->normalizeConcertCode($data['concert_code'] ?? ''),
+            'concert_code' => $concertCode,
             'description' => $data['description'] ?? '',
             'banner_url' => trim($data['banner_url'] ?? ''),
-            'is_open_register' => !empty($data['is_open_register']) ? 1 : 0,
+            'is_open_register' => $isOpenRegister,
             'audience_capacity' => isset($data['audience_capacity']) && $data['audience_capacity'] !== '' ? (int) $data['audience_capacity'] : null,
         ];
 
         $id = $this->model->create($schedule);
-        
+
         // Sync multiple program associations
         $this->model->syncPrograms($id, $programIds);
 
@@ -58,7 +67,7 @@ class ScheduleController
 
     public function update(string $id): void
     {
-        $schedule = $this->model->find((int)$id);
+        $schedule = $this->model->find((int) $id);
         if (!$schedule) {
             http_response_code(404);
             echo json_encode(['error' => 'Schedule not found']);
@@ -68,17 +77,38 @@ class ScheduleController
         $data = $_POST;
         $updateData = [];
 
-        if (isset($data['title'])) $updateData['title'] = trim($data['title']);
-        if (isset($data['type'])) $updateData['type'] = $data['type'];
-        if (isset($data['date'])) $updateData['date'] = $data['date'];
-        if (isset($data['start_time'])) $updateData['start_time'] = $data['start_time'];
-        if (isset($data['end_time'])) $updateData['end_time'] = $data['end_time'];
-        if (array_key_exists('venue', $data)) $updateData['venue'] = trim($data['venue'] ?? '');
-        if (array_key_exists('concert_code', $data)) $updateData['concert_code'] = $this->normalizeConcertCode($data['concert_code'] ?? '');
-        if (isset($data['description'])) $updateData['description'] = trim($data['description']);
-        if (array_key_exists('banner_url', $data)) $updateData['banner_url'] = trim($data['banner_url'] ?? '');
-        if (array_key_exists('is_open_register', $data)) $updateData['is_open_register'] = !empty($data['is_open_register']) ? 1 : 0;
-        if (array_key_exists('audience_capacity', $data)) $updateData['audience_capacity'] = ($data['audience_capacity'] !== '' && $data['audience_capacity'] !== null) ? (int) $data['audience_capacity'] : null;
+        if (isset($data['title']))
+            $updateData['title'] = trim($data['title']);
+        if (isset($data['type']))
+            $updateData['type'] = $data['type'];
+        if (isset($data['date']))
+            $updateData['date'] = $data['date'];
+        if (isset($data['start_time']))
+            $updateData['start_time'] = $data['start_time'];
+        if (isset($data['end_time']))
+            $updateData['end_time'] = $data['end_time'];
+        if (array_key_exists('venue', $data))
+            $updateData['venue'] = trim($data['venue'] ?? '');
+        if (array_key_exists('concert_code', $data))
+            $updateData['concert_code'] = $this->normalizeConcertCode($data['concert_code'] ?? '');
+        if (isset($data['description']))
+            $updateData['description'] = trim($data['description']);
+        if (array_key_exists('banner_url', $data))
+            $updateData['banner_url'] = trim($data['banner_url'] ?? '');
+        if (array_key_exists('is_open_register', $data))
+            $updateData['is_open_register'] = !empty($data['is_open_register']) ? 1 : 0;
+        if (array_key_exists('audience_capacity', $data))
+            $updateData['audience_capacity'] = ($data['audience_capacity'] !== '' && $data['audience_capacity'] !== null) ? (int) $data['audience_capacity'] : null;
+
+        $nextType = $updateData['type'] ?? ($schedule['type'] ?? 'lesson');
+        $nextConcertCode = $updateData['concert_code'] ?? $this->normalizeConcertCode($schedule['concert_code'] ?? '');
+        $nextIsOpenRegister = $updateData['is_open_register'] ?? (int) ($schedule['is_open_register'] ?? 0);
+
+        if ($nextType === 'concert' && $nextIsOpenRegister && $nextConcertCode === '') {
+            http_response_code(422);
+            echo json_encode(['error' => 'Concert Code is required before opening registration']);
+            return;
+        }
 
         if (isset($data['program_ids'])) {
             $programIds = $data['program_ids'];
@@ -87,10 +117,10 @@ class ScheduleController
             }
         }
 
-        $this->model->update((int)$id, $updateData);
+        $this->model->update((int) $id, $updateData);
 
         if (isset($data['program_ids'])) {
-            $this->model->syncPrograms((int)$id, $data['program_ids']);
+            $this->model->syncPrograms((int) $id, $data['program_ids']);
         }
 
         echo json_encode(['message' => 'Schedule updated successfully']);
@@ -98,14 +128,14 @@ class ScheduleController
 
     public function destroy(string $id): void
     {
-        $schedule = $this->model->find((int)$id);
+        $schedule = $this->model->find((int) $id);
         if (!$schedule) {
             http_response_code(404);
             echo json_encode(['error' => 'Schedule not found']);
             return;
         }
 
-        $this->model->delete((int)$id);
+        $this->model->delete((int) $id);
         echo json_encode(['message' => 'Schedule deleted successfully']);
     }
 

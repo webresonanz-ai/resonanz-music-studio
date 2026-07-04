@@ -32,7 +32,7 @@
                 <div>Loading selected concert...</div>
             </div>
 
-            <div v-else-if="concertTitleParam && !selectedConcert" class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+            <div v-else-if="concertCodeParam && !selectedConcert" class="alert alert-warning d-flex align-items-center gap-2" role="alert">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <span>Concert not found. Please choose another upcoming concert.</span>
                 <router-link class="btn btn-sm btn-outline-primary ms-auto" to="/trms/concert/select">Select Concert</router-link>
@@ -99,7 +99,7 @@
                 </div>
 
                 <div class="d-flex gap-3 mt-4">
-                    <button class="btn btn-primary btn-lg" type="submit" :disabled="loading || loadingSchedule || (concertTitleParam && !selectedConcert) || (selectedConcert && !selectedConcert.is_open_register)">
+                    <button class="btn btn-primary btn-lg" type="submit" :disabled="loading || loadingSchedule || (concertCodeParam && !selectedConcert) || (selectedConcert && !selectedConcert.is_open_register)">
                         <span v-if="loading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
                         <i v-else class="bi bi-send-check me-2"></i>
                         {{ loading ? 'Submitting...' : 'Submit Registration' }}
@@ -113,12 +113,6 @@
 <script>
 import { useTrmsStore } from '../../stores/api'
 import { useBannerStore } from '../../stores/banner'
-
-const slugifyTitle = (title) => String(title || '')
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
 
 const emptyForm = () => ({
     name: '',
@@ -148,8 +142,8 @@ export default {
         }
     },
     computed: {
-        concertTitleParam() {
-            return this.$route.params.concertTitle || ''
+        concertCodeParam() {
+            return this.$route.params.concertCode || ''
         },
         concertScheduleLabel() {
             if (!this.selectedConcert) return ''
@@ -161,7 +155,7 @@ export default {
         }
     },
     watch: {
-        concertTitleParam() {
+        concertCodeParam() {
             this.loadSelectedConcert()
         },
         // Update banner whenever selectedConcert changes
@@ -187,7 +181,7 @@ export default {
         async loadSelectedConcert() {
             this.selectedConcert = null
 
-            if (!this.concertTitleParam) {
+            if (!this.concertCodeParam) {
                 this.form.concert_title = emptyForm().concert_title
                 return
             }
@@ -205,7 +199,7 @@ export default {
                         const dateCompare = a.date.localeCompare(b.date)
                         return dateCompare || a.start_time.localeCompare(b.start_time)
                     })
-                    .find(schedule => slugifyTitle(schedule.title) === this.concertTitleParam)
+                    .find(schedule => String(schedule.concert_code || '').toUpperCase() === String(this.concertCodeParam).toUpperCase())
 
                 if (this.selectedConcert) {
                     this.form.concert_title = this.selectedConcert.title

@@ -136,12 +136,13 @@
                                             class="form-check-input"
                                             type="checkbox"
                                             role="switch"
+                                            :disabled="!hasConcertCode"
                                         >
                                         <label for="scheduleIsOpenRegister" class="form-check-label fw-semibold">
                                             Open for Registration
                                         </label>
                                         <div class="form-text mt-1">
-                                            When enabled, the "Register Now" button appears publicly.
+                                            {{ hasConcertCode ? 'When enabled, the "Register Now" button appears publicly.' : 'Fill Concert Code first to open registration.' }}
                                         </div>
                                     </div>
                                 </div>
@@ -222,6 +223,18 @@ export default {
                 { id: 'jco', name: 'JCO' },
                 { id: 'trcc', name: 'TRCC' }
             ]
+        }
+    },
+    computed: {
+        hasConcertCode() {
+            return this.form.type === 'concert' && String(this.form.concert_code || '').trim() !== ''
+        }
+    },
+    watch: {
+        hasConcertCode(value) {
+            if (!value) {
+                this.form.is_open_register = false
+            }
         }
     },
     methods: {

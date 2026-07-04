@@ -34,8 +34,8 @@
                 {{ concert.description }}
               </p>
               <router-link
-                v-if="concert.is_open_register"
-                :to="`/trms/concert/registration/${slugify(concert.title)}`"
+                v-if="concert.is_open_register && concert.concert_code"
+                :to="`/concert-reg/${concert.concert_code}`"
                 class="btn btn-warning btn-lg mt-3 fw-bold"
               >
                 <i class="bi bi-ticket-perforated me-2"></i>Register Now
@@ -240,14 +240,6 @@ export default {
 
     formatTime(value) {
       return String(value || "").slice(0, 5);
-    },
-
-    slugify(title) {
-      return String(title || "")
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
     },
   },
 };
