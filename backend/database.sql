@@ -167,6 +167,7 @@ CREATE TABLE concerts (
 CREATE TABLE concert_audiences (
     id INT AUTO_INCREMENT PRIMARY KEY,
     program_id VARCHAR(10) NOT NULL,
+    schedule_id INT(11) NOT NULL,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
     phone VARCHAR(50) NOT NULL,

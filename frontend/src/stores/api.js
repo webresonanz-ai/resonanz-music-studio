@@ -59,6 +59,40 @@ export const useApiStore = defineStore('api', {
       })
     },
 
+    async postFormData(endpoint, formData) {
+      // For multipart/form-data uploads — do NOT set Content-Type so the browser
+      // sets the correct boundary automatically.
+      this.loading = true
+      this.error = null
+      try {
+        const token = localStorage.getItem('resonanz-token') || ''
+        const response = await fetch(`${API_BASE}${endpoint}`, {
+          method: 'POST',
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+          },
+          cache: 'no-store',
+          body: formData
+        })
+        const responseText = await response.text()
+        let data
+        try {
+          data = responseText ? JSON.parse(responseText) : {}
+        } catch {
+          data = { error: 'API returned an invalid response' }
+        }
+        if (!response.ok) {
+          throw new Error(data.error || 'Upload failed')
+        }
+        return data
+      } catch (error) {
+        this.error = error.message
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
     async fetchBlob(endpoint) {
       const token = localStorage.getItem('resonanz-token') || ''
       const API_ROOT = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -126,6 +160,12 @@ export const useTrmsStore = defineStore('trms', {
 
     async deleteSchedule(id) {
       return useApiStore().post(`/trms/schedule/${id}/delete`, {})
+    },
+
+    async uploadScheduleBanner(file) {
+      const formData = new FormData()
+      formData.append('banner', file)
+      return useApiStore().postFormData('/trms/upload/banner', formData)
     },
 
 async fetchConcertAudiences(params = {}) {

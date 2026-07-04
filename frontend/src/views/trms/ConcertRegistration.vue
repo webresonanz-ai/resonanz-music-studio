@@ -21,10 +21,10 @@
               <i class="bi bi-ticket-perforated display-6 text-warning"></i>
               <div>
                 <div class="fw-bold">
-                  {{ selectedConcert ? "Selected Concert" : "Audience Pass" }}
+                  {{ selectedConcert ? "Konser yang Dipilih" : "Audience Pass" }}
                 </div>
                 <div class="text-white-50 small">
-                  {{ selectedConcert ? concertTimeLabel : "Registration confirmation" }}
+                  {{ selectedConcert ? concertTimeLabel : "Confirmation registrasi" }}
                 </div>
               </div>
             </div>
@@ -79,14 +79,14 @@
         <div ref="confirmationCard" class="confirmation-card p-4 rounded">
           <div class="confirmation-header text-center mb-4">
             <div class="confirmation-logo mb-2">
-              <i class="bi bi-music-note-beamed text-warning" style="font-size: 2rem"></i>
+              <img src="/logo_resonanz.png" alt="Resonanz Logo" class="logo-resonanz" />
             </div>
             <div class="fw-bold text-uppercase small text-muted letter-spacing-2 mb-1">
-              Resonanz Music Studio
+              The Resonanz Music Studio
             </div>
-            <h2 class="h4 fw-bold mb-0">Registration Confirmed</h2>
+            <h2 class="h4 fw-bold mb-0">Konfirmasi Registrasi</h2>
             <div class="text-success mt-1 small">
-              <i class="bi bi-check-circle-fill me-1"></i>Your seat has been reserved
+              <i class="bi bi-check-circle-fill me-1"></i>Kursi Anda telah dipesan.
             </div>
           </div>
 
@@ -94,38 +94,36 @@
 
           <div class="confirmation-details mb-4">
             <div class="row g-2">
-              <div class="col-5 text-muted small">Concert</div>
+              <div class="col-5 text-muted small">Konser</div>
               <div class="col-7 fw-semibold small">{{ registrationResult.concertTitle }}</div>
 
-              <div class="col-5 text-muted small">Date</div>
+              <div class="col-5 text-muted small">Tanggal</div>
               <div class="col-7 fw-semibold small">{{ registrationResult.concertDate }}</div>
 
-              <div class="col-5 text-muted small">Time</div>
+              <div class="col-5 text-muted small">Waktu</div>
               <div class="col-7 fw-semibold small">{{ registrationResult.concertTime }}</div>
 
               <div class="col-12"><hr class="my-2" /></div>
 
-              <div class="col-5 text-muted small">Name</div>
+              <div class="col-5 text-muted small">Nama</div>
               <div class="col-7 fw-semibold small">{{ registrationResult.name }}</div>
 
               <div class="col-5 text-muted small">Email</div>
               <div class="col-7 fw-semibold small text-break">{{ registrationResult.email }}</div>
 
-              <div class="col-5 text-muted small">Phone</div>
+              <div class="col-5 text-muted small">Nomor HP</div>
               <div class="col-7 fw-semibold small">{{ registrationResult.phone }}</div>
 
-              <div class="col-5 text-muted small">Registered At</div>
+              <div class="col-5 text-muted small">Terdaftar Pada</div>
               <div class="col-7 fw-semibold small">{{ registrationResult.registeredAt }}</div>
             </div>
           </div>
 
           <div class="confirmation-footer text-center pt-2 border-top">
-            <p class="small text-muted mb-1">
-              Your ticket PDF has been sent to your email address.
-            </p>
-            <p class="small text-muted mb-0">
-              If you do not receive the email, please present this confirmation to the event contact
-              person for assistance.
+            <p class="small text-muted mb-1">PDF tiket Anda telah dikirim ke alamat email Anda.</p>
+            <p class="small text-danger mb-0">
+              Jika Anda tidak menerima email, harap menunjukkan konfirmasi ini kepada narahubung
+              untuk mendapatkan bantuan.
             </p>
           </div>
         </div>
@@ -143,10 +141,10 @@
               aria-hidden="true"
             ></span>
             <i v-else class="bi bi-download me-2"></i>
-            {{ screenshotLoading ? "Saving..." : "Download Confirmation" }}
+            {{ screenshotLoading ? "Mengunduh..." : "Unduh Konfirmasi" }}
           </button>
           <router-link class="btn btn-outline-secondary btn-lg" to="/trms/home">
-            <i class="bi bi-house me-2"></i>Back to Home
+            <i class="bi bi-house me-2"></i>Kembali ke Beranda
           </router-link>
         </div>
 
@@ -173,7 +171,7 @@
 
         <div class="row g-3">
           <div class="col-md-6">
-            <label for="audienceName" class="form-label">Full Name</label>
+            <label for="audienceName" class="form-label">Nama Lengkap (Sesuai KTP)</label>
             <input
               id="audienceName"
               v-model.trim="form.name"
@@ -182,6 +180,10 @@
               autocomplete="name"
               required
             />
+            <div class="form-text">
+              1 tiket hanya berlaku untuk 1 orang. Mohon tuliskan nama sesuai KTP agar dapat
+              digunakan sebagai bukti masuk.
+            </div>
           </div>
 
           <div class="col-md-6">
@@ -195,12 +197,12 @@
               required
             />
             <div class="form-text">
-              Please make sure your email address is valid. Your ticket will be sent to this email.
+              Pastikan alamat email Anda valid. Tiket Anda akan dikirim ke alamat email tersebut.
             </div>
           </div>
 
           <div class="col-12">
-            <label for="audiencePhone" class="form-label">Phone</label>
+            <label for="audiencePhone" class="form-label">Nomor HP</label>
             <input
               id="audiencePhone"
               v-model.trim="form.phone"
@@ -229,7 +231,7 @@
               aria-hidden="true"
             ></span>
             <i v-else class="bi bi-send-check me-2"></i>
-            {{ loading ? "Submitting..." : "Submit Registration" }}
+            {{ loading ? "Mengirim..." : "Kirim Registrasi" }}
           </button>
         </div>
       </form>
@@ -479,9 +481,7 @@ export default {
 
 .confirmation-header .confirmation-logo {
   width: 48px;
-  height: 48px;
-  background: #1a1a2e;
-  border-radius: 50%;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -494,5 +494,10 @@ export default {
 
 .letter-spacing-2 {
   letter-spacing: 0.12em;
+}
+
+.logo-resonanz {
+  width: auto;
+  height: 100%;
 }
 </style>

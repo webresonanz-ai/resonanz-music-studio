@@ -42,3 +42,4 @@ __screenshots__/
 .agents
 .vscode
 /backend/vendor
+/backend/public/uploads/banners

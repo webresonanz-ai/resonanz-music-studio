@@ -107,13 +107,97 @@
                                 </div>
                                 <div class="col-12" v-if="form.type === 'concert'">
                                     <label for="scheduleBannerUrl" class="form-label">Concert Banner URL</label>
-                                    <input
-                                        id="scheduleBannerUrl"
-                                        v-model.trim="form.banner_url"
-                                        class="form-control"
-                                        type="url"
-                                        placeholder="https://example.com/banner.jpg"
-                                    >
+                                    <!-- Upload tab or URL tab -->
+                                    <ul class="nav nav-tabs nav-tabs-sm mb-2" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button
+                                                type="button"
+                                                class="nav-link py-1 px-3"
+                                                :class="{ active: bannerTab === 'upload' }"
+                                                @click="bannerTab = 'upload'"
+                                            >
+                                                <i class="bi bi-upload me-1"></i> Upload
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button
+                                                type="button"
+                                                class="nav-link py-1 px-3"
+                                                :class="{ active: bannerTab === 'url' }"
+                                                @click="bannerTab = 'url'"
+                                            >
+                                                <i class="bi bi-link-45deg me-1"></i> URL
+                                            </button>
+                                        </li>
+                                    </ul>
+
+                                    <!-- Upload file input -->
+                                    <div v-if="bannerTab === 'upload'">
+                                        <div
+                                            class="banner-dropzone"
+                                            :class="{ 'is-dragging': isDragging }"
+                                            @dragover.prevent="isDragging = true"
+                                            @dragleave.prevent="isDragging = false"
+                                            @drop.prevent="handleBannerDrop"
+                                            @click="$refs.bannerFileInput.click()"
+                                        >
+                                            <input
+                                                ref="bannerFileInput"
+                                                type="file"
+                                                accept="image/jpeg,image/png,image/webp"
+                                                class="d-none"
+                                                @change="handleBannerFileChange"
+                                            >
+                                            <div v-if="!bannerUploading && !form.banner_url" class="text-center text-muted py-2">
+                                                <i class="bi bi-image fs-2 d-block mb-1"></i>
+                                                <span class="small">Click or drag &amp; drop an image here</span>
+                                                <div class="small opacity-75">JPEG, PNG, WebP — max 3 MB</div>
+                                            </div>
+                                            <div v-if="bannerUploading" class="text-center py-2">
+                                                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                                                <span class="small">Uploading…</span>
+                                            </div>
+                                            <div v-if="!bannerUploading && form.banner_url" class="banner-preview-wrap">
+                                                <img :src="form.banner_url" alt="Banner preview" class="banner-preview-img">
+                                                <button
+                                                    type="button"
+                                                    class="banner-remove-btn"
+                                                    @click.stop="clearBanner"
+                                                    title="Remove banner"
+                                                    aria-label="Remove banner"
+                                                >
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div v-if="bannerUploadError" class="text-danger small mt-1">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>{{ bannerUploadError }}
+                                        </div>
+                                    </div>
+
+                                    <!-- URL text input -->
+                                    <div v-if="bannerTab === 'url'">
+                                        <input
+                                            id="scheduleBannerUrl"
+                                            v-model.trim="form.banner_url"
+                                            class="form-control"
+                                            type="url"
+                                            placeholder="https://example.com/banner.jpg"
+                                        >
+                                        <div v-if="form.banner_url" class="mt-2">
+                                            <img
+                                                :src="form.banner_url"
+                                                alt="Banner preview"
+                                                class="banner-url-preview"
+                                                @error="bannerUrlBroken = true"
+                                                @load="bannerUrlBroken = false"
+                                            >
+                                            <div v-if="bannerUrlBroken" class="text-warning small mt-1">
+                                                <i class="bi bi-exclamation-triangle me-1"></i>Could not load image from this URL.
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div class="form-text">Optional banner image shown on the homepage slideshow.</div>
                                 </div>
                                 <div class="col-md-6" v-if="form.type === 'concert'">
@@ -188,6 +272,7 @@
 
 <script>
 import { Modal } from 'bootstrap'
+import { useTrmsStore } from '../../stores/api'
 
 const emptyForm = () => ({
     title: '',
@@ -222,7 +307,12 @@ export default {
                 { id: 'bms', name: 'BMS' },
                 { id: 'jco', name: 'JCO' },
                 { id: 'trcc', name: 'TRCC' }
-            ]
+            ],
+            bannerTab: 'upload',
+            bannerUploading: false,
+            bannerUploadError: '',
+            bannerUrlBroken: false,
+            isDragging: false
         }
     },
     computed: {
@@ -254,6 +344,9 @@ export default {
             this.form = emptyForm()
             this.form.program_ids = [defaultProgram]
             this.form.date = new Date().toISOString().split('T')[0]
+            this.bannerTab = 'upload'
+            this.bannerUploadError = ''
+            this.bannerUrlBroken = false
             this.show()
         },
         openEdit(schedule) {
@@ -262,6 +355,10 @@ export default {
                 ...schedule,
                 program_ids: schedule.program_ids ? [...schedule.program_ids] : ['trms']
             }
+            // If there's already a banner URL, default to upload tab so the preview shows
+            this.bannerTab = schedule.banner_url ? 'upload' : 'upload'
+            this.bannerUploadError = ''
+            this.bannerUrlBroken = false
             this.show()
         },
         openDay(dateKey, defaultProgram = 'trms') {
@@ -269,6 +366,9 @@ export default {
             this.form = emptyForm()
             this.form.program_ids = [defaultProgram]
             this.form.date = dateKey
+            this.bannerTab = 'upload'
+            this.bannerUploadError = ''
+            this.bannerUrlBroken = false
             this.show()
         },
         handleSubmit() {
@@ -282,6 +382,48 @@ export default {
             if (!this.editingSchedule) return
             if (!confirm('Are you sure you want to delete this schedule?')) return
             this.$emit('delete', this.editingSchedule.id)
+        },
+        async handleBannerFileChange(event) {
+            const file = event.target.files?.[0]
+            if (file) await this.uploadBannerFile(file)
+        },
+        async handleBannerDrop(event) {
+            this.isDragging = false
+            const file = event.dataTransfer.files?.[0]
+            if (file) await this.uploadBannerFile(file)
+        },
+        async uploadBannerFile(file) {
+            const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+            if (!allowed.includes(file.type)) {
+                this.bannerUploadError = 'Only JPEG, PNG, and WebP images are allowed.'
+                return
+            }
+            if (file.size > 3 * 1024 * 1024) {
+                this.bannerUploadError = 'File size exceeds the 3 MB limit.'
+                return
+            }
+            this.bannerUploadError = ''
+            this.bannerUploading = true
+            try {
+                const trmsStore = useTrmsStore()
+                const result = await trmsStore.uploadScheduleBanner(file)
+                this.form.banner_url = result.url
+            } catch (err) {
+                this.bannerUploadError = err.message || 'Upload failed.'
+            } finally {
+                this.bannerUploading = false
+                // Reset file input so the same file can be re-selected if needed
+                if (this.$refs.bannerFileInput) {
+                    this.$refs.bannerFileInput.value = ''
+                }
+            }
+        },
+        clearBanner() {
+            this.form.banner_url = ''
+            this.bannerUploadError = ''
+            if (this.$refs.bannerFileInput) {
+                this.$refs.bannerFileInput.value = ''
+            }
         }
     },
     beforeUnmount() {
@@ -300,5 +442,74 @@ export default {
 .modal-header {
     background: linear-gradient(135deg, rgba(127, 36, 50, 0.16), rgba(200, 164, 93, 0.08));
     border-bottom: 1px solid var(--hairline-color);
+}
+
+/* Banner upload */
+.nav-tabs-sm .nav-link {
+    font-size: 0.82rem;
+}
+
+.banner-dropzone {
+    border: 2px dashed rgba(127, 36, 50, 0.3);
+    border-radius: 8px;
+    min-height: 110px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    background: rgba(127, 36, 50, 0.03);
+    overflow: hidden;
+    position: relative;
+}
+
+.banner-dropzone:hover,
+.banner-dropzone.is-dragging {
+    border-color: var(--accent-color);
+    background: rgba(127, 36, 50, 0.07);
+}
+
+.banner-preview-wrap {
+    width: 100%;
+    position: relative;
+}
+
+.banner-preview-img {
+    display: block;
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.banner-remove-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: background 0.2s;
+}
+
+.banner-remove-btn:hover {
+    background: rgba(200, 0, 0, 0.75);
+}
+
+.banner-url-preview {
+    display: block;
+    width: 100%;
+    max-height: 160px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid var(--hairline-color);
 }
 </style>
