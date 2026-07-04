@@ -13,4 +13,9 @@ export default defineConfig({
     optimizeDeps: {
         include: ['bootstrap'],
     },
+    build: {
+        // Warn only when a chunk exceeds 600 kB (Bootstrap CSS pushes the shared
+        // vendor chunk close to that even after code-splitting).
+        chunkSizeWarningLimit: 600,
+    },
 })

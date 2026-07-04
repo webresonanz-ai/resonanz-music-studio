@@ -89,6 +89,17 @@ public function index(): void
             }
         }
 
+        // ── Duplicate registration check ───────────────────────────────────
+        if ($scheduleId && $this->model->existsByNameEmailAndSchedule(
+            trim($data['name']),
+            trim($data['email']),
+            $scheduleId
+        )) {
+            http_response_code(409);
+            echo json_encode(['error' => 'You have already registered for this concert with the same name and email.']);
+            return;
+        }
+
         try {
             $createData = [
                 'program_id'    => 'trms',

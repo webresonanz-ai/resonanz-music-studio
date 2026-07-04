@@ -30,6 +30,27 @@ class ConcertAudience extends Model
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Check whether a guest with the same name + email has already registered
+     * for a given schedule (case-insensitive).
+     */
+    public function existsByNameEmailAndSchedule(string $name, string $email, int $scheduleId): bool
+    {
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*) FROM {$this->table}
+             WHERE LOWER(name) = LOWER(:name)
+               AND LOWER(email) = LOWER(:email)
+               AND schedule_id = :schedule_id
+             LIMIT 1"
+        );
+        $stmt->execute([
+            'name'        => trim($name),
+            'email'       => trim($email),
+            'schedule_id' => $scheduleId,
+        ]);
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
 public function paginate(int $perPage = 10, int $page = 1, string $search = ''): array
      {
          $offset = ($page - 1) * $perPage;

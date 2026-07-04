@@ -1,271 +1,498 @@
 <template>
-    <div class="fade-in-up">
-        <div class="content-card mb-4">
-            <div class="row g-4 align-items-center">
-                <div class="col-lg-7">
-                    <p class="text-uppercase text-primary fw-bold small mb-2">TRMS Concert</p>
-                    <h1 class="display-4 fw-bold mb-3">{{ selectedConcert ? selectedConcert.title : 'Concert Registration' }}</h1>
-                    <p class="lead text-muted mb-0">
-                        {{ selectedConcert ? concertScheduleLabel : 'Select a concert first or reserve audience seats for the upcoming TRMS concert.' }}
-                    </p>
-                </div>
-                <div class="col-lg-5">
-                    <div class="bg-dark text-white rounded p-4 h-100">
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <i class="bi bi-ticket-perforated display-6 text-warning"></i>
-                            <div>
-                                <div class="fw-bold">{{ selectedConcert ? 'Selected Concert' : 'Audience Pass' }}</div>
-                                <div class="text-white-50 small">{{ selectedConcert ? concertTimeLabel : 'Registration confirmation' }}</div>
-                            </div>
-                        </div>
-                        <p class="mb-0 text-white-50">
-                            {{ selectedConcert ? selectedConcert.description || 'Complete the form below to save this audience registration.' : 'Each submission appears on the audiences page after the API saves it.' }}
-                        </p>
-                    </div>
-                </div>
-            </div>
+  <div class="fade-in-up">
+    <div class="content-card mb-4">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-7">
+          <p class="text-uppercase text-primary fw-bold small mb-2">TRMS Concert</p>
+          <h1 class="display-4 fw-bold mb-3">
+            {{ selectedConcert ? selectedConcert.title : "Concert Registration" }}
+          </h1>
+          <p class="lead text-muted mb-0">
+            {{
+              selectedConcert
+                ? concertScheduleLabel
+                : "Select a concert first or reserve audience seats for the upcoming TRMS concert."
+            }}
+          </p>
         </div>
-
-        <div class="content-card">
-            <div v-if="loadingSchedule" class="py-4 text-center text-muted">
-                <div class="spinner-border text-primary mb-3" role="status"></div>
-                <div>Loading selected concert...</div>
+        <div class="col-lg-5">
+          <div class="bg-dark text-white rounded p-4 h-100">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <i class="bi bi-ticket-perforated display-6 text-warning"></i>
+              <div>
+                <div class="fw-bold">
+                  {{ selectedConcert ? "Selected Concert" : "Audience Pass" }}
+                </div>
+                <div class="text-white-50 small">
+                  {{ selectedConcert ? concertTimeLabel : "Registration confirmation" }}
+                </div>
+              </div>
             </div>
-
-            <div v-else-if="concertCodeParam && !selectedConcert" class="alert alert-warning d-flex align-items-center gap-2" role="alert">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <span>Concert not found. Please choose another upcoming concert.</span>
-                <router-link class="btn btn-sm btn-outline-primary ms-auto" to="/trms/concert/select">Select Concert</router-link>
-            </div>
-
-            <!-- Registration closed notice -->
-            <div v-else-if="selectedConcert && !selectedConcert.is_open_register" class="py-4 text-center">
-                <i class="bi bi-lock-fill display-1 text-muted d-block mb-3 opacity-50"></i>
-                <h2 class="h4 fw-bold mb-2">Registration is Closed</h2>
-                <p class="text-muted mb-4">Registration for <strong>{{ selectedConcert.title }}</strong> is currently not open.<br>Please check back later.</p>
-                <router-link class="btn btn-outline-primary" to="/trms/home">Back to Home</router-link>
-            </div>
-
-            <form v-else @submit.prevent="submitRegistration">
-                <div v-if="successMessage" class="alert alert-success d-flex align-items-center gap-2" role="alert">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>{{ successMessage }}</span>
-                </div>
-
-                <div v-if="errorMessage" class="alert alert-danger d-flex align-items-center gap-2" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    <span>{{ errorMessage }}</span>
-                </div>
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="audienceName" class="form-label">Full Name</label>
-                        <input
-                            id="audienceName"
-                            v-model.trim="form.name"
-                            class="form-control"
-                            type="text"
-                            autocomplete="name"
-                            required
-                        >
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="audienceEmail" class="form-label">Email</label>
-                        <input
-                            id="audienceEmail"
-                            v-model.trim="form.email"
-                            class="form-control"
-                            type="email"
-                            autocomplete="email"
-                            required
-                        >
-                        <div class="form-text">
-                            Please make sure your email address is valid. Your ticket will be sent to this email.
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="audiencePhone" class="form-label">Phone</label>
-                        <input
-                            id="audiencePhone"
-                            v-model.trim="form.phone"
-                            class="form-control"
-                            type="tel"
-                            autocomplete="tel"
-                            required
-                        >
-                    </div>
-                </div>
-
-                <div class="d-flex gap-3 mt-4">
-                    <button class="btn btn-primary btn-lg" type="submit" :disabled="loading || loadingSchedule || (concertCodeParam && !selectedConcert) || (selectedConcert && !selectedConcert.is_open_register)">
-                        <span v-if="loading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-                        <i v-else class="bi bi-send-check me-2"></i>
-                        {{ loading ? 'Submitting...' : 'Submit Registration' }}
-                    </button>
-                </div>
-            </form>
+            <p class="mb-0 text-white-50">
+              {{
+                selectedConcert
+                  ? selectedConcert.description ||
+                    "Complete the form below to save this audience registration."
+                  : "Each submission appears on the audiences page after the API saves it."
+              }}
+            </p>
+          </div>
         </div>
+      </div>
     </div>
+
+    <div class="content-card">
+      <div v-if="loadingSchedule" class="py-4 text-center text-muted">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <div>Loading selected concert...</div>
+      </div>
+
+      <div
+        v-else-if="concertCodeParam && !selectedConcert"
+        class="alert alert-warning d-flex align-items-center gap-2"
+        role="alert"
+      >
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>Concert not found. Please choose another upcoming concert.</span>
+        <router-link class="btn btn-sm btn-outline-primary ms-auto" to="/trms/concert/select"
+          >Select Concert</router-link
+        >
+      </div>
+
+      <!-- Registration closed notice -->
+      <div
+        v-else-if="selectedConcert && !selectedConcert.is_open_register"
+        class="py-4 text-center"
+      >
+        <i class="bi bi-lock-fill display-1 text-muted d-block mb-3 opacity-50"></i>
+        <h2 class="h4 fw-bold mb-2">Registration is Closed</h2>
+        <p class="text-muted mb-4">
+          Registration for <strong>{{ selectedConcert.title }}</strong> is currently not open.<br />Please
+          check back later.
+        </p>
+        <router-link class="btn btn-outline-primary" to="/trms/home">Back to Home</router-link>
+      </div>
+
+      <!-- Success confirmation card (shown after submit) -->
+      <div v-else-if="registrationResult" class="registration-confirmation">
+        <!-- Capturable card -->
+        <div ref="confirmationCard" class="confirmation-card p-4 rounded">
+          <div class="confirmation-header text-center mb-4">
+            <div class="confirmation-logo mb-2">
+              <i class="bi bi-music-note-beamed text-warning" style="font-size: 2rem"></i>
+            </div>
+            <div class="fw-bold text-uppercase small text-muted letter-spacing-2 mb-1">
+              Resonanz Music Studio
+            </div>
+            <h2 class="h4 fw-bold mb-0">Registration Confirmed</h2>
+            <div class="text-success mt-1 small">
+              <i class="bi bi-check-circle-fill me-1"></i>Your seat has been reserved
+            </div>
+          </div>
+
+          <div class="confirmation-divider my-3"></div>
+
+          <div class="confirmation-details mb-4">
+            <div class="row g-2">
+              <div class="col-5 text-muted small">Concert</div>
+              <div class="col-7 fw-semibold small">{{ registrationResult.concertTitle }}</div>
+
+              <div class="col-5 text-muted small">Date</div>
+              <div class="col-7 fw-semibold small">{{ registrationResult.concertDate }}</div>
+
+              <div class="col-5 text-muted small">Time</div>
+              <div class="col-7 fw-semibold small">{{ registrationResult.concertTime }}</div>
+
+              <div class="col-12"><hr class="my-2" /></div>
+
+              <div class="col-5 text-muted small">Name</div>
+              <div class="col-7 fw-semibold small">{{ registrationResult.name }}</div>
+
+              <div class="col-5 text-muted small">Email</div>
+              <div class="col-7 fw-semibold small text-break">{{ registrationResult.email }}</div>
+
+              <div class="col-5 text-muted small">Phone</div>
+              <div class="col-7 fw-semibold small">{{ registrationResult.phone }}</div>
+
+              <div class="col-5 text-muted small">Registered At</div>
+              <div class="col-7 fw-semibold small">{{ registrationResult.registeredAt }}</div>
+            </div>
+          </div>
+
+          <div class="confirmation-footer text-center pt-2 border-top">
+            <p class="small text-muted mb-1">
+              Your ticket PDF has been sent to your email address.
+            </p>
+            <p class="small text-muted mb-0">
+              If you do not receive the email, please present this confirmation to the event contact
+              person for assistance.
+            </p>
+          </div>
+        </div>
+
+        <!-- Action buttons (excluded from screenshot) -->
+        <div class="d-flex flex-wrap gap-3 mt-4 justify-content-center no-screenshot">
+          <button
+            class="btn btn-success btn-lg"
+            :disabled="screenshotLoading"
+            @click="downloadScreenshot"
+          >
+            <span
+              v-if="screenshotLoading"
+              class="spinner-border spinner-border-sm me-2"
+              aria-hidden="true"
+            ></span>
+            <i v-else class="bi bi-download me-2"></i>
+            {{ screenshotLoading ? "Saving..." : "Download Confirmation" }}
+          </button>
+          <router-link class="btn btn-outline-secondary btn-lg" to="/trms/home">
+            <i class="bi bi-house me-2"></i>Back to Home
+          </router-link>
+        </div>
+
+        <div
+          v-if="screenshotError"
+          class="alert alert-danger mt-3 d-flex align-items-center gap-2"
+          role="alert"
+        >
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>{{ screenshotError }}</span>
+        </div>
+      </div>
+
+      <!-- Registration form -->
+      <form v-else @submit.prevent="submitRegistration">
+        <div
+          v-if="errorMessage"
+          class="alert alert-danger d-flex align-items-center gap-2"
+          role="alert"
+        >
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="audienceName" class="form-label">Full Name</label>
+            <input
+              id="audienceName"
+              v-model.trim="form.name"
+              class="form-control"
+              type="text"
+              autocomplete="name"
+              required
+            />
+          </div>
+
+          <div class="col-md-6">
+            <label for="audienceEmail" class="form-label">Email</label>
+            <input
+              id="audienceEmail"
+              v-model.trim="form.email"
+              class="form-control"
+              type="email"
+              autocomplete="email"
+              required
+            />
+            <div class="form-text">
+              Please make sure your email address is valid. Your ticket will be sent to this email.
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label for="audiencePhone" class="form-label">Phone</label>
+            <input
+              id="audiencePhone"
+              v-model.trim="form.phone"
+              class="form-control"
+              type="tel"
+              autocomplete="tel"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="d-flex gap-3 mt-4">
+          <button
+            class="btn btn-primary btn-lg"
+            type="submit"
+            :disabled="
+              loading ||
+              loadingSchedule ||
+              (concertCodeParam && !selectedConcert) ||
+              (selectedConcert && !selectedConcert.is_open_register)
+            "
+          >
+            <span
+              v-if="loading"
+              class="spinner-border spinner-border-sm me-2"
+              aria-hidden="true"
+            ></span>
+            <i v-else class="bi bi-send-check me-2"></i>
+            {{ loading ? "Submitting..." : "Submit Registration" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </template>
 
 <script>
-import { useTrmsStore } from '../../stores/api'
-import { useBannerStore } from '../../stores/banner'
+import html2canvas from "html2canvas";
+import { useTrmsStore } from "../../stores/api";
+import { useBannerStore } from "../../stores/banner";
 
 const emptyForm = () => ({
-    name: '',
-    email: '',
-    phone: '',
-    ticket_quantity: 1,
-    concert_title: 'TRMS Concert',
-    notes: 'Guest'
-})
+  name: "",
+  email: "",
+  phone: "",
+  ticket_quantity: 1,
+  concert_title: "TRMS Concert",
+  notes: "Guest",
+});
 
 export default {
-    name: 'ConcertRegistration',
-    setup() {
-        return {
-            trmsStore: useTrmsStore(),
-            bannerStore: useBannerStore()
+  name: "ConcertRegistration",
+  setup() {
+    return {
+      trmsStore: useTrmsStore(),
+      bannerStore: useBannerStore(),
+    };
+  },
+  data() {
+    return {
+      form: emptyForm(),
+      loading: false,
+      loadingSchedule: false,
+      errorMessage: "",
+      selectedConcert: null,
+      /** Populated after a successful submission – drives the confirmation card */
+      registrationResult: null,
+      screenshotLoading: false,
+      screenshotError: "",
+    };
+  },
+  computed: {
+    concertCodeParam() {
+      return this.$route.params.concertCode || "";
+    },
+    concertScheduleLabel() {
+      if (!this.selectedConcert) return "";
+      return this.formatDate(this.selectedConcert.date);
+    },
+    concertTimeLabel() {
+      if (!this.selectedConcert) return "";
+      return `${this.formatTime(this.selectedConcert.start_time)} - ${this.formatTime(this.selectedConcert.end_time)}`;
+    },
+  },
+  watch: {
+    concertCodeParam() {
+      this.loadSelectedConcert();
+    },
+    // Update banner whenever selectedConcert changes
+    selectedConcert: {
+      handler(concert) {
+        if (concert?.banner_url) {
+          this.bannerStore.setBanner(concert.banner_url);
+        } else {
+          this.bannerStore.clearBanner();
         }
+      },
+      immediate: false,
     },
-    data() {
-        return {
-            form: emptyForm(),
-            loading: false,
-            loadingSchedule: false,
-            successMessage: '',
-            errorMessage: '',
-            selectedConcert: null
+  },
+  mounted() {
+    this.loadSelectedConcert();
+  },
+  beforeUnmount() {
+    // Clean up banner when leaving the page
+    this.bannerStore.clearBanner();
+  },
+  methods: {
+    async loadSelectedConcert() {
+      this.selectedConcert = null;
+
+      if (!this.concertCodeParam) {
+        this.form.concert_title = emptyForm().concert_title;
+        return;
+      }
+
+      this.loadingSchedule = true;
+      this.errorMessage = "";
+
+      try {
+        await this.trmsStore.fetchSchedules();
+
+        const todayKey = this.toDateKey(new Date());
+        this.selectedConcert = this.trmsStore.schedules
+          .filter((schedule) => schedule.type === "concert" && schedule.date >= todayKey)
+          .sort((a, b) => {
+            const dateCompare = a.date.localeCompare(b.date);
+            return dateCompare || a.start_time.localeCompare(b.start_time);
+          })
+          .find(
+            (schedule) =>
+              String(schedule.concert_code || "").toUpperCase() ===
+              String(this.concertCodeParam).toUpperCase(),
+          );
+
+        if (this.selectedConcert) {
+          this.form.concert_title = this.selectedConcert.title;
         }
+      } catch (error) {
+        this.errorMessage = error.message || "Unable to load selected concert.";
+      } finally {
+        this.loadingSchedule = false;
+      }
     },
-    computed: {
-        concertCodeParam() {
-            return this.$route.params.concertCode || ''
-        },
-        concertScheduleLabel() {
-            if (!this.selectedConcert) return ''
-            return this.formatDate(this.selectedConcert.date)
-        },
-        concertTimeLabel() {
-            if (!this.selectedConcert) return ''
-            return `${this.formatTime(this.selectedConcert.start_time)} - ${this.formatTime(this.selectedConcert.end_time)}`
+
+    async submitRegistration() {
+      this.loading = true;
+      this.errorMessage = "";
+
+      try {
+        if (!this.selectedConcert) {
+          this.errorMessage = "Please select a concert before submitting registration.";
+          return;
         }
+
+        const now = new Date();
+        const localTimestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+
+        const payload = {
+          name: this.form.name,
+          email: this.form.email,
+          phone: this.form.phone,
+          concert_title: this.selectedConcert.title,
+          schedule_id: this.selectedConcert.id,
+          ticket_quantity: 1,
+          notes: "Guest",
+          created_at: localTimestamp,
+        };
+
+        const response = await this.trmsStore.submitConcertRegistration(payload);
+
+        // Build the confirmation object shown on the card
+        this.registrationResult = {
+          id: response?.id ?? "—",
+          name: payload.name,
+          email: payload.email,
+          phone: payload.phone,
+          concertTitle: this.selectedConcert.title,
+          concertDate: this.formatDate(this.selectedConcert.date),
+          concertTime: this.concertTimeLabel,
+          registeredAt: this.formatDatetime(now),
+        };
+
+        // Reset the form for potential next use
+        this.form = {
+          ...emptyForm(),
+          concert_title: this.selectedConcert.title,
+        };
+
+        // Wait for the confirmation card to render, then auto-download
+        this.$nextTick(() => {
+          this.downloadScreenshot();
+        });
+      } catch (error) {
+        this.errorMessage = error.message || "Unable to submit registration.";
+      } finally {
+        this.loading = false;
+      }
     },
-    watch: {
-        concertCodeParam() {
-            this.loadSelectedConcert()
-        },
-        // Update banner whenever selectedConcert changes
-        selectedConcert: {
-            handler(concert) {
-                if (concert?.banner_url) {
-                    this.bannerStore.setBanner(concert.banner_url)
-                } else {
-                    this.bannerStore.clearBanner()
-                }
-            },
-            immediate: false
-        }
+
+    /**
+     * Captures the confirmation card as a PNG and triggers a browser download.
+     */
+    async downloadScreenshot() {
+      this.screenshotLoading = true;
+      this.screenshotError = "";
+
+      try {
+        const card = this.$refs.confirmationCard;
+        if (!card) throw new Error("Confirmation card element not found.");
+
+        const canvas = await html2canvas(card, {
+          backgroundColor: "#ffffff",
+          scale: 2, // retina-quality
+          useCORS: true,
+          logging: false,
+        });
+
+        const dataUrl = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        const safeName = (this.registrationResult?.name || "registration")
+          .replace(/\s+/g, "_")
+          .replace(/[^a-z0-9_\-]/gi, "");
+        link.href = dataUrl;
+        link.download = `concert_registration_${safeName}.png`;
+        link.click();
+      } catch (error) {
+        this.screenshotError = "Could not save screenshot. Please try again.";
+        console.error("[ConcertRegistration] screenshot error:", error);
+      } finally {
+        this.screenshotLoading = false;
+      }
     },
-    mounted() {
-        this.loadSelectedConcert()
+
+    toDateKey(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
     },
-    beforeUnmount() {
-        // Clean up banner when leaving the page
-        this.bannerStore.clearBanner()
+    formatDate(dateStr) {
+      if (!dateStr) return "";
+      const [year, month, day] = dateStr.split("-").map(Number);
+      return new Date(year, month - 1, day).toLocaleDateString("id-ID", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
     },
-    methods: {
-        async loadSelectedConcert() {
-            this.selectedConcert = null
-
-            if (!this.concertCodeParam) {
-                this.form.concert_title = emptyForm().concert_title
-                return
-            }
-
-            this.loadingSchedule = true
-            this.errorMessage = ''
-
-            try {
-                await this.trmsStore.fetchSchedules()
-
-                const todayKey = this.toDateKey(new Date())
-                this.selectedConcert = this.trmsStore.schedules
-                    .filter(schedule => schedule.type === 'concert' && schedule.date >= todayKey)
-                    .sort((a, b) => {
-                        const dateCompare = a.date.localeCompare(b.date)
-                        return dateCompare || a.start_time.localeCompare(b.start_time)
-                    })
-                    .find(schedule => String(schedule.concert_code || '').toUpperCase() === String(this.concertCodeParam).toUpperCase())
-
-                if (this.selectedConcert) {
-                    this.form.concert_title = this.selectedConcert.title
-                }
-            } catch (error) {
-                this.errorMessage = error.message || 'Unable to load selected concert.'
-            } finally {
-                this.loadingSchedule = false
-            }
-        },
-        async submitRegistration() {
-            this.loading = true
-            this.successMessage = ''
-            this.errorMessage = ''
-
-            try {
-                if (!this.selectedConcert) {
-                    this.errorMessage = 'Please select a concert before submitting registration.'
-                    return
-                }
-
-                const now = new Date()
-                const localTimestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`
-
-                const payload = {
-                    name: this.form.name,
-                    email: this.form.email,
-                    phone: this.form.phone,
-                    concert_title: this.selectedConcert.title,
-                    schedule_id: this.selectedConcert.id,
-                    ticket_quantity: 1,
-                    notes: 'Guest',
-                    created_at: localTimestamp
-                }
-
-                await this.trmsStore.submitConcertRegistration(payload)
-                this.successMessage = 'Registration submitted successfully.'
-                this.form = {
-                    ...emptyForm(),
-                    concert_title: this.selectedConcert.title
-                }
-            } catch (error) {
-                this.errorMessage = error.message || 'Unable to submit registration.'
-            } finally {
-                this.loading = false
-            }
-        },
-        toDateKey(date) {
-            const year = date.getFullYear()
-            const month = String(date.getMonth() + 1).padStart(2, '0')
-            const day = String(date.getDate()).padStart(2, '0')
-            return `${year}-${month}-${day}`
-        },
-        formatDate(dateStr) {
-            if (!dateStr) return ''
-            const [year, month, day] = dateStr.split('-').map(Number)
-            return new Date(year, month - 1, day).toLocaleDateString('id-ID', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            })
-        },
-        formatTime(value) {
-            return String(value || '').slice(0, 5)
-        }
-    }
-}
+    formatDatetime(date) {
+      return date.toLocaleString("id-ID", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    },
+    formatTime(value) {
+      return String(value || "").slice(0, 5);
+    },
+  },
+};
 </script>
+
+<style scoped>
+/* ── Confirmation card ─────────────────────────────────────────────── */
+.confirmation-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  max-width: 480px;
+  margin: 0 auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.confirmation-header .confirmation-logo {
+  width: 48px;
+  height: 48px;
+  background: #1a1a2e;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.confirmation-divider {
+  border-top: 2px dashed #e0e0e0;
+}
+
+.letter-spacing-2 {
+  letter-spacing: 0.12em;
+}
+</style>

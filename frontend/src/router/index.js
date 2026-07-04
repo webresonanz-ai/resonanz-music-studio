@@ -1,130 +1,101 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-// TRMS Views
-import TRMSHome from "../views/trms/TRMSHome.vue";
-import CoursesFees from "../views/trms/CoursesFees.vue";
-import Facilitation from "../views/trms/Facilitation.vue";
-import Schedules from "../views/trms/Schedules.vue";
-import Teachers from "../views/trms/Teachers.vue";
-import TRMSNews from "../views/trms/News.vue";
-import TRMSContact from "../views/trms/Contact.vue";
-import ConcertSelection from "../views/trms/ConcertSelection.vue";
-import ConcertRegistration from "../views/trms/ConcertRegistration.vue";
-import ConcertAudiences from "../views/trms/ConcertAudiences.vue";
-import ConcertScan from "../views/trms/ConcertScan.vue";
-import TicketPreview from "../views/trms/TicketPreview.vue";
-
-// BMS Views
-import BMSHome from "../views/bms/BMSHome.vue";
-import Events from "../views/bms/Events.vue";
-import Members from "../views/bms/Members.vue";
-import Attendance from "../views/bms/Attendance.vue";
-import BMSAboutUs from "../views/bms/AboutUs.vue";
-
-// JCO Views
-import JCOHome from "../views/jco/JCOHome.vue";
-import Orchestra from "../views/jco/Orchestra.vue";
-import OrchestraProfile from "../views/jco/OrchestraProfile.vue";
-import OrchestraMembers from "../views/jco/OrchestraMembers.vue";
-import Concert from "../views/jco/Concert.vue";
-import Gallery from "../views/jco/Gallery.vue";
-import JCOAboutUs from "../views/jco/AboutUs.vue";
-import JCOContact from "../views/jco/Contact.vue";
-
-// TRCC Views
-import TRCCHome from "../views/trcc/TRCCHome.vue";
-import Achievements from "../views/trcc/Achievements.vue";
-import Testimonial from "../views/trcc/Testimonial.vue";
-import TRCCAboutUs from "../views/trcc/AboutUs.vue";
-import TRCCContact from "../views/trcc/Contact.vue";
-import Auth from "../views/Auth.vue";
-
 const routes = [
   {
     path: "/",
     redirect: "/trms/home",
   },
-  // TRMS Routes
+
+  // ── TRMS ──────────────────────────────────────────────────────────────────
   {
     path: "/trms",
     children: [
       { path: "", redirect: "/trms/home" },
-      { path: "home", component: TRMSHome },
-      { path: "courses-fees", component: CoursesFees },
-      { path: "facilitation", component: Facilitation },
-      { path: "schedules", component: Schedules },
-      { path: "teachers", component: Teachers },
-      { path: "news", component: TRMSNews },
-      { path: "contact", component: TRMSContact },
-      { path: "concert/select", component: ConcertSelection },
-      { path: "concert-reg", component: ConcertRegistration, meta: { hideShellNav: true } },
+      { path: "home",         component: () => import("../views/trms/TRMSHome.vue") },
+      { path: "courses-fees", component: () => import("../views/trms/CoursesFees.vue") },
+      { path: "facilitation", component: () => import("../views/trms/Facilitation.vue") },
+      { path: "schedules",    component: () => import("../views/trms/Schedules.vue") },
+      { path: "teachers",     component: () => import("../views/trms/Teachers.vue") },
+      { path: "news",         component: () => import("../views/trms/News.vue") },
+      { path: "contact",      component: () => import("../views/trms/Contact.vue") },
+      { path: "concert/select",    component: () => import("../views/trms/ConcertSelection.vue") },
+      { path: "concert-reg",       component: () => import("../views/trms/ConcertRegistration.vue"), meta: { hideShellNav: true } },
       {
         path: "concert/audiences",
-        component: ConcertAudiences,
+        component: () => import("../views/trms/ConcertAudiences.vue"),
         meta: { roles: ["admin", "manager"] },
       },
-      { path: "concert/scan", component: ConcertScan, meta: { roles: ["admin", "manager"] } },
+      {
+        path: "concert/scan",
+        component: () => import("../views/trms/ConcertScan.vue"),
+        meta: { roles: ["admin", "manager"] },
+      },
       {
         path: "concert/ticket/:id",
-        component: TicketPreview,
+        component: () => import("../views/trms/TicketPreview.vue"),
         meta: { roles: ["admin", "manager"] },
       },
     ],
   },
-  // BMS Routes
+
+  // ── BMS ───────────────────────────────────────────────────────────────────
   {
     path: "/bms",
     children: [
       { path: "", redirect: "/bms/home" },
-      { path: "home", component: BMSHome },
-      { path: "events", component: Events },
-      { path: "members", component: Members },
+      { path: "home",     component: () => import("../views/bms/BMSHome.vue") },
+      { path: "events",   component: () => import("../views/bms/Events.vue") },
+      { path: "members",  component: () => import("../views/bms/Members.vue") },
       {
         path: "attendance",
-        component: Attendance,
+        component: () => import("../views/bms/Attendance.vue"),
         meta: { roles: ["admin", "manager", "singers_manager"] },
       },
-      { path: "about-us", component: BMSAboutUs },
+      { path: "about-us", component: () => import("../views/bms/AboutUs.vue") },
     ],
   },
-  // JCO Routes
+
+  // ── JCO ───────────────────────────────────────────────────────────────────
   {
     path: "/jco",
     children: [
       { path: "", redirect: "/jco/home" },
-      { path: "home", component: JCOHome },
-      { path: "orchestra", component: Orchestra },
-      { path: "orchestra/profile", component: OrchestraProfile },
-      { path: "orchestra/members", component: OrchestraMembers },
-      { path: "concert", component: Concert },
-      { path: "gallery", component: Gallery },
-      { path: "about-us", component: JCOAboutUs },
-      { path: "contact", component: JCOContact },
+      { path: "home",              component: () => import("../views/jco/JCOHome.vue") },
+      { path: "orchestra",         component: () => import("../views/jco/Orchestra.vue") },
+      { path: "orchestra/profile", component: () => import("../views/jco/OrchestraProfile.vue") },
+      { path: "orchestra/members", component: () => import("../views/jco/OrchestraMembers.vue") },
+      { path: "concert",           component: () => import("../views/jco/Concert.vue") },
+      { path: "gallery",           component: () => import("../views/jco/Gallery.vue") },
+      { path: "about-us",          component: () => import("../views/jco/AboutUs.vue") },
+      { path: "contact",           component: () => import("../views/jco/Contact.vue") },
     ],
   },
-  // TRCC Routes
+
+  // ── TRCC ──────────────────────────────────────────────────────────────────
   {
     path: "/trcc",
     children: [
       { path: "", redirect: "/trcc/home" },
-      { path: "home", component: TRCCHome },
-      { path: "achievements", component: Achievements },
-      { path: "testimonial", component: Testimonial },
-      { path: "about-us", component: TRCCAboutUs },
-      { path: "contact", component: TRCCContact },
+      { path: "home",         component: () => import("../views/trcc/TRCCHome.vue") },
+      { path: "achievements", component: () => import("../views/trcc/Achievements.vue") },
+      { path: "testimonial",  component: () => import("../views/trcc/Testimonial.vue") },
+      { path: "about-us",     component: () => import("../views/trcc/AboutUs.vue") },
+      { path: "contact",      component: () => import("../views/trcc/Contact.vue") },
     ],
   },
-  // Concert Registration
+
+  // ── Concert Registration (public, standalone) ─────────────────────────────
   {
     path: "/concert-reg/:concertCode",
-    component: ConcertRegistration,
+    component: () => import("../views/trms/ConcertRegistration.vue"),
     meta: { hideShellNav: true },
   },
-  // Auth Route
+
+  // ── Auth ──────────────────────────────────────────────────────────────────
   {
     path: "/auth",
     name: "Auth",
-    component: Auth,
+    component: () => import("../views/Auth.vue"),
   },
 ];
 
@@ -143,7 +114,6 @@ router.beforeEach((to, _from) => {
   const userRole = user?.role?.toLowerCase();
 
   if (!user) {
-    // Not logged in — send to auth, then back here after login
     return { path: "/auth", query: { redirect: to.fullPath } };
   }
 
@@ -151,7 +121,6 @@ router.beforeEach((to, _from) => {
     return true;
   }
 
-  // Logged in but wrong role — send to their home with a flag
   return { path: "/bms/home", query: { unauthorized: "1" } };
 });
 
