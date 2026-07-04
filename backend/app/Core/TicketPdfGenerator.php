@@ -28,10 +28,10 @@ class TicketPdfGenerator
     // ── Layout constants (mm on A4 210 × 297 mm) ─────────────────────────────
 
     /** Guest name — left edge X (mm) */
-    private const NAME_X = 55;
+    private const NAME_X = 5;
 
     /** Guest name — baseline Y (mm).  Tweak until it lands in the name field. */
-    private const NAME_Y = 228;
+    private const NAME_Y = 231;
 
     /** Guest name — cell width (mm); text is centred within this width */
     private const NAME_W = 100;
@@ -40,13 +40,13 @@ class TicketPdfGenerator
     private const NAME_FONT_SIZE = 18;
 
     /** QR code — top-left X (mm) */
-    private const QR_X = 72;
+    private const QR_X = 22;
 
     /** QR code — top-left Y (mm) */
-    private const QR_Y = 149;
+    private const QR_Y = 165;
 
     /** QR code — width = height (mm) */
-    private const QR_SIZE = 65;
+    private const QR_SIZE = 62;
 
     // ─────────────────────────────────────────────────────────────────────────
 
@@ -106,8 +106,24 @@ class TicketPdfGenerator
 
         $pdf->SetFont('helvetica', 'B', self::NAME_FONT_SIZE);
         $pdf->SetTextColor(0, 0, 0); // black
-        $pdf->SetXY(self::NAME_X, self::NAME_Y);
-        $pdf->Cell(self::NAME_W, 8, $guestName, 0, 0, 'C');
+
+        $nameLen = mb_strlen($guestName, 'UTF-8');
+
+        if ($nameLen > 23) {
+            $splitPos = $this->findNearestSpaceSplit($guestName, 23);
+
+            $line1 = mb_substr($guestName, 0, $splitPos, 'UTF-8');
+            $line2 = trim(mb_substr($guestName, $splitPos + 1, null, 'UTF-8'));
+
+            $y = self::NAME_Y - 3;
+            $pdf->SetXY(self::NAME_X, $y);
+            $pdf->Cell(self::NAME_W, 8, $line1, 0, 2, 'C');
+            $pdf->SetX(self::NAME_X);
+            $pdf->Cell(self::NAME_W, 8, $line2, 0, 0, 'C');
+        } else {
+            $pdf->SetXY(self::NAME_X, self::NAME_Y);
+            $pdf->Cell(self::NAME_W, 8, $guestName, 0, 0, 'C');
+        }
 
         return $pdf->Output('ticket.pdf', 'S');
     }
@@ -121,6 +137,35 @@ class TicketPdfGenerator
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
+
+    /**
+     * Find the nearest space character to the given position and return its index.
+     * Used to split long guest names across two lines without cutting words badly.
+     */
+    private function findNearestSpaceSplit(string $text, int $position): int
+    {
+        $len = mb_strlen($text, 'UTF-8');
+        if ($position >= $len) {
+            return $len;
+        }
+
+        $before = mb_strrpos(mb_substr($text, 0, $position + 1, 'UTF-8'), ' ', 0, 'UTF-8');
+        $after = mb_strpos($text, ' ', $position, 'UTF-8');
+
+        if ($before !== false && $after !== false) {
+            return ($position - $before <= $after - $position) ? $before : $after;
+        }
+
+        if ($before !== false) {
+            return $before;
+        }
+
+        if ($after !== false) {
+            return $after;
+        }
+
+        return $position;
+    }
 
     /**
      * Build a compact JSON payload for the QR code.
