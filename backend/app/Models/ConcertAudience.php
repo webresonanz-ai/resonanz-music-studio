@@ -128,6 +128,22 @@ public function paginate(int $perPage = 10, int $page = 1, string $search = ''):
     }
 
     /**
+     * Store the ticket email delivery result.
+     */
+    public function updateSendEmailStatus(int $id, string $status): bool
+    {
+        $allowed = ['pending', 'sent', 'failed'];
+        if (!in_array($status, $allowed, true)) {
+            $status = 'pending';
+        }
+
+        $stmt = $this->db->prepare(
+            "UPDATE {$this->table} SET send_email_status = :status WHERE id = :id"
+        );
+        return $stmt->execute(['status' => $status, 'id' => $id]);
+    }
+
+    /**
      * Build the unique QR code identifier string.
      *
      * Format: {concertCode}_{id}_{timestamp}_{rand4}

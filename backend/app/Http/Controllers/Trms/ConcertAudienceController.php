@@ -145,8 +145,9 @@ public function index(): void
         $this->sendRegistrationEmail($registrationData, $pdfContent);
     }
 
-    private function sendRegistrationEmail(array $data, ?string $pdfContent): void
+    private function sendRegistrationEmail(array $data, ?string $pdfContent): bool
     {
+        $id             = (int) ($data['id'] ?? 0);
         $to             = trim($data['email']);
         $name           = trim($data['name']);
         $concertTitle   = trim($data['concert_title']);
@@ -249,7 +250,17 @@ public function index(): void
         $safeName = 'ticket_' . preg_replace('/\s+/', '_', $name) . '.pdf';
 
         $mail = new Mail($to, $subject, $textBody, $pdfContent, $safeName, $htmlBody);
-        $mail->send();
+        $sent = $mail->send();
+
+        if ($id > 0) {
+            try {
+                $this->model->updateSendEmailStatus($id, $sent ? 'sent' : 'failed');
+            } catch (\Throwable $error) {
+                error_log('Unable to update send_email_status: ' . $error->getMessage());
+            }
+        }
+
+        return $sent;
     }
 
     private function generateTicketPdf(array $data): ?string
@@ -373,7 +384,14 @@ public function index(): void
 
         try {
             $pdfContent = $this->generateTicketPdf($audience);
-            $this->sendRegistrationEmail($audience, $pdfContent);
+            $sent = $this->sendRegistrationEmail($audience, $pdfContent);
+
+            if (!$sent) {
+                http_response_code(502);
+                echo json_encode(['success' => false, 'message' => 'Email resend failed']);
+                return;
+            }
+
             echo json_encode(['success' => true, 'message' => 'Email resent successfully']);
         } catch (\Throwable $e) {
             http_response_code(500);

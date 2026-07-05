@@ -176,6 +176,7 @@ CREATE TABLE concert_audiences (
     notes TEXT,
     qr_code VARCHAR(100) DEFAULT NULL COMMENT 'Format: {concertCode}_{id}_{timestamp}_{rand4}',
     attended_at TIMESTAMP NULL DEFAULT NULL COMMENT 'Set when the ticket QR is scanned at the door',
+    send_email_status ENUM('pending', 'sent', 'failed') NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (program_id) REFERENCES programs(id)
 );
@@ -185,6 +186,9 @@ CREATE TABLE concert_audiences (
 
 -- Migration: add attended_at for ticket scan check-in
 -- ALTER TABLE concert_audiences ADD COLUMN attended_at TIMESTAMP NULL DEFAULT NULL AFTER qr_code;
+
+-- Migration: add send_email_status for ticket email delivery tracking
+-- ALTER TABLE concert_audiences ADD COLUMN send_email_status ENUM('pending', 'sent', 'failed') NOT NULL DEFAULT 'pending' AFTER attended_at;
 
 -- Gallery table
 CREATE TABLE gallery (
