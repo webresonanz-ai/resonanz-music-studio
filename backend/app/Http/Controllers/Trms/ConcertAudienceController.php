@@ -497,4 +497,38 @@ public function index(): void
         header('Cache-Control: private, no-cache');
         echo $pdfContent;
     }
+
+    public function sendBulkEmail(): void
+    {
+        header('Content-Type: application/json');
+
+        $pendingAudiences = $this->model->findPendingEmail(10);
+
+        if (empty($pendingAudiences)) {
+            echo json_encode(['success' => true, 'message' => 'No pending emails to send', 'sent_count' => 0]);
+            return;
+        }
+
+        $sentCount = 0;
+        $failedCount = 0;
+
+        foreach ($pendingAudiences as $audience) {
+            $pdfContent = $this->generateTicketPdf($audience);
+            $sent = $this->sendRegistrationEmail($audience, $pdfContent);
+
+            if ($sent) {
+                $sentCount++;
+            } else {
+                $failedCount++;
+            }
+        }
+
+        echo json_encode([
+            'success' => true,
+            'message' => "Bulk email sent",
+            'sent_count' => $sentCount,
+            'failed_count' => $failedCount,
+            'total_processed' => count($pendingAudiences)
+        ]);
+    }
 }

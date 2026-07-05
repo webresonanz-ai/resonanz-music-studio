@@ -51,6 +51,7 @@ $router->post('/api/trms/concert/audiences/{id}/resend-email', 'App\Http\Control
 RoleMiddleware::$roles = ['admin', 'manager'];
 $router->group(['middleware' => [AuthMiddleware::class, RoleMiddleware::class]], function ($router) {
     $router->get('/api/trms/concert/ticket/{id}', 'App\Http\Controllers\Trms\ConcertAudienceController@downloadTicket');
+    $router->post('/api/trms/concert/send-bulk-email', 'App\Http\Controllers\Trms\ConcertAudienceController@sendBulkEmail');
 });
 
 $router->get('/api/bms/events', 'App\Http\Controllers\Bms\EventController@index');

@@ -76,18 +76,28 @@ public function paginate(int $perPage = 10, int $page = 1, string $search = ''):
           $stmt->execute($dataParams);
          $items = $stmt->fetchAll();
 
-         return [
-             'items' => $items,
-             'total' => $total,
-             'per_page' => $perPage,
-             'current_page' => $page,
-             'last_page' => (int) ceil($total / $perPage),
-         ];
-     }
+return [
+              'items' => $items,
+              'total' => $total,
+              'per_page' => $perPage,
+              'current_page' => $page,
+              'last_page' => (int) ceil($total / $perPage),
+          ];
+      }
+
+    public function findPendingEmail(int $limit = 10): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT * FROM {$this->table} WHERE send_email_status = 'pending' ORDER BY created_at DESC LIMIT :limit"
+        );
+        $stmt->bindValue(':limit', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 
     /**
-     * Look up a registration by its qr_code identifier.
-     */
+      * Look up a registration by its qr_code identifier.
+      */
     public function findByQrCode(string $qrCode): array|false
     {
         $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE qr_code = :qr_code LIMIT 1");

@@ -14,6 +14,16 @@
                 : "Select a concert first or reserve audience seats for the upcoming TRMS concert."
             }}
           </p>
+          <p v-if="selectedConcert" class="lead text-muted mt-2 mb-0">
+            <a
+              :href="`https://wa.me/628118747755`"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-decoration-none"
+            >
+              <i class="bi bi-person-badge me-1"></i>Narahubung: +62 811-8747-755
+            </a>
+          </p>
         </div>
         <div class="col-lg-5">
           <div class="bg-dark text-white rounded p-4 h-100">
@@ -24,7 +34,7 @@
                   {{ selectedConcert ? "Konser yang Dipilih" : "Audience Pass" }}
                 </div>
                 <div class="text-white-50 small">
-                  {{ selectedConcert ? concertTimeLabel : "Confirmation registrasi" }}
+                  {{ selectedConcert ? concertTimeLabel : "Konfirmasi registrasi" }}
                 </div>
               </div>
             </div>
