@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Trms;
 
 class UploadController
 {
+    // Saves to backend/public/uploads/banners/ — the PHP doc root on Hostinger
+    // is backend/public/, so this folder is directly web-accessible at /uploads/banners/
     private const UPLOAD_DIR = __DIR__ . '/../../../../public/uploads/banners/';
     private const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     private const MAX_SIZE = 3 * 1024 * 1024; // 3 MB
@@ -45,9 +47,9 @@ class UploadController
         // Generate a unique filename with the correct extension
         $ext = match ($mime) {
             'image/jpeg', 'image/jpg' => 'jpg',
-            'image/png'               => 'png',
-            'image/webp'              => 'webp',
-            default                   => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            default => 'jpg',
         };
         $filename = 'banner_' . uniqid('', true) . '.' . $ext;
         $destination = self::UPLOAD_DIR . $filename;
@@ -60,21 +62,25 @@ class UploadController
 
         // Build the public URL
         $appUrl = rtrim($_ENV['APP_URL'] ?? 'http://localhost:8000', '/');
-        $publicUrl = $appUrl . '/uploads/banners/' . $filename;
+        $publicUrl = $appUrl . '/backend/public/uploads/banners/' . $filename;
 
-        echo json_encode(['url' => $publicUrl]);
+        echo json_encode([
+            'url' => $publicUrl,
+            'debug_saved_to' => $destination,
+            'debug_doc_root' => $_SERVER['DOCUMENT_ROOT'] ?? 'unknown',
+        ]);
     }
 
     private function uploadErrorMessage(int $code): string
     {
         return match ($code) {
             UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'File too large.',
-            UPLOAD_ERR_PARTIAL   => 'File was only partially uploaded.',
-            UPLOAD_ERR_NO_FILE   => 'No file was uploaded.',
+            UPLOAD_ERR_PARTIAL => 'File was only partially uploaded.',
+            UPLOAD_ERR_NO_FILE => 'No file was uploaded.',
             UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder.',
             UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
-            UPLOAD_ERR_EXTENSION  => 'Upload stopped by extension.',
-            default               => 'Unknown upload error.',
+            UPLOAD_ERR_EXTENSION => 'Upload stopped by extension.',
+            default => 'Unknown upload error.',
         };
     }
 }
