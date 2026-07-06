@@ -8,7 +8,7 @@ use TCPDF;
  * Generates a PDF invitation ticket by overlaying a guest name and QR code
  * on top of the concert invitation template image.
  *
- * Template: backend/public/assets/images/invitation_ticket-soli_deo_gratia.png
+ * Template: backend/public/assets/images/guest_ticket-soli_deo_gratia.png
  * Image size: 1054 × 1492 px  →  rendered as A4 (210 × 297 mm) in the PDF
  *
  * Coordinate reference (all values in mm, origin = top-left corner of page):
@@ -52,7 +52,7 @@ class TicketPdfGenerator
 
     public function __construct()
     {
-        $this->templatePath = __DIR__ . '/../../public/assets/images/invitation_ticket-soli_deo_gratia.png';
+        $this->templatePath = __DIR__ . '/../../public/assets/images/guest_ticket-soli_deo_gratia.png';
         $this->qrGenerator = new QrCodeGenerator();
     }
 
