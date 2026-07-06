@@ -22,11 +22,13 @@ public function index(): void
      {
          header('Content-Type: application/json');
 
-         $page = max(1, (int) ($_GET['page'] ?? 1));
+         $page    = max(1, (int) ($_GET['page'] ?? 1));
          $perPage = max(1, min(100, (int) ($_GET['per_page'] ?? 10)));
-         $search = trim($_GET['search'] ?? '');
+         $search  = trim($_GET['search'] ?? '');
+         $concert = trim($_GET['concert'] ?? '');
+         $notes   = trim($_GET['notes'] ?? '');
 
-         $result = $this->model->paginate($perPage, $page, $search);
+         $result = $this->model->paginate($perPage, $page, $search, $concert, $notes);
 
         echo json_encode([
             'data' => $result['items'],
@@ -35,6 +37,16 @@ public function index(): void
             'current_page' => $result['current_page'],
             'last_page' => $result['last_page'],
         ]);
+    }
+
+    /**
+     * GET /api/trms/concert/audiences/concerts
+     * Returns a list of distinct concert_title values for filter dropdowns.
+     */
+    public function concerts(): void
+    {
+        header('Content-Type: application/json');
+        echo json_encode(['data' => $this->model->getDistinctConcerts()]);
     }
 
     public function store(): void
@@ -70,9 +82,11 @@ public function index(): void
                 return;
             }
 
-            // Check per-concert capacity
-            if (!empty($schedule['audience_capacity'])) {
-                $registered = $this->model->countBySchedule($scheduleId);
+            // Check per-concert capacity — only Guest tickets count toward the cap;
+            // Invitation registrations are exempt from capacity limits.
+            $incomingNotes = trim($data['notes'] ?? 'Guest');
+            if (!empty($schedule['audience_capacity']) && $incomingNotes === 'Guest') {
+                $registered = $this->model->countGuestBySchedule($scheduleId);
                 if ($registered >= (int) $schedule['audience_capacity']) {
                     http_response_code(409);
                     echo json_encode(['error' => 'We\'re sorry, the maximum capacity for this concert has been reached. Registration is now closed.']);
@@ -100,52 +114,118 @@ public function index(): void
             return;
         }
 
+        $concertCode   = trim((string) ($schedule['concert_code'] ?? ''));
+        $qty           = max(1, (int) ($data['ticket_quantity'] ?? 1));
+        $baseCreateData = [
+            'program_id'      => 'trms',
+            'schedule_id'     => $scheduleId,
+            'name'            => trim($data['name']),
+            'email'           => trim($data['email']),
+            'phone'           => trim($data['phone']),
+            'concert_title'   => trim($data['concert_title']),
+            'ticket_quantity' => 1,          // always 1 row = 1 physical ticket
+            'notes'           => $incomingNotes,
+        ];
+
+        if (!empty($data['created_at'])) {
+            $baseCreateData['created_at'] = $data['created_at'];
+        }
+
+        // ── For Invitation with qty > 1: one DB row per ticket, each with its own QR ──
+        // ── For Guest or qty = 1: single row as before ────────────────────────────────
+        $isInvitation   = ($incomingNotes === 'Invitation');
+        $ticketCount    = ($isInvitation && $qty > 1) ? $qty : 1;
+        $createdRecords = [];   // ['id' => ..., 'qr_code' => ...]
+
         try {
-            $createData = [
-                'program_id'    => 'trms',
-                'schedule_id'   => $scheduleId,
-                'name'          => trim($data['name']),
-                'email'         => trim($data['email']),
-                'phone'         => trim($data['phone']),
-                'concert_title' => trim($data['concert_title']),
-                'ticket_quantity' => 1,
-                'notes'         => trim($data['notes'] ?? 'Guest')
-            ];
+            for ($i = 0; $i < $ticketCount; $i++) {
+                $rowData = $baseCreateData;
+                // For Guest keep the original requested qty on the single row
+                if (!$isInvitation) {
+                    $rowData['ticket_quantity'] = $qty;
+                }
 
-            if (!empty($data['created_at'])) {
-                $createData['created_at'] = $data['created_at'];
+                $id     = $this->model->create($rowData);
+                $qrCode = ConcertAudience::buildQrCode($concertCode, $id);
+                $this->model->updateQrCode($id, $qrCode);
+
+                $createdRecords[] = ['id' => $id, 'qr_code' => $qrCode];
             }
-
-            $id = $this->model->create($createData);
         } catch (\Throwable $error) {
             http_response_code(500);
             echo json_encode(['error' => 'Unable to save registration. Please check the database setup.']);
             return;
         }
 
-        // Generate the unique QR code string from the schedule concert_code and persist it.
-        $concertCode = trim((string) ($schedule['concert_code'] ?? ''));
-        $qrCode = ConcertAudience::buildQrCode($concertCode, $id);
-        $this->model->updateQrCode($id, $qrCode);
+        $firstId      = $createdRecords[0]['id'];
+        $firstQrCode  = $createdRecords[0]['qr_code'];
 
         http_response_code(201);
         echo json_encode([
-            'success' => true,
-            'message' => 'Registration submitted successfully',
-            'id' => $id,
-            'qr_code' => $qrCode,
-            'ticket_pdf_url' => '/api/trms/concert/ticket/' . $id
+            'success'          => true,
+            'message'          => 'Registration submitted successfully',
+            'id'               => $firstId,
+            'qr_code'          => $firstQrCode,
+            'tickets_created'  => $ticketCount,
+            'ticket_pdf_url'   => '/api/trms/concert/ticket/' . $firstId,
         ]);
 
-        // Merge the inserted ID and qr_code so the PDF/email have full data
-        $registrationData = array_merge($data, ['id' => $id, 'qr_code' => $qrCode]);
+        // ── Flush the HTTP response to the client immediately ─────────────────
+        // PDF generation + SMTP can be slow; the user should not wait for it.
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        } else {
+            // Works with PHP built-in server and most SAPI setups
+            while (ob_get_level() > 0) {
+                ob_end_flush();
+            }
+            flush();
+        }
 
-        // Generate PDF once and reuse it for the email attachment
-        $pdfContent = $this->generateTicketPdf($registrationData);
-        $this->sendRegistrationEmail($registrationData, $pdfContent);
+        // Remove execution time limit for the background PDF + email work
+        @set_time_limit(0);
+
+        // ── Build ticket rows for PDF generation ──────────────────────────────
+        $baseForPdf = array_merge($data, [
+            'notes'           => $incomingNotes,
+            'ticket_quantity' => 1,
+        ]);
+
+        // Generate one individual PDF per created record
+        $ticketPdfs = [];   // [['pdf' => string, 'name' => string], ...]
+        foreach ($createdRecords as $index => $record) {
+            $ticketData = array_merge($baseForPdf, [
+                'id'      => $record['id'],
+                'qr_code' => $record['qr_code'],
+            ]);
+            $pdf = $this->generateTicketPdf($ticketData);
+            if ($pdf !== null) {
+                $ticketNumber = $index + 1;
+                $ticketPdfs[] = [
+                    'pdf'  => $pdf,
+                    'name' => "ticket_{$ticketNumber}_of_{$ticketCount}.pdf",
+                ];
+            }
+        }
+
+        $emailData = array_merge($baseForPdf, [
+            'id'              => $firstId,
+            'qr_code'         => $firstQrCode,
+            'ticket_quantity' => $qty,
+        ]);
+        $allIds = array_column($createdRecords, 'id');
+        $this->sendRegistrationEmail($emailData, $ticketPdfs, $allIds);
     }
 
-    private function sendRegistrationEmail(array $data, ?string $pdfContent): bool
+    /**
+     * Send registration confirmation email.
+     *
+     * @param array $data        Email recipient and body data
+     * @param array $ticketPdfs  Array of ['pdf' => string, 'name' => string] for each ticket PDF
+     * @param array $allIds      All ticket IDs to mark as sent/failed
+     * @return bool
+     */
+    private function sendRegistrationEmail(array $data, array $ticketPdfs, array $allIds = []): bool
     {
         $id             = (int) ($data['id'] ?? 0);
         $to             = trim($data['email']);
@@ -249,14 +329,28 @@ public function index(): void
         // Filename: e.g. "ticket_John_Doe.pdf"
         $safeName = 'ticket_' . preg_replace('/\s+/', '_', $name) . '.pdf';
 
-        $mail = new Mail($to, $subject, $textBody, $pdfContent, $safeName, $htmlBody);
+        // First ticket is the primary attachment; the rest are added via addAttachment()
+        $firstPdf  = !empty($ticketPdfs) ? $ticketPdfs[0]['pdf']  : null;
+        $firstName = !empty($ticketPdfs) ? $ticketPdfs[0]['name'] : $safeName;
+
+        $mail = new Mail($to, $subject, $textBody, $firstPdf, $firstName, $htmlBody);
+
+        // Attach remaining tickets (ticket 2, 3, 4 …)
+        for ($i = 1; $i < count($ticketPdfs); $i++) {
+            $mail->addAttachment($ticketPdfs[$i]['pdf'], $ticketPdfs[$i]['name']);
+        }
+
         $sent = $mail->send();
 
         if ($id > 0) {
-            try {
-                $this->model->updateSendEmailStatus($id, $sent ? 'sent' : 'failed');
-            } catch (\Throwable $error) {
-                error_log('Unable to update send_email_status: ' . $error->getMessage());
+            // Update send_email_status for all created ticket rows
+            $idsToUpdate = !empty($allIds) ? $allIds : [$id];
+            foreach ($idsToUpdate as $ticketId) {
+                try {
+                    $this->model->updateSendEmailStatus((int) $ticketId, $sent ? 'sent' : 'failed');
+                } catch (\Throwable $error) {
+                    error_log('Unable to update send_email_status for id ' . $ticketId . ': ' . $error->getMessage());
+                }
             }
         }
 
@@ -384,7 +478,10 @@ public function index(): void
 
         try {
             $pdfContent = $this->generateTicketPdf($audience);
-            $sent = $this->sendRegistrationEmail($audience, $pdfContent);
+            $ticketPdfs = $pdfContent !== null
+                ? [['pdf' => $pdfContent, 'name' => 'ticket_' . preg_replace('/\s+/', '_', $audience['name'] ?? 'resend') . '.pdf']]
+                : [];
+            $sent = $this->sendRegistrationEmail($audience, $ticketPdfs);
 
             if (!$sent) {
                 http_response_code(502);
@@ -514,7 +611,10 @@ public function index(): void
 
         foreach ($pendingAudiences as $audience) {
             $pdfContent = $this->generateTicketPdf($audience);
-            $sent = $this->sendRegistrationEmail($audience, $pdfContent);
+            $ticketPdfs = $pdfContent !== null
+                ? [['pdf' => $pdfContent, 'name' => 'ticket_' . preg_replace('/\s+/', '_', $audience['name'] ?? 'bulk') . '.pdf']]
+                : [];
+            $sent = $this->sendRegistrationEmail($audience, $ticketPdfs);
 
             if ($sent) {
                 $sentCount++;

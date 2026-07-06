@@ -15,6 +15,10 @@
             <i class="bi bi-person-plus me-2"></i>
             Add Audience
           </router-link>
+          <router-link class="btn btn-outline-primary btn-lg" to="/trms/concert/invitation-reg">
+            <i class="bi bi-ticket-perforated me-2"></i>
+            Invitation Registration
+          </router-link>
         </div>
       </div>
 
@@ -25,7 +29,7 @@
             <p class="text-muted mb-0">{{ total }} registration{{ total === 1 ? "" : "s" }}</p>
           </div>
 
-          <div class="d-flex gap-2 align-items-center">
+          <div class="d-flex gap-2 align-items-center flex-wrap">
             <div class="position-relative">
               <i
                 class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"
@@ -47,6 +51,50 @@
                   aria-hidden="true"
                 ></span>
               </span>
+            </div>
+
+            <!-- Filter: Concert -->
+            <select
+              v-model="filterConcert"
+              class="form-select form-select-sm"
+              style="width: auto; max-width: 200px"
+              :disabled="loading"
+              aria-label="Filter by concert"
+              @change="onFilterChange"
+            >
+              <option value="">All Concerts</option>
+              <option v-for="c in concertOptions" :key="c" :value="c">{{ c }}</option>
+            </select>
+
+            <!-- Filter: Notes (Guest / Invitation) -->
+            <select
+              v-model="filterNotes"
+              class="form-select form-select-sm"
+              style="width: auto"
+              :disabled="loading"
+              aria-label="Filter by type"
+              @change="onFilterChange"
+            >
+              <option value="">All Types</option>
+              <option value="Guest">Guest</option>
+              <option value="Invitation">Invitation</option>
+            </select>
+
+            <div class="d-flex align-items-center gap-2">
+              <label for="per-page-select" class="text-muted small mb-0 text-nowrap">Rows per page:</label>
+              <select
+                id="per-page-select"
+                v-model.number="perPage"
+                class="form-select form-select-sm"
+                style="width: auto"
+                :disabled="loading"
+                @change="onPerPageChange"
+              >
+                <option :value="10">10</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
             </div>
             <button
               class="btn btn-outline-primary"
@@ -509,6 +557,9 @@ export default {
       search: "",
       searchPending: false,
       debounceTimer: null,
+      filterConcert: "",
+      filterNotes: "",
+      concertOptions: [],
       editModal: {
         visible: false,
         loading: false,
@@ -561,6 +612,7 @@ export default {
     },
   },
   mounted() {
+    this.fetchConcertOptions();
     this.fetchAudiences();
   },
   methods: {
@@ -572,12 +624,27 @@ export default {
           page: this.page,
           perPage: this.perPage,
           search: this.search,
+          concert: this.filterConcert,
+          notes: this.filterNotes,
         });
       } catch (error) {
         this.errorMessage = error.message || "Unable to load audiences.";
       } finally {
         this.loading = false;
       }
+    },
+
+    async fetchConcertOptions() {
+      try {
+        this.concertOptions = await this.trmsStore.fetchConcertAudienceConcerts();
+      } catch {
+        // non-critical — filter will just be empty
+      }
+    },
+
+    onFilterChange() {
+      this.page = 1;
+      this.fetchAudiences();
     },
 
     formatDate(value) {
@@ -591,6 +658,11 @@ export default {
     goToPage(page) {
       if (page < 1 || page > this.lastPage || this.loading) return;
       this.page = page;
+      this.fetchAudiences();
+    },
+
+    onPerPageChange() {
+      this.page = 1;
       this.fetchAudiences();
     },
 

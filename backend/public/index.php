@@ -42,6 +42,7 @@ $router->post('/api/trms/upload/banner', 'App\Http\Controllers\Trms\UploadContro
 $router->post('/api/trms/concert/registration', 'App\Http\Controllers\Trms\ConcertAudienceController@store');
 $router->post('/api/trms/concert/scan', 'App\Http\Controllers\Trms\ConcertAudienceController@scan');
 $router->get('/api/trms/concert/audiences', 'App\Http\Controllers\Trms\ConcertAudienceController@index');
+$router->get('/api/trms/concert/audiences/concerts', 'App\Http\Controllers\Trms\ConcertAudienceController@concerts');
 $router->get('/api/trms/concert/audiences/{id}', 'App\Http\Controllers\Trms\ConcertAudienceController@show');
 $router->post('/api/trms/concert/audiences/{id}', 'App\Http\Controllers\Trms\ConcertAudienceController@update');
 $router->post('/api/trms/concert/audiences/{id}/delete', 'App\Http\Controllers\Trms\ConcertAudienceController@destroy');

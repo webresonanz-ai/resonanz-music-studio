@@ -435,7 +435,7 @@ export default {
         const link = document.createElement("a");
         const safeName = (this.registrationResult?.name || "registration")
           .replace(/\s+/g, "_")
-          .replace(/[^a-z0-9_\-]/gi, "");
+          .replace(/[^a-z0-9_-]/gi, "");
         link.href = dataUrl;
         link.download = `concert_registration_${safeName}.png`;
         link.click();

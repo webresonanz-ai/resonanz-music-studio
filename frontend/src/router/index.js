@@ -26,6 +26,11 @@ const routes = [
         meta: { roles: ["admin", "manager"] },
       },
       {
+        path: "concert/invitation-reg",
+        component: () => import("../views/trms/InvitationRegistration.vue"),
+        meta: { roles: ["admin", "manager"] },
+      },
+      {
         path: "concert/scan",
         component: () => import("../views/trms/ConcertScan.vue"),
         meta: { roles: ["admin", "manager"] },

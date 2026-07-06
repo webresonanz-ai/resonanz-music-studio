@@ -20,6 +20,8 @@ class Mail
     private string $htmlBody;
     private ?string $attachment;
     private string $attachmentName;
+    /** @var array<array{content: string, name: string}> */
+    private array $extraAttachments = [];
 
     public function __construct(
         string  $to,
@@ -42,6 +44,15 @@ class Mail
         $this->htmlBody       = $htmlBody;
         $this->attachment     = $attachment;
         $this->attachmentName = $attachmentName ?: 'ticket.pdf';
+    }
+
+    /**
+     * Queue an additional PDF attachment (binary string).
+     * Call this after construction, before send().
+     */
+    public function addAttachment(string $content, string $name): void
+    {
+        $this->extraAttachments[] = ['content' => $content, 'name' => $name];
     }
 
     public function send(): bool
@@ -77,6 +88,11 @@ class Mail
             if ($this->attachment !== null && $this->attachment !== '') {
                 $safeName = preg_replace('/[^A-Za-z0-9_\-.]/', '_', $this->attachmentName) ?: 'ticket.pdf';
                 $mail->addStringAttachment($this->attachment, $safeName, PHPMailer::ENCODING_BASE64, 'application/pdf');
+            }
+
+            foreach ($this->extraAttachments as $extra) {
+                $safeName = preg_replace('/[^A-Za-z0-9_\-.]/', '_', $extra['name']) ?: 'ticket.pdf';
+                $mail->addStringAttachment($extra['content'], $safeName, PHPMailer::ENCODING_BASE64, 'application/pdf');
             }
 
             return $mail->send();

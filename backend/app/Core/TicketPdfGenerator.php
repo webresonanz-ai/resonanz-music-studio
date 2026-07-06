@@ -5,10 +5,13 @@ namespace App\Core;
 use TCPDF;
 
 /**
- * Generates a PDF invitation ticket by overlaying a guest name and QR code
- * on top of the concert invitation template image.
+ * Generates a PDF ticket by overlaying a QR code (and optionally a guest name)
+ * on top of the appropriate concert ticket template image.
  *
- * Template: backend/public/assets/images/guest_ticket-soli_deo_gratia.png
+ * Templates:
+ *   Guest      : backend/public/assets/images/guest_ticket-soli_deo_gratia.png
+ *   Invitation : backend/public/assets/images/invitation_ticket-soli_deo_gratia.png
+ *
  * Image size: 1054 × 1492 px  →  rendered as A4 (210 × 297 mm) in the PDF
  *
  * Coordinate reference (all values in mm, origin = top-left corner of page):
@@ -22,7 +25,8 @@ use TCPDF;
  */
 class TicketPdfGenerator
 {
-    private string $templatePath;
+    private string $guestTemplatePath;
+    private string $invitationTemplatePath;
     private QrCodeGenerator $qrGenerator;
 
     // ── Layout constants (mm on A4 210 × 297 mm) ─────────────────────────────
@@ -52,23 +56,32 @@ class TicketPdfGenerator
 
     public function __construct()
     {
-        $this->templatePath = __DIR__ . '/../../public/assets/images/guest_ticket-soli_deo_gratia.png';
+        $this->guestTemplatePath = __DIR__ . '/../../public/assets/images/guest_ticket-soli_deo_gratia.png';
+        $this->invitationTemplatePath = __DIR__ . '/../../public/assets/images/invitation_ticket-soli_deo_gratia.png';
         $this->qrGenerator = new QrCodeGenerator();
     }
 
     /**
      * Generate the ticket PDF and return it as a binary string.
      *
-     * @param  array $data  Must contain 'name'; optionally 'id', 'email',
-     *                      'concert_title', 'ticket_quantity'.
+     * @param  array $data  Must contain 'name' (for Guest tickets); optionally
+     *                      'notes', 'id', 'email', 'concert_title', 'ticket_quantity'.
+     *                      When notes === 'Invitation' the invitation template is used
+     *                      and no name is printed on the ticket.
      * @return string  Raw PDF binary.
-     * @throws \RuntimeException if template image is missing.
+     * @throws \RuntimeException if the required template image is missing.
      */
     public function generate(array $data): string
     {
-        if (!file_exists($this->templatePath)) {
+        $isInvitation = (trim($data['notes'] ?? '') === 'Invitation');
+
+        $templatePath = $isInvitation
+            ? $this->invitationTemplatePath
+            : $this->guestTemplatePath;
+
+        if (!file_exists($templatePath)) {
             throw new \RuntimeException(
-                'Ticket template not found: ' . $this->templatePath
+                'Ticket template not found: ' . $templatePath
             );
         }
 
@@ -85,10 +98,9 @@ class TicketPdfGenerator
         $pdf->AddPage();
 
         // ── 1. Full-page template background ─────────────────────────────────
-        $pdf->Image($this->templatePath, 0, 0, 210, 297, 'PNG');
+        $pdf->Image($templatePath, 0, 0, 210, 297, 'PNG');
 
         // ── 2. QR code ────────────────────────────────────────────────────────
-        // Use the stored qr_code identifier if available, otherwise fall back to a JSON payload
         $qrPayload = !empty($data['qr_code']) ? $data['qr_code'] : $this->buildQrPayload($data);
         $qrPng = $this->qrGenerator->generate($qrPayload, 400);
 
@@ -101,11 +113,11 @@ class TicketPdfGenerator
             @unlink($tempQrPath);
         }
 
-        // ── 3. Guest name ─────────────────────────────────────────────────────
+        // ── 3. Guest name ────────────────────────────────
         $guestName = mb_strtoupper(trim($data['name'] ?? ''), 'UTF-8');
 
         $pdf->SetFont('helvetica', 'B', self::NAME_FONT_SIZE);
-        $pdf->SetTextColor(0, 0, 0); // black
+        $pdf->SetTextColor(0, 0, 0);
 
         $nameLen = mb_strlen($guestName, 'UTF-8');
 
@@ -129,8 +141,87 @@ class TicketPdfGenerator
     }
 
     /**
-     * Generate the PDF and write it directly to disk.
+     * Generate a single multi-page PDF containing one ticket page per entry.
+     *
+     * @param  array[] $rows  Each element is a $data array accepted by generate().
+     *                        All rows should share the same notes/type so the correct
+     *                        template is used consistently.
+     * @return string  Raw PDF binary.
      */
+    public function generateMulti(array $rows): string
+    {
+        if (empty($rows)) {
+            throw new \InvalidArgumentException('generateMulti requires at least one row.');
+        }
+
+        // Single ticket — no need for the multi-page path
+        if (count($rows) === 1) {
+            return $this->generate($rows[0]);
+        }
+
+        $isInvitation = (trim($rows[0]['notes'] ?? '') === 'Invitation');
+        $templatePath = $isInvitation
+            ? $this->invitationTemplatePath
+            : $this->guestTemplatePath;
+
+        if (!file_exists($templatePath)) {
+            throw new \RuntimeException('Ticket template not found: ' . $templatePath);
+        }
+
+        $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->SetCreator('Resonanz Music Studio');
+        $pdf->SetAuthor('Resonanz Music Studio');
+        $pdf->SetTitle('Tickets – ' . ($rows[0]['concert_title'] ?? 'Concert'));
+        $pdf->SetMargins(0, 0, 0);
+        $pdf->SetAutoPageBreak(false);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+
+        foreach ($rows as $data) {
+            $pdf->AddPage();
+
+            // Background
+            $pdf->Image($templatePath, 0, 0, 210, 297, 'PNG');
+
+            // QR code
+            $qrPayload = !empty($data['qr_code']) ? $data['qr_code'] : $this->buildQrPayload($data);
+            $qrPng     = $this->qrGenerator->generate($qrPayload, 400);
+
+            $tempQrPath = tempnam(sys_get_temp_dir(), 'trms_qr_') . '.png';
+            file_put_contents($tempQrPath, $qrPng);
+
+            try {
+                $pdf->Image($tempQrPath, self::QR_X, self::QR_Y, self::QR_SIZE, self::QR_SIZE, 'PNG');
+            } finally {
+                @unlink($tempQrPath);
+            }
+
+            // Name (Guest only)
+            if (!$isInvitation) {
+                $guestName = mb_strtoupper(trim($data['name'] ?? ''), 'UTF-8');
+                $pdf->SetFont('helvetica', 'B', self::NAME_FONT_SIZE);
+                $pdf->SetTextColor(0, 0, 0);
+
+                if (mb_strlen($guestName, 'UTF-8') > 23) {
+                    $splitPos = $this->findNearestSpaceSplit($guestName, 23);
+                    $line1    = mb_substr($guestName, 0, $splitPos, 'UTF-8');
+                    $line2    = trim(mb_substr($guestName, $splitPos + 1, null, 'UTF-8'));
+
+                    $pdf->SetXY(self::NAME_X, self::NAME_Y - 3);
+                    $pdf->Cell(self::NAME_W, 8, $line1, 0, 2, 'C');
+                    $pdf->SetX(self::NAME_X);
+                    $pdf->Cell(self::NAME_W, 8, $line2, 0, 0, 'C');
+                } else {
+                    $pdf->SetXY(self::NAME_X, self::NAME_Y);
+                    $pdf->Cell(self::NAME_W, 8, $guestName, 0, 0, 'C');
+                }
+            }
+        }
+
+        return $pdf->Output('tickets.pdf', 'S');
+    }
+
+
     public function generateAndSave(array $data, string $outputPath): bool
     {
         return file_put_contents($outputPath, $this->generate($data)) !== false;

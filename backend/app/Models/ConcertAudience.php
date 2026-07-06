@@ -16,16 +16,46 @@ class ConcertAudience extends Model
 
     public function count(): int
     {
-        $stmt = $this->db->query("SELECT COUNT(*) FROM {$this->table}");
+        $stmt = $this->db->query("SELECT COALESCE(SUM(ticket_quantity), 0) FROM {$this->table}");
         return (int) $stmt->fetchColumn();
     }
 
     /**
-     * Count registrations for a specific concert schedule.
+     * Sum ticket_quantity for Guest registrations for a specific concert schedule.
+     */
+    public function countGuestBySchedule(int $scheduleId): int
+    {
+        $stmt = $this->db->prepare(
+            "SELECT COALESCE(SUM(ticket_quantity), 0) FROM {$this->table}
+             WHERE schedule_id = :schedule_id AND notes = 'Guest'"
+        );
+        $stmt->execute(['schedule_id' => $scheduleId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Sum ticket_quantity for Invitation registrations for a specific concert schedule.
+     */
+    public function countInvitationBySchedule(int $scheduleId): int
+    {
+        $stmt = $this->db->prepare(
+            "SELECT COALESCE(SUM(ticket_quantity), 0) FROM {$this->table}
+             WHERE schedule_id = :schedule_id AND notes = 'Invitation'"
+        );
+        $stmt->execute(['schedule_id' => $scheduleId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Sum all ticket_quantity (Guest + Invitation) for a specific concert schedule.
+     * Used for capacity enforcement.
      */
     public function countBySchedule(int $scheduleId): int
     {
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM {$this->table} WHERE schedule_id = :schedule_id");
+        $stmt = $this->db->prepare(
+            "SELECT COALESCE(SUM(ticket_quantity), 0) FROM {$this->table}
+             WHERE schedule_id = :schedule_id"
+        );
         $stmt->execute(['schedule_id' => $scheduleId]);
         return (int) $stmt->fetchColumn();
     }
@@ -44,46 +74,69 @@ class ConcertAudience extends Model
              LIMIT 1"
         );
         $stmt->execute([
-            'name'        => trim($name),
-            'email'       => trim($email),
+            'name' => trim($name),
+            'email' => trim($email),
             'schedule_id' => $scheduleId,
         ]);
         return (int) $stmt->fetchColumn() > 0;
     }
 
-public function paginate(int $perPage = 10, int $page = 1, string $search = ''): array
-     {
-         $offset = ($page - 1) * $perPage;
+    /**
+     * Return all distinct concert_title values, ordered alphabetically.
+     */
+    public function getDistinctConcerts(): array
+    {
+        $stmt = $this->db->query(
+            "SELECT DISTINCT concert_title FROM {$this->table} WHERE concert_title IS NOT NULL AND concert_title <> '' ORDER BY concert_title ASC"
+        );
+        return array_column($stmt->fetchAll(\PDO::FETCH_ASSOC), 'concert_title');
+    }
 
-         $whereClause = '';
-         $params = [];
+    public function paginate(int $perPage = 10, int $page = 1, string $search = '', string $concert = '', string $notes = ''): array
+    {
+        $offset = ($page - 1) * $perPage;
 
-          if ($search !== '') {
-              $whereClause = "WHERE name LIKE :search_name OR email LIKE :search_email";
-              $params[':search_name'] = '%' . $search . '%';
-              $params[':search_email'] = '%' . $search . '%';
-          }
+        $conditions = [];
+        $params = [];
 
-          $countSql = "SELECT COUNT(*) FROM {$this->table}" . ($whereClause ? " {$whereClause}" : '');
-          $countStmt = $this->db->prepare($countSql);
-          $countStmt->execute($params);
-          $total = (int) $countStmt->fetchColumn();
+        if ($search !== '') {
+            $conditions[] = "(name LIKE :search_name OR email LIKE :search_email)";
+            $params[':search_name']  = '%' . $search . '%';
+            $params[':search_email'] = '%' . $search . '%';
+        }
 
-          $dataParams = array_merge([':limit' => $perPage, ':offset' => $offset], $params);
-          $stmt = $this->db->prepare(
-              "SELECT * FROM {$this->table}" . ($whereClause ? " {$whereClause}" : '') . " ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
-          );
-          $stmt->execute($dataParams);
-         $items = $stmt->fetchAll();
+        if ($concert !== '') {
+            $conditions[] = "concert_title = :concert";
+            $params[':concert'] = $concert;
+        }
 
-return [
-              'items' => $items,
-              'total' => $total,
-              'per_page' => $perPage,
-              'current_page' => $page,
-              'last_page' => (int) ceil($total / $perPage),
-          ];
-      }
+        if ($notes !== '') {
+            $conditions[] = "notes = :notes";
+            $params[':notes'] = $notes;
+        }
+
+        $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
+
+        $countSql  = "SELECT COUNT(*) FROM {$this->table}" . ($whereClause ? " {$whereClause}" : '');
+        $countStmt = $this->db->prepare($countSql);
+        $countStmt->execute($params);
+        $total = (int) $countStmt->fetchColumn();
+
+        $dataParams = array_merge([':limit' => $perPage, ':offset' => $offset], $params);
+        $stmt = $this->db->prepare(
+            "SELECT * FROM {$this->table}" . ($whereClause ? " {$whereClause}" : '') . " ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
+        );
+        $stmt->execute($dataParams);
+        $items = $stmt->fetchAll();
+
+        return [
+            'items'        => $items,
+            'total'        => $total,
+            'per_page'     => $perPage,
+            'current_page' => $page,
+            'last_page'    => (int) ceil($total / $perPage),
+        ];
+    }
 
     public function findPendingEmail(int $limit = 10): array
     {
@@ -96,8 +149,8 @@ return [
     }
 
     /**
-      * Look up a registration by its qr_code identifier.
-      */
+     * Look up a registration by its qr_code identifier.
+     */
     public function findByQrCode(string $qrCode): array|false
     {
         $stmt = $this->db->prepare("SELECT * FROM {$this->table} WHERE qr_code = :qr_code LIMIT 1");
@@ -169,8 +222,8 @@ return [
         $timestamp = time();
 
         // 4-character alphanumeric random suffix (A-Z, 0-9)
-        $chars  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        $rand4  = '';
+        $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $rand4 = '';
         for ($i = 0; $i < 4; $i++) {
             $rand4 .= $chars[random_int(0, strlen($chars) - 1)];
         }

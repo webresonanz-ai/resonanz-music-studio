@@ -32,6 +32,12 @@ export const useNavigationStore = defineStore("navigation", {
           children: [
             { path: "/trms/concert/select", label: "Registration", icon: "bi-person-plus" },
             {
+              path: "/trms/concert/invitation-reg",
+              label: "Invitation Registration",
+              icon: "bi-person-plus",
+              roles: ["admin", "manager"],
+            },
+            {
               path: "/trms/concert/audiences",
               label: "Audiences",
               icon: "bi-people",

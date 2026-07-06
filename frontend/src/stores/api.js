@@ -68,9 +68,7 @@ export const useApiStore = defineStore('api', {
         const token = localStorage.getItem('resonanz-token') || ''
         const response = await fetch(`${API_BASE}${endpoint}`, {
           method: 'POST',
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-          },
+          headers: (token ? { Authorization: `Bearer ${token}` } : {}),
           cache: 'no-store',
           body: formData
         })
@@ -100,9 +98,7 @@ export const useApiStore = defineStore('api', {
 
       const response = await fetch(`${base}${endpoint}`, {
         method: 'GET',
-        headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
+        headers: (token ? { Authorization: `Bearer ${token}` } : {}),
         cache: 'no-store'
       })
 
@@ -173,6 +169,8 @@ async fetchConcertAudiences(params = {}) {
        if (params.page) query.set('page', params.page)
        if (params.perPage) query.set('per_page', params.perPage)
        if (params.search) query.set('search', params.search)
+       if (params.concert) query.set('concert', params.concert)
+       if (params.notes) query.set('notes', params.notes)
        const qs = query.toString()
        const response = await useApiStore().get('/trms/concert/audiences' + (qs ? `?${qs}` : ''))
        this.concertAudiences = response.data
@@ -184,6 +182,11 @@ async fetchConcertAudiences(params = {}) {
        }
        return response
      },
+
+    async fetchConcertAudienceConcerts() {
+      const response = await useApiStore().get('/trms/concert/audiences/concerts')
+      return response.data ?? []
+    },
 
     async submitContact(form) {
       return useApiStore().post('/trms/contact', form)
