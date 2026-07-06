@@ -765,6 +765,7 @@ export default {
         await this.trmsStore.resendConcertEmail(this.emailModal.audience.id);
         this.showSuccess(`Ticket email resent to ${this.emailModal.audience.email}.`);
         this.closeEmailModal();
+        await this.fetchAudiences();
       } catch (error) {
         this.errorMessage = error.message || "Failed to resend email.";
         this.closeEmailModal();
