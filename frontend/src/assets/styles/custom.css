@@ -215,104 +215,7 @@ input:focus-visible {
   backdrop-filter: blur(5px);
 }
 
-/* Navbar */
-.main-navbar {
-  border: 1px solid rgba(234, 220, 194, 0.22);
-  border-radius: var(--radius-md);
-  background:
-    linear-gradient(135deg, rgba(200, 164, 93, 0.18), transparent 42%),
-    linear-gradient(135deg, #171b27 0%, #222838 55%, #11141f 100%);
-  box-shadow: 0 16px 38px rgba(19, 18, 16, 0.18);
-  padding: 0.6rem;
-}
-
-.navbar-brand {
-  min-width: 0;
-  font-weight: 800;
-}
-
-.navbar-brand span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.navbar-toggler {
-  border-color: rgba(234, 220, 194, 0.28);
-  box-shadow: none;
-}
-
-.navbar-toggler:focus {
-  box-shadow: 0 0 0 0.18rem rgba(200, 164, 93, 0.34);
-}
-
-.navbar-toggler-icon {
-  filter: invert(1) grayscale(1) brightness(1.8);
-}
-
-.nav-link {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  border-radius: var(--radius-md);
-  color: rgba(219, 189, 113, 0.88) !important;
-  padding: 0.72rem 0.9rem !important;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.nav-link:hover {
-  color: var(--gold-color) !important;
-  background: rgba(234, 220, 194, 0.08);
-  transform: translateY(-1px);
-}
-
-.nav-link.active,
-.router-link-active.nav-link {
-  color: #fffdf8 !important;
-  background: rgba(127, 36, 50, 0.34);
-  font-weight: 700;
-}
-
-.nav-link.active::after,
-.router-link-active.nav-link::after {
-  content: "";
-  position: absolute;
-  inset: auto 0.85rem 0.35rem;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--gold-color);
-}
-
-.dropdown-menu {
-  border: 1px solid rgba(234, 220, 194, 0.14);
-  border-radius: var(--radius-md);
-  background-color: #161a24;
-  box-shadow: var(--shadow-soft);
-}
-
-.navbar-tools {
-  flex-wrap: wrap;
-}
-
-.nav-search {
-  width: 210px;
-  border: 1px solid rgba(234, 220, 194, 0.12);
-  border-radius: var(--radius-md);
-  background: rgba(234, 220, 194, 0.08);
-}
-
-.nav-search .form-control::placeholder {
-  color: rgba(255, 253, 248, 0.52);
-}
-
-.nav-user-btn {
-  min-width: 40px;
-  min-height: 34px;
-}
+/* Navbar — scoped styles live in AppNavbar.vue; only layout glue here */
 
 /* Layout */
 .main-content {
@@ -520,21 +423,7 @@ input:focus-visible {
   border-radius: 999px;
 }
 
-/* Mobile controls */
-.mobile-toggle {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1001;
-  display: none;
-  width: 44px;
-  height: 44px;
-  border: 0;
-  border-radius: var(--radius-md);
-  color: #fff;
-  background: linear-gradient(180deg, #202638 0%, #10131f 100%);
-  box-shadow: 0 12px 26px rgba(13, 13, 18, 0.3);
-}
+/* Mobile controls — sidebar toggle now lives inside AppNavbar on mobile */
 
 /* Responsive */
 @media (max-width: 1199.98px) {
@@ -593,21 +482,11 @@ input:focus-visible {
 
   .main-content {
     margin-left: 0;
-    padding: 4.75rem 0.85rem 1rem;
-  }
-
-  .mobile-toggle {
-    display: grid;
-    place-items: center;
+    padding: 1rem 0.85rem;
   }
 
   .main-navbar {
-    padding: 0.55rem;
-  }
-
-  .navbar-brand {
-    max-width: calc(100% - 60px);
-    padding-left: 3.2rem;
+    border-radius: 10px;
   }
 
   .content-area {

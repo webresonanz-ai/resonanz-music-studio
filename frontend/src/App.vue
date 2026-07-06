@@ -1,22 +1,11 @@
 <template>
   <div id="app">
-    <button
-      v-if="!hideShellNav"
-      @click="toggleSidebar"
-      class="mobile-toggle"
-      type="button"
-      :aria-expanded="sidebarOpen"
-      aria-label="Toggle navigation"
-    >
-      <i class="bi bi-list"></i>
-    </button>
-
     <div v-if="sidebarOpen && !hideShellNav" class="sidebar-backdrop" @click="closeSidebar"></div>
 
     <AppSidebar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @navigate="closeSidebar" />
 
     <div class="main-content" :class="{ 'main-content-full': hideShellNav }">
-      <AppNavbar v-if="!hideShellNav" />
+      <AppNavbar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @toggle-sidebar="toggleSidebar" />
 
       <div class="content-area mt-4">
         <router-view v-slot="{ Component }">
