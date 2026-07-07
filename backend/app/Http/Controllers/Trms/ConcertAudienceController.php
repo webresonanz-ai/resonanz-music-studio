@@ -18,7 +18,23 @@ class ConcertAudienceController
         $this->scheduleModel = new Schedule();
     }
 
-public function index(): void
+    public function seats(string $scheduleId): void
+    {
+        header('Content-Type: application/json');
+        $scheduleId = (int) $scheduleId;
+
+        if ($scheduleId <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid schedule ID']);
+            return;
+        }
+
+        // Return all taken seat numbers for this schedule
+        $taken = $this->model->getTakenSeats($scheduleId);
+        echo json_encode(['data' => $taken]);
+    }
+
+    public function index(): void
      {
          header('Content-Type: application/json');
 
@@ -114,6 +130,23 @@ public function index(): void
             return;
         }
 
+        // ── Seat assignment enforcement ────────────────────────────────────
+        $seatNumber = null;
+        if ($schedule && !empty($schedule['is_seat_assign'])) {
+            $seatNumber = trim($data['seat_number'] ?? '');
+            if ($seatNumber === '') {
+                http_response_code(422);
+                echo json_encode(['error' => 'Please choose a seat before registering.']);
+                return;
+            }
+            // Check seat is not already taken
+            if ($this->model->isSeatTaken($scheduleId, $seatNumber)) {
+                http_response_code(409);
+                echo json_encode(['error' => 'Seat ' . $seatNumber . ' is already taken. Please choose another seat.']);
+                return;
+            }
+        }
+
         $concertCode   = trim((string) ($schedule['concert_code'] ?? ''));
         $qty           = max(1, (int) ($data['ticket_quantity'] ?? 1));
         $baseCreateData = [
@@ -125,6 +158,7 @@ public function index(): void
             'concert_title'   => trim($data['concert_title']),
             'ticket_quantity' => 1,          // always 1 row = 1 physical ticket
             'notes'           => $incomingNotes,
+            'seat_number'     => $seatNumber,
         ];
 
         if (!empty($data['created_at'])) {

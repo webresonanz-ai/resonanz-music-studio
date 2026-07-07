@@ -230,6 +230,30 @@
                                         </div>
                                     </div>
                                 </div>
+                                <!-- Seat Assignment toggle -->
+                                <div class="col-12" v-if="form.type === 'concert'">
+                                    <div class="p-3 rounded border border-secondary border-opacity-25 bg-light bg-opacity-10">
+                                        <div class="form-check form-switch mb-3">
+                                            <input
+                                                id="scheduleIsSeatAssign"
+                                                v-model="form.is_seat_assign"
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                role="switch"
+                                            >
+                                            <label for="scheduleIsSeatAssign" class="form-check-label fw-semibold">
+                                                <i class="bi bi-grid-3x3-gap me-1"></i> Seat Assignment
+                                            </label>
+                                            <div class="form-text mt-1">
+                                                When enabled, guests choose a seat from a visual layout during registration.
+                                            </div>
+                                        </div>
+                                        <div v-if="form.is_seat_assign">
+                                            <label class="form-label fw-semibold small mb-2">Seating Layout</label>
+                                            <ConcertLayoutPicker v-model="form.seat_layout_id" />
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="col-12">
                                     <label class="form-label d-block">Programs / Collaborating Groups</label>
                                     <div class="d-flex flex-wrap gap-4 p-3 rounded border border-secondary border-opacity-25 bg-light bg-opacity-10">
@@ -273,6 +297,7 @@
 <script>
 import { Modal } from 'bootstrap'
 import { useTrmsStore } from '../../stores/api'
+import ConcertLayoutPicker from './ConcertLayoutPicker.vue'
 
 const emptyForm = () => ({
     title: '',
@@ -286,11 +311,14 @@ const emptyForm = () => ({
     banner_url: '',
     is_open_register: false,
     audience_capacity: null,
+    is_seat_assign: false,
+    seat_layout_id: null,
     program_ids: ['trms']
 })
 
 export default {
     name: 'ScheduleFormModal',
+    components: { ConcertLayoutPicker },
     props: {
         loading: Boolean,
         successMessage: String,
@@ -353,7 +381,12 @@ export default {
             this.editingSchedule = schedule
             this.form = {
                 ...schedule,
-                program_ids: schedule.program_ids ? [...schedule.program_ids] : ['trms']
+                program_ids: schedule.program_ids ? [...schedule.program_ids] : ['trms'],
+                // API returns these as "0"/"1" strings from MySQL — coerce to real booleans
+                is_open_register: !!+schedule.is_open_register,
+                is_seat_assign:   !!+schedule.is_seat_assign,
+                // Ensure seat_layout_id is null when empty string
+                seat_layout_id: schedule.seat_layout_id || null,
             }
             // If there's already a banner URL, default to upload tab so the preview shows
             this.bannerTab = schedule.banner_url ? 'upload' : 'upload'

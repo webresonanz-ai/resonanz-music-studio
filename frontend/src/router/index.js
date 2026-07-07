@@ -95,6 +95,11 @@ const routes = [
     component: () => import("../views/trms/ConcertRegistration.vue"),
     meta: { hideShellNav: true },
   },
+  {
+    path: "/concert-reg/:concertCode/seated",
+    component: () => import("../views/trms/SeatedRegistration.vue"),
+    meta: { hideShellNav: true },
+  },
 
   // ── Auth ──────────────────────────────────────────────────────────────────
   {

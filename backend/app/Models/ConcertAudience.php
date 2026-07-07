@@ -8,6 +8,34 @@ class ConcertAudience extends Model
 {
     protected string $table = 'concert_audiences';
 
+    /**
+     * Return all non-null seat_number values for a given schedule (taken seats).
+     */
+    public function getTakenSeats(int $scheduleId): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT seat_number FROM {$this->table}
+             WHERE schedule_id = :schedule_id AND seat_number IS NOT NULL AND seat_number <> ''
+             ORDER BY seat_number ASC"
+        );
+        $stmt->execute(['schedule_id' => $scheduleId]);
+        return array_column($stmt->fetchAll(\PDO::FETCH_ASSOC), 'seat_number');
+    }
+
+    /**
+     * Check whether a specific seat is already taken for a given schedule.
+     */
+    public function isSeatTaken(int $scheduleId, string $seatNumber): bool
+    {
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*) FROM {$this->table}
+             WHERE schedule_id = :schedule_id AND seat_number = :seat_number
+             LIMIT 1"
+        );
+        $stmt->execute(['schedule_id' => $scheduleId, 'seat_number' => $seatNumber]);
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
     public function findAll(): array
     {
         $stmt = $this->db->query("SELECT * FROM {$this->table} ORDER BY created_at DESC");

@@ -350,6 +350,12 @@ export default {
 
         if (this.selectedConcert) {
           this.form.concert_title = this.selectedConcert.title;
+
+          // If this concert uses seat assignment, redirect to the seated registration page
+          if (this.selectedConcert.is_seat_assign) {
+            this.$router.replace(`/concert-reg/${this.concertCodeParam}/seated`);
+            return;
+          }
         }
       } catch (error) {
         this.errorMessage = error.message || "Unable to load selected concert.";

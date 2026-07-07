@@ -221,6 +221,11 @@ async fetchConcertAudiences(params = {}) {
     async scanConcertRegistration(payload) {
       // payload: { qr_code: '...' } or { reg_number: '...' }
       return useApiStore().post('/trms/concert/scan', payload)
+    },
+
+    async fetchConcertSeats(scheduleId) {
+      const response = await useApiStore().get(`/trms/concert/seats/${scheduleId}`)
+      return response.data ?? []
     }
   }
 })

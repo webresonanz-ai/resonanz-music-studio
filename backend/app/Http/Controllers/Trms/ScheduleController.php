@@ -41,19 +41,24 @@ class ScheduleController
             return;
         }
 
+        $isSeatAssign  = !empty($data['is_seat_assign']) ? 1 : 0;
+        $seatLayoutId  = $isSeatAssign ? trim($data['seat_layout_id'] ?? '') : null;
+
         $schedule = [
-            'program_id' => $primaryProgramId,
-            'title' => trim($data['title']),
-            'type' => $type,
-            'date' => $data['date'],
-            'start_time' => $data['start_time'],
-            'end_time' => $data['end_time'],
-            'venue' => trim($data['venue'] ?? ''),
-            'concert_code' => $concertCode,
-            'description' => $data['description'] ?? '',
-            'banner_url' => trim($data['banner_url'] ?? ''),
+            'program_id'       => $primaryProgramId,
+            'title'            => trim($data['title']),
+            'type'             => $type,
+            'date'             => $data['date'],
+            'start_time'       => $data['start_time'],
+            'end_time'         => $data['end_time'],
+            'venue'            => trim($data['venue'] ?? ''),
+            'concert_code'     => $concertCode,
+            'description'      => $data['description'] ?? '',
+            'banner_url'       => trim($data['banner_url'] ?? ''),
             'is_open_register' => $isOpenRegister,
-            'audience_capacity' => isset($data['audience_capacity']) && $data['audience_capacity'] !== '' ? (int) $data['audience_capacity'] : null,
+            'audience_capacity'=> isset($data['audience_capacity']) && $data['audience_capacity'] !== '' ? (int) $data['audience_capacity'] : null,
+            'is_seat_assign'   => $isSeatAssign,
+            'seat_layout_id'   => $seatLayoutId ?: null,
         ];
 
         $id = $this->model->create($schedule);
@@ -99,6 +104,10 @@ class ScheduleController
             $updateData['is_open_register'] = !empty($data['is_open_register']) ? 1 : 0;
         if (array_key_exists('audience_capacity', $data))
             $updateData['audience_capacity'] = ($data['audience_capacity'] !== '' && $data['audience_capacity'] !== null) ? (int) $data['audience_capacity'] : null;
+        if (array_key_exists('is_seat_assign', $data))
+            $updateData['is_seat_assign'] = !empty($data['is_seat_assign']) ? 1 : 0;
+        if (array_key_exists('seat_layout_id', $data))
+            $updateData['seat_layout_id'] = trim($data['seat_layout_id'] ?? '') ?: null;
 
         $nextType = $updateData['type'] ?? ($schedule['type'] ?? 'lesson');
         $nextConcertCode = $updateData['concert_code'] ?? $this->normalizeConcertCode($schedule['concert_code'] ?? '');

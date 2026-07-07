@@ -209,14 +209,14 @@
                     >
                       <i class="bi bi-pencil"></i>
                     </button>
-                    <button
+                    <!-- <button
                       type="button"
                       class="btn btn-outline-danger"
                       title="Delete"
                       @click="confirmDelete(audience)"
                     >
                       <i class="bi bi-trash"></i>
-                    </button>
+                    </button> -->
                   </div>
                 </td>
               </tr>
@@ -601,7 +601,7 @@ export default {
     },
   },
   watch: {
-    search(val) {
+    search() {
       this.searchPending = true;
       clearTimeout(this.debounceTimer);
       this.debounceTimer = setTimeout(() => {
