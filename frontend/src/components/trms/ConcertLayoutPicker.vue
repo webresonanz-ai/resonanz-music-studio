@@ -44,8 +44,30 @@
             <button type="button" class="btn-close btn-close-white" @click="closePicker" aria-label="Close"></button>
           </div>
 
+          <!-- Tab switcher -->
+          <div class="picker-tabs">
+            <button
+              type="button"
+              class="picker-tab"
+              :class="{ active: pickerTab === 'preset' }"
+              @click="pickerTab = 'preset'"
+            >
+              <i class="bi bi-grid-3x3-gap me-2"></i>Preset Layouts
+            </button>
+            <button
+              type="button"
+              class="picker-tab"
+              :class="{ active: pickerTab === 'custom' }"
+              @click="pickerTab = 'custom'"
+            >
+              <i class="bi bi-pencil-square me-2"></i>Custom Builder
+            </button>
+          </div>
+
           <div class="layout-picker-body">
-            <div class="row g-3">
+
+            <!-- ── PRESET TAB ── -->
+            <div v-if="pickerTab === 'preset'" class="row g-3">
 
               <!-- Left: layout cards list -->
               <div class="col-lg-4">
@@ -152,6 +174,15 @@
               </div>
 
             </div>
+
+            <!-- ── CUSTOM TAB ── -->
+            <div v-else-if="pickerTab === 'custom'" class="custom-builder-wrap">
+              <CustomLayoutBuilder
+                @save="onCustomSave"
+                @cancel="closePicker"
+              />
+            </div>
+
           </div>
         </div>
       </div>
@@ -161,19 +192,16 @@
 </template>
 
 <script>
-import { CONCERT_LAYOUTS, getLayoutById } from '../../data/concertLayouts.js'
+import { CONCERT_LAYOUTS, getLayoutById, registerCustomLayout } from '../../data/concertLayouts.js'
 import LayoutThumbnail from './LayoutThumbnail.vue'
+import CustomLayoutBuilder from './CustomLayoutBuilder.vue'
 
 export default {
   name: 'ConcertLayoutPicker',
-  components: { LayoutThumbnail },
+  components: { LayoutThumbnail, CustomLayoutBuilder },
 
   props: {
-    /** The currently-saved layout id (bound with v-model) */
-    modelValue: {
-      type: String,
-      default: null,
-    },
+    modelValue: { type: String, default: null },
   },
   emits: ['update:modelValue'],
 
@@ -181,22 +209,46 @@ export default {
     return {
       layouts: CONCERT_LAYOUTS,
       pickerOpen: false,
+      pickerTab: 'preset',
       previewLayout: null,
     }
   },
 
   computed: {
     selectedLayout() {
-      return this.modelValue ? getLayoutById(this.modelValue) : null
+      if (!this.modelValue) return null
+      return getLayoutById(this.modelValue)
     },
   },
 
   methods: {
-    openPicker() {
-      // Pre-select currently saved layout in preview panel
-      this.previewLayout = this.selectedLayout ?? CONCERT_LAYOUTS[0] ?? null
+    async openPicker() {
+      this.pickerTab = 'preset'
       this.pickerOpen = true
       document.body.style.overflow = 'hidden'
+
+      // Load any saved custom layouts from the DB into the registry + list
+      try {
+        const { useTrmsStore } = await import('../../stores/api.js')
+        const store = useTrmsStore()
+        const saved = await store.fetchAllCustomLayouts()
+        for (const row of saved) {
+          // Only fetch full data if not already in registry
+          if (!getLayoutById(row.layout_key)) {
+            try {
+              const full = await store.fetchCustomLayout(row.layout_key)
+              registerCustomLayout(full)
+            } catch {
+              // skip broken entries
+            }
+          }
+        }
+        this.layouts = [...CONCERT_LAYOUTS]
+      } catch {
+        // non-fatal: just show preset layouts
+      }
+
+      this.previewLayout = this.selectedLayout ?? CONCERT_LAYOUTS[0] ?? null
     },
     closePicker() {
       this.pickerOpen = false
@@ -209,6 +261,13 @@ export default {
     },
     clearLayout() {
       this.$emit('update:modelValue', null)
+    },
+    onCustomSave(layout) {
+      // Layout is already persisted to DB by CustomLayoutBuilder
+      registerCustomLayout(layout)
+      this.layouts = [...CONCERT_LAYOUTS]
+      this.$emit('update:modelValue', layout.id)
+      this.closePicker()
     },
   },
 }
@@ -237,8 +296,8 @@ export default {
   background: var(--surface-color, #fff);
   border-radius: 12px;
   width: 100%;
-  max-width: 900px;
-  max-height: 90vh;
+  max-width: 1100px;
+  max-height: 92vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -259,6 +318,7 @@ export default {
   overflow-y: auto;
   flex: 1;
   padding: 1.25rem;
+  min-height: 0;
 }
 
 /* ── Layout list (left column) ───────────────────────────── */
@@ -408,5 +468,44 @@ export default {
 .preview-aisle {
   width: 0.7rem;
   flex-shrink: 0;
+}
+
+/* ── Picker tabs ─────────────────────────────────────── */
+.picker-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--hairline-color, #e0e0e0);
+  padding: 0 1.25rem;
+  flex-shrink: 0;
+  background: var(--surface-color, #fff);
+}
+
+.picker-tab {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--muted-color, #888);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.18s, border-color 0.18s;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.picker-tab:hover {
+  color: var(--accent-color, #7f2432);
+}
+
+.picker-tab.active {
+  color: var(--accent-color, #7f2432);
+  border-bottom-color: var(--accent-color, #7f2432);
+}
+
+/* ── Custom builder wrapper ────────────────────────────── */
+.custom-builder-wrap {
+  height: 70vh;
+  min-height: 500px;
 }
 </style>

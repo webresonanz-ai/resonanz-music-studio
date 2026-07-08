@@ -68,6 +68,19 @@ export function getLayoutById(id) {
   return null
 }
 
+/**
+ * Register a custom layout built at runtime into the shared registry.
+ * Replaces any existing entry with the same id so re-saves work correctly.
+ */
+export function registerCustomLayout(layout) {
+  var idx = CONCERT_LAYOUTS.findIndex(function(l) { return l.id === layout.id })
+  if (idx !== -1) {
+    CONCERT_LAYOUTS.splice(idx, 1, layout)
+  } else {
+    CONCERT_LAYOUTS.push(layout)
+  }
+}
+
 export function getAllSeats(layout) {
   var seats = []
   for (var si = 0; si < layout.sections.length; si++) {

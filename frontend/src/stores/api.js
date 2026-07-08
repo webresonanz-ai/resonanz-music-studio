@@ -226,6 +226,32 @@ async fetchConcertAudiences(params = {}) {
     async fetchConcertSeats(scheduleId) {
       const response = await useApiStore().get(`/trms/concert/seats/${scheduleId}`)
       return response.data ?? []
+    },
+
+    async saveCustomLayout(layout) {
+      return useApiStore().post('/trms/seat-layouts', layout)
+    },
+
+    async fetchCustomLayout(layoutKey) {
+      return useApiStore().get(`/trms/seat-layouts/${encodeURIComponent(layoutKey)}`)
+    },
+
+    async fetchAllCustomLayouts() {
+      const response = await useApiStore().get('/trms/seat-layouts')
+      return response.data ?? []
+    },
+
+    async holdSeat(scheduleId, seatNumber) {
+      return useApiStore().post('/trms/seat-holds', { schedule_id: scheduleId, seat_number: seatNumber })
+    },
+
+    async releaseSeat(scheduleId, seatNumber) {
+      return useApiStore().post('/trms/seat-holds/release', { schedule_id: scheduleId, seat_number: seatNumber })
+    },
+
+    async fetchMyHolds(scheduleId) {
+      const response = await useApiStore().get(`/trms/seat-holds/${scheduleId}`)
+      return response.data ?? []
     }
   }
 })

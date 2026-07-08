@@ -6,16 +6,19 @@ use App\Core\Mail;
 use App\Core\TicketPdfGenerator;
 use App\Models\ConcertAudience;
 use App\Models\Schedule;
+use App\Models\SeatHold;
 
 class ConcertAudienceController
 {
     private ConcertAudience $model;
     private Schedule $scheduleModel;
+    private SeatHold $holdModel;
 
     public function __construct()
     {
         $this->model = new ConcertAudience();
         $this->scheduleModel = new Schedule();
+        $this->holdModel = new SeatHold();
     }
 
     public function seats(string $scheduleId): void
@@ -29,9 +32,15 @@ class ConcertAudienceController
             return;
         }
 
-        // Return all taken seat numbers for this schedule
+        // Confirmed registrations
         $taken = $this->model->getTakenSeats($scheduleId);
-        echo json_encode(['data' => $taken]);
+        // Currently held (by any user, non-expired)
+        $held  = $this->holdModel->getHeldSeats($scheduleId);
+
+        // Merge and deduplicate
+        $blocked = array_values(array_unique(array_merge($taken, $held)));
+
+        echo json_encode(['data' => $blocked]);
     }
 
     public function index(): void
@@ -193,6 +202,11 @@ class ConcertAudienceController
 
         $firstId      = $createdRecords[0]['id'];
         $firstQrCode  = $createdRecords[0]['qr_code'];
+
+        // ── Release seat hold for this user ───────────────────────────────────
+        if ($scheduleId) {
+            $this->holdModel->releaseAll($scheduleId, $this->getAuthUserId() ?? 0);
+        }
 
         http_response_code(201);
         echo json_encode([
@@ -396,10 +410,25 @@ class ConcertAudienceController
         try {
             return (new TicketPdfGenerator())->generate($data);
         } catch (\Throwable $e) {
-            // Log but don't crash the registration flow
             error_log('TicketPdfGenerator error: ' . $e->getMessage());
             return null;
         }
+    }
+
+    private function getAuthUserId(): ?int
+    {
+        $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $token  = '';
+        if (preg_match('/Bearer\s+(.+)$/i', $header, $m)) {
+            $token = $m[1];
+        }
+        if ($token === '') return null;
+        $stmt = \App\Core\Database::getInstance()->prepare(
+            'SELECT id FROM users WHERE api_token = :t AND api_token_exp > NOW() LIMIT 1'
+        );
+        $stmt->execute(['t' => $token]);
+        $row = $stmt->fetch();
+        return $row ? (int) $row['id'] : null;
     }
 
     public function show(string $id): void

@@ -42,6 +42,12 @@ $router->post('/api/trms/upload/banner', 'App\Http\Controllers\Trms\UploadContro
 $router->post('/api/trms/concert/registration', 'App\Http\Controllers\Trms\ConcertAudienceController@store');
 $router->post('/api/trms/concert/scan', 'App\Http\Controllers\Trms\ConcertAudienceController@scan');
 $router->get('/api/trms/concert/seats/{scheduleId}', 'App\Http\Controllers\Trms\ConcertAudienceController@seats');
+$router->get('/api/trms/seat-layouts', 'App\Http\Controllers\Trms\SeatLayoutController@index');
+$router->get('/api/trms/seat-layouts/{key}', 'App\Http\Controllers\Trms\SeatLayoutController@show');
+$router->post('/api/trms/seat-layouts', 'App\Http\Controllers\Trms\SeatLayoutController@store');
+$router->post('/api/trms/seat-holds', 'App\Http\Controllers\Trms\SeatHoldController@hold');
+$router->post('/api/trms/seat-holds/release', 'App\Http\Controllers\Trms\SeatHoldController@release');
+$router->get('/api/trms/seat-holds/{scheduleId}', 'App\Http\Controllers\Trms\SeatHoldController@myHolds');
 $router->get('/api/trms/concert/audiences', 'App\Http\Controllers\Trms\ConcertAudienceController@index');
 $router->get('/api/trms/concert/audiences/concerts', 'App\Http\Controllers\Trms\ConcertAudienceController@concerts');
 $router->get('/api/trms/concert/audiences/{id}', 'App\Http\Controllers\Trms\ConcertAudienceController@show');
