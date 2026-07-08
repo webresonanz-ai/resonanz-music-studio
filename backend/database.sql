@@ -18,7 +18,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     api_token VARCHAR(64) UNIQUE,
     api_token_exp TIMESTAMP NULL,
-    role ENUM('admin', 'manager', 'teacher', 'arranger', 'member') DEFAULT 'member',
+    role ENUM('admin', 'manager', 'singers_manager', 'teacher', 'arranger', 'member') DEFAULT 'member',
     program_id VARCHAR(10),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -70,6 +70,13 @@ CREATE TABLE schedules (
     venue VARCHAR(150),
     concert_code VARCHAR(50),
     description TEXT,
+    banner_url VARCHAR(500) NULL DEFAULT NULL COMMENT 'Optional banner image URL, shown on homepage slideshow for concert type schedules',
+    is_open_register TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = registration is open for this concert schedule',
+    audience_capacity INT NULL DEFAULT NULL COMMENT 'Max audience registrations for this concert; NULL = unlimited',
+    is_seat_assign TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = this concert uses seat selection; guests pick a seat on registration',
+    seat_rows INT UNSIGNED NULL DEFAULT NULL COMMENT 'Number of rows in the seating layout (e.g. 10)',
+    seat_columns INT UNSIGNED NULL DEFAULT NULL COMMENT 'Number of columns/seats per row in the seating layout (e.g. 20)',
+    seat_layout_id VARCHAR(80) NULL DEFAULT NULL COMMENT 'ID of the predefined seating layout from ConcertLayouts.js',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (program_id) REFERENCES programs(id)
@@ -86,15 +93,29 @@ CREATE TABLE schedule_programs (
 
 -- Members table
 CREATE TABLE members (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    program_id VARCHAR(10) NOT NULL,
-    user_id INT,
-    name VARCHAR(100) NOT NULL,
-    instrument VARCHAR(100),
-    join_date DATE,
-    status ENUM('active', 'inactive', 'alumni') DEFAULT 'active',
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    program_id   VARCHAR(10)  NOT NULL DEFAULT 'bms',
+    user_id      INT          NULL,
+    name         VARCHAR(100) NOT NULL,
+    nickname     VARCHAR(100) NULL,
+    email        VARCHAR(150) NULL,
+    stage_name   VARCHAR(100) NULL,
+    birth_place  VARCHAR(100) NULL,
+    birth_date   DATE         NULL,
+    domicile     VARCHAR(150) NULL,
+    phone        VARCHAR(30)  NULL,
+    year_join    VARCHAR(10)   NULL,
+    field_of_work VARCHAR(100) NULL,
+    role         ENUM('Sopran','Alto','Tenor','Bass') NULL,
+    section      VARCHAR(100) NULL,
+    join_date    DATE         NULL,
+    status       ENUM('active','passive') NOT NULL DEFAULT 'active',
+    performances INT          NOT NULL DEFAULT 0,
+    avatar       VARCHAR(255) NOT NULL DEFAULT 'https://voca-land.sgp1.cdn.digitaloceanspaces.com/0/1757684222527/9465e2e8.jpg',
+    created_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (program_id) REFERENCES programs(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (user_id)    REFERENCES users(id)
 );
 
 -- Attendance table (legacy — tied to events)
@@ -142,6 +163,50 @@ CREATE TABLE schedule_attendance (
     FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
 );
 
+-- Custom seat layouts table
+CREATE TABLE seat_layouts (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    layout_key  VARCHAR(100) NOT NULL UNIQUE
+        COMMENT 'Unique key stored in schedules.seat_layout_id, e.g. "custom-1720123456789"',
+    name        VARCHAR(150) NOT NULL
+        COMMENT 'Display name of the layout, e.g. "Main Hall Custom"',
+    venue       VARCHAR(150) NULL
+        COMMENT 'Venue name, e.g. "Aula Simfonia Jakarta"',
+    description VARCHAR(500) NULL
+        COMMENT 'Short description shown in the layout picker',
+    total_seats INT UNSIGNED NOT NULL DEFAULT 0
+        COMMENT 'Pre-computed total seat count',
+    layout_data LONGTEXT NOT NULL
+        COMMENT 'Full layout JSON matching the concertLayouts.js section/row structure',
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) COMMENT = 'Custom concert seating layouts saved from the frontend builder';
+
+-- Index for fast lookup by key (used by every seat registration page load)
+CREATE INDEX idx_sl_layout_key ON seat_layouts (layout_key);
+
+-- Seat holds table
+CREATE TABLE seat_holds (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    schedule_id INT NOT NULL
+        COMMENT 'FK to schedules.id',
+    seat_number VARCHAR(20) NOT NULL
+        COMMENT 'Seat label, e.g. "A5" or "C12"',
+    user_id     INT NOT NULL
+        COMMENT 'FK to users.id — the user holding this seat',
+    held_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        COMMENT 'When the hold was created',
+    expires_at  TIMESTAMP NOT NULL
+        COMMENT 'Hold expires at this time (held_at + 10 min)',
+
+    UNIQUE KEY uk_schedule_seat (schedule_id, seat_number),
+    INDEX idx_sh_user    (user_id),
+    INDEX idx_sh_expires (expires_at),
+
+    FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id)     REFERENCES users(id)     ON DELETE CASCADE
+) COMMENT = 'Temporary seat reservations during checkout (TTL: 10 minutes)';
+
 -- News table
 CREATE TABLE news (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -167,12 +232,13 @@ CREATE TABLE concerts (
 CREATE TABLE concert_audiences (
     id INT AUTO_INCREMENT PRIMARY KEY,
     program_id VARCHAR(10) NOT NULL,
-    schedule_id INT(11) NOT NULL,
+    schedule_id INT NULL DEFAULT NULL COMMENT 'FK to schedules.id (type=concert) this registration belongs to',
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
     phone VARCHAR(50) NOT NULL,
     concert_title VARCHAR(150) NOT NULL,
     ticket_quantity INT NOT NULL DEFAULT 1,
+    seat_number VARCHAR(20) NULL DEFAULT NULL COMMENT 'Chosen seat label, e.g. "A5" or "C12". NULL for non-seated concerts.',
     notes TEXT,
     qr_code VARCHAR(100) DEFAULT NULL COMMENT 'Format: {concertCode}_{id}_{timestamp}_{rand4}',
     attended_at TIMESTAMP NULL DEFAULT NULL COMMENT 'Set when the ticket QR is scanned at the door',
@@ -180,15 +246,6 @@ CREATE TABLE concert_audiences (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (program_id) REFERENCES programs(id)
 );
-
--- Migration: add qr_code to existing installations
--- ALTER TABLE concert_audiences ADD COLUMN qr_code VARCHAR(100) DEFAULT NULL COMMENT 'Format: {concertCode}_{id}_{timestamp}_{rand4}' AFTER notes;
-
--- Migration: add attended_at for ticket scan check-in
--- ALTER TABLE concert_audiences ADD COLUMN attended_at TIMESTAMP NULL DEFAULT NULL AFTER qr_code;
-
--- Migration: add send_email_status for ticket email delivery tracking
--- ALTER TABLE concert_audiences ADD COLUMN send_email_status ENUM('pending', 'sent', 'failed') NOT NULL DEFAULT 'pending' AFTER attended_at;
 
 -- Gallery table
 CREATE TABLE gallery (
@@ -229,8 +286,15 @@ CREATE TABLE contact_messages (
     subject VARCHAR(150),
     message TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (program_id) REFERENCES programs(id)
+    FOREIGN KEY (program_id) REFERENCES programs(id),
+    FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE SET NULL
 );
+
+-- Index to make per-concert count queries fast
+CREATE INDEX idx_ca_schedule_id ON concert_audiences (schedule_id);
+
+-- Index for fast seat availability lookup
+CREATE INDEX idx_ca_schedule_seat ON concert_audiences (schedule_id, seat_number);
 
 -- Insert initial programs
 INSERT INTO programs (id, name, description, icon) VALUES
@@ -238,84 +302,3 @@ INSERT INTO programs (id, name, description, icon) VALUES
 ('bms', 'BMS', 'Batavia Madrigal Singers', 'bi-people-fill'),
 ('jco', 'JCO', 'Jakarta Concert Orchestra', 'bi-vinyl-fill'),
 ('trcc', 'TRCC', 'The Resonanz Children Choir', 'bi-trophy-fill');
-
--- ============================================================
--- Migration: Expand members table for BMS full member profile
--- Run this if you already have the members table from the
--- initial schema above. If creating fresh, use the new
--- CREATE TABLE below instead.
--- ============================================================
-
--- Option A: ALTER existing table
-ALTER TABLE members
-    ADD COLUMN nickname      VARCHAR(100)  NULL                                                         AFTER name,
-    ADD COLUMN email         VARCHAR(150)  NULL                                                         AFTER nickname,
-    ADD COLUMN stage_name    VARCHAR(100)  NULL                                                         AFTER email,
-    ADD COLUMN birth_place   VARCHAR(100)  NULL                                                         AFTER stage_name,
-    ADD COLUMN birth_date    DATE          NULL                                                         AFTER birth_place,
-    ADD COLUMN domicile      VARCHAR(150)  NULL                                                         AFTER birth_date,
-    ADD COLUMN phone         VARCHAR(30)   NULL                                                         AFTER domicile,
-    ADD COLUMN year_join     VARCHAR(10)   NULL                                                         AFTER phone,
-    ADD COLUMN field_of_work VARCHAR(100)  NULL                                                         AFTER year_join,
-    ADD COLUMN section       VARCHAR(100)  NULL                                                         AFTER instrument,
-    ADD COLUMN performances  INT           NOT NULL DEFAULT 0                                           AFTER section,
-    ADD COLUMN avatar        VARCHAR(255)  NOT NULL DEFAULT 'https://voca-land.sgp1.cdn.digitaloceanspaces.com/0/1757684222527/9465e2e8.jpg',
-    MODIFY COLUMN role       ENUM('Sopran','Alto','Tenor','Bass') NULL,
-    MODIFY COLUMN status     ENUM('active','passive') NOT NULL DEFAULT 'active',
-    ADD COLUMN updated_at    TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
-
--- Option B: Full CREATE for a fresh install (replaces the earlier members table definition)
-DROP TABLE IF EXISTS members;
-CREATE TABLE members (
-    id           INT AUTO_INCREMENT PRIMARY KEY,
-    program_id   VARCHAR(10)  NOT NULL DEFAULT 'bms',
-    user_id      INT          NULL,
-    name         VARCHAR(100) NOT NULL,
-    nickname     VARCHAR(100) NULL,
-    email        VARCHAR(150) NULL,
-    stage_name   VARCHAR(100) NULL,
-    birth_place  VARCHAR(100) NULL,
-    birth_date   DATE         NULL,
-    domicile     VARCHAR(150) NULL,
-    phone        VARCHAR(30)  NULL,
-    year_join    VARCHAR(10)   NULL,
-    field_of_work VARCHAR(100) NULL,
-    role         ENUM('Sopran','Alto','Tenor','Bass') NULL,
-    section      VARCHAR(100) NULL,
-    join_date    DATE         NULL,
-    status       ENUM('active','passive') NOT NULL DEFAULT 'active',
-    performances INT          NOT NULL DEFAULT 0,
-    avatar       VARCHAR(255) NOT NULL DEFAULT 'https://voca-land.sgp1.cdn.digitaloceanspaces.com/0/1757684222527/9465e2e8.jpg',
-    created_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-    updated_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (program_id) REFERENCES programs(id),
-    FOREIGN KEY (user_id)    REFERENCES users(id)
-);
-
--- ============================================================
--- Migration: BMS concert roster & schedule attendance
--- Run on existing installations that already have schedules.
--- ============================================================
--- CREATE TABLE concert_roster (
---     id INT AUTO_INCREMENT PRIMARY KEY,
---     concert_schedule_id INT NOT NULL,
---     member_id INT NOT NULL,
---     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     UNIQUE KEY uk_concert_member (concert_schedule_id, member_id),
---     FOREIGN KEY (concert_schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
---     FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
--- );
--- CREATE TABLE schedule_attendance (
---     id INT AUTO_INCREMENT PRIMARY KEY,
---     schedule_id INT NOT NULL,
---     member_id INT NOT NULL,
---     status ENUM('present', 'absent', 'late', 'excused') NOT NULL DEFAULT 'present',
---     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
---     UNIQUE KEY uk_schedule_member (schedule_id, member_id),
---     FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
---     FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
--- );
-
--- 1. Add singers_manager role to users table
-ALTER TABLE users
-    MODIFY COLUMN role ENUM('admin', 'manager', 'singers_manager', 'teacher', 'arranger', 'member') DEFAULT 'member';
