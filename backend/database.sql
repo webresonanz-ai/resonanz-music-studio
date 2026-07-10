@@ -113,7 +113,7 @@ CREATE TABLE members (
     join_date    DATE         NULL,
     status       ENUM('active','passive') NOT NULL DEFAULT 'active',
     performances INT          NOT NULL DEFAULT 0,
-    avatar       VARCHAR(255) NOT NULL DEFAULT 'https://voca-land.sgp1.cdn.digitaloceanspaces.com/0/1757684222527/9465e2e8.jpg',
+    avatar_url   VARCHAR(255) NOT NULL DEFAULT 'https://voca-land.sgp1.cdn.digitaloceanspaces.com/0/1757684222527/9465e2e8.jpg',
     created_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
     updated_at   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (program_id) REFERENCES programs(id),

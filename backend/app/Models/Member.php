@@ -25,7 +25,7 @@ class Member extends Model
         'join_date',
         'status',
         'performances',
-        'avatar',
+        'avatar_url',
     ];
 
     private const DEFAULT_AVATAR = 'https://voca-land.sgp1.cdn.digitaloceanspaces.com/0/1757684222527/9465e2e8.jpg';
@@ -41,8 +41,8 @@ class Member extends Model
     {
         $stmt = $this->db->prepare(
             "SELECT id, name, nickname, email, stage_name, birth_place, birth_date,
-                    domicile, phone, year_join, field_of_work, role, section,
-                    join_date, status, performances, avatar, created_at, updated_at
+                     domicile, phone, year_join, field_of_work, role, section,
+                     join_date, status, performances, avatar_url, created_at, updated_at
              FROM {$this->table}
              WHERE program_id = :program_id
              ORDER BY name ASC"
@@ -102,7 +102,7 @@ class Member extends Model
             'join_date' => $this->sanitizeDate($raw['join_date'] ?? null),
             'status' => in_array($raw['status'] ?? '', self::VALID_STATUSES, true) ? $raw['status'] : 'active',
             'performances' => isset($raw['performances']) && $raw['performances'] !== '' ? (int) $raw['performances'] : 0,
-            'avatar' => trim($raw['avatar'] ?? '') ?: self::DEFAULT_AVATAR,
+            'avatar_url' => trim($raw['avatar_url'] ?? '') ?: self::DEFAULT_AVATAR,
         ];
     }
 

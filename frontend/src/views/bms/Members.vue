@@ -173,7 +173,7 @@
             @keydown.enter="openDetail(member)"
           >
             <img
-              :src="member.avatar || defaultAvatar"
+              :src="member.avatar_url || defaultAvatar"
               :alt="member.name"
               class="member-photo"
               loading="lazy"
@@ -260,7 +260,7 @@
         >
           <span class="lh-avatar">
             <img
-              :src="member.avatar || defaultAvatar"
+              :src="member.avatar_url || defaultAvatar"
               :alt="member.name"
               class="list-avatar"
               loading="lazy"
@@ -408,7 +408,7 @@
               </button>
               <div class="detail-avatar-wrap">
                 <img
-                  :src="detailMember.avatar || defaultAvatar"
+                  :src="detailMember.avatar_url || defaultAvatar"
                   :alt="detailMember.name"
                   class="detail-avatar"
                   @error="onImgError"
@@ -747,7 +747,7 @@
                 <p class="form-section-label mt-4">Photo</p>
                 <div class="avatar-row">
                   <img
-                    :src="form.avatar || defaultAvatar"
+                    :src="form.avatar_url || defaultAvatar"
                     alt="Preview"
                     class="avatar-preview"
                     @error="onImgError"
@@ -755,7 +755,7 @@
                   <div class="flex-fill">
                     <label class="form-lbl">Avatar URL</label>
                     <input
-                      v-model="form.avatar"
+                      v-model="form.avatar_url"
                       type="url"
                       class="form-inp"
                       placeholder="https://…"
@@ -860,7 +860,7 @@ const emptyForm = () => ({
   join_date: "",
   status: "active",
   performances: 0,
-  avatar: "",
+  avatar_url: "",
 });
 
 export default {
@@ -1057,7 +1057,7 @@ export default {
         join_date: member.join_date || "",
         status: member.status || "active",
         performances: member.performances ?? 0,
-        avatar: member.avatar || "",
+        avatar_url: member.avatar_url || "",
       };
       this.formError = null;
       this.v$ = {};
@@ -1085,7 +1085,7 @@ export default {
       this.formError = null;
       try {
         const payload = { ...this.form };
-        if (!payload.avatar) payload.avatar = DEFAULT_AVATAR;
+        if (!payload.avatar_url) payload.avatar_url = DEFAULT_AVATAR;
         if (this.isEditing) await this.updateMember(this.editingId, payload);
         else await this.createMember(payload);
         this.closeForm();
