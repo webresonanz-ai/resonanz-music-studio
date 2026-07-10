@@ -12,7 +12,7 @@ class ConcertRoster extends Model
     {
         $stmt = $this->db->prepare("
             SELECT cr.id AS roster_id, cr.concert_schedule_id, cr.member_id, cr.created_at,
-                   m.name, m.nickname, m.stage_name, m.role, m.section, m.status, m.avatar
+                   m.name, m.nickname, m.stage_name, m.role, m.section, m.status, m.avatar_url
             FROM {$this->table} cr
             JOIN members m ON m.id = cr.member_id
             WHERE cr.concert_schedule_id = :concert_schedule_id

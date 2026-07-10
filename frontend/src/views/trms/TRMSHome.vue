@@ -44,7 +44,11 @@
               </a>
               <router-link
                 v-else-if="concert.is_open_register && concert.concert_code"
-                :to="concert.is_seat_assign ? `/concert-reg/${concert.concert_code}/seated` : `/concert-reg/${concert.concert_code}`"
+                :to="
+                  concert.is_seat_assign
+                    ? `/concert-reg/${concert.concert_code}/seated`
+                    : `/concert-reg/${concert.concert_code}`
+                "
                 class="btn btn-warning btn-lg mt-3 fw-bold"
               >
                 <i class="bi bi-ticket-perforated me-2"></i>Register Now
@@ -103,12 +107,22 @@
           <div class="card h-100 news-card">
             <div class="card-body d-flex flex-column">
               <div class="d-flex flex-wrap gap-1 mb-2">
-                <span class="program-logo-pill" v-for="p in (article.program_ids || [article.program_id || 'trms'])" :key="p">
-                  <img :src="'/' + p + '_white.png'" :alt="programLabel(p)" class="program-logo-img">
+                <span
+                  class="program-logo-pill"
+                  v-for="p in article.program_ids || [article.program_id || 'trms']"
+                  :key="p"
+                >
+                  <img
+                    :src="'/' + p + '_white.png'"
+                    :alt="programLabel(p)"
+                    class="program-logo-img"
+                  />
                 </span>
               </div>
               <h5 class="card-title">{{ article.title }}</h5>
-              <p class="card-text flex-grow-1 small text-muted">{{ truncateContent(article.content) }}</p>
+              <p class="card-text flex-grow-1 small text-muted">
+                {{ truncateContent(article.content) }}
+              </p>
               <div class="d-flex align-items-center justify-content-between mt-2">
                 <small class="text-muted">
                   <i class="bi bi-calendar3 me-1"></i>{{ formatDate(article.published_at) }}
@@ -224,10 +238,7 @@ export default {
   async mounted() {
     // Load schedules and news (no-op if already cached in the store)
     try {
-      await Promise.all([
-        this.trmsStore.fetchSchedules(),
-        this.trmsStore.fetchNews()
-      ]);
+      await Promise.all([this.trmsStore.fetchSchedules(), this.trmsStore.fetchNews()]);
     } catch {
       // silently fail — the rest of the page still works
     }
@@ -278,7 +289,7 @@ export default {
     formatDate(dateStr) {
       if (!dateStr) return "";
       const [y, m, d] = dateStr.split("-").map(Number);
-      return new Date(y, m - 1, d).toLocaleDateString("id-ID", {
+      return new Date(y, m - 1, d).toLocaleDateString("en-US", {
         weekday: "long",
         year: "numeric",
         month: "long",
@@ -291,23 +302,23 @@ export default {
     },
 
     programLabel(programId) {
-      const map = { trms: 'TRMS', bms: 'BMS', jco: 'JCO', trcc: 'TRCC' }
-      return map[programId] || (programId || '').toUpperCase()
+      const map = { trms: "TRMS", bms: "BMS", jco: "JCO", trcc: "TRCC" };
+      return map[programId] || (programId || "").toUpperCase();
     },
 
     programBadgeClass(programId) {
       const map = {
-        trms: 'bg-primary',
-        bms: 'bg-success',
-        jco: 'bg-warning text-dark',
-        trcc: 'bg-info text-dark'
-      }
-      return map[programId] || 'bg-secondary'
+        trms: "bg-primary",
+        bms: "bg-success",
+        jco: "bg-warning text-dark",
+        trcc: "bg-info text-dark",
+      };
+      return map[programId] || "bg-secondary";
     },
 
     truncateContent(text) {
-      if (!text) return ''
-      return text.length > 200 ? text.substring(0, 200) + '...' : text
+      if (!text) return "";
+      return text.length > 200 ? text.substring(0, 200) + "..." : text;
     },
   },
 };
@@ -495,12 +506,45 @@ export default {
 
 /* ── News cards ──────────────────────────────────────────────── */
 .news-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: newsFadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+  border: 1px solid transparent;
+  will-change: transform;
 }
 
-.news-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+.news-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.news-card:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.news-card:nth-child(3) {
+  animation-delay: 0.25s;
+}
+
+@media (hover: hover) {
+  .news-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    border-color: rgba(13, 110, 253, 0.2);
+  }
+}
+
+.news-card:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+
+@keyframes newsFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .program-logo-pill {
