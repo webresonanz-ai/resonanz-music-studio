@@ -44,7 +44,7 @@
               </a>
               <router-link
                 v-else-if="concert.is_open_register && concert.concert_code"
-                :to="`/concert-reg/${concert.concert_code}`"
+                :to="concert.is_seat_assign ? `/concert-reg/${concert.concert_code}/seated` : `/concert-reg/${concert.concert_code}`"
                 class="btn btn-warning btn-lg mt-3 fw-bold"
               >
                 <i class="bi bi-ticket-perforated me-2"></i>Register Now

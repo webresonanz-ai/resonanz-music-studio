@@ -121,11 +121,15 @@ export default {
     },
     selectConcert(concert) {
       if (concert.is_redirect_url && concert.redirect_url) {
-        window.open(concert.redirect_url, '_blank', 'noopener,noreferrer');
+        window.open(concert.redirect_url, "_blank", "noopener,noreferrer");
         return;
       }
       if (!concert.concert_code) {
         this.errorMessage = "This concert does not have a concert code yet.";
+        return;
+      }
+      if (concert.is_seat_assign) {
+        this.$router.push(`/concert-reg/${concert.concert_code}/seated`);
         return;
       }
       this.$router.push(`/concert-reg/${concert.concert_code}`);
