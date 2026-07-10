@@ -58,6 +58,9 @@ $router->post('/api/trms/concert/audiences/{id}/resend-email', 'App\Http\Control
 // Ticket PDF — admin & manager only
 RoleMiddleware::$roles = ['admin', 'manager'];
 $router->group(['middleware' => [AuthMiddleware::class, RoleMiddleware::class]], function ($router) {
+    $router->post('/api/trms/news', 'App\Http\Controllers\Trms\NewsController@store');
+    $router->post('/api/trms/news/{id}', 'App\Http\Controllers\Trms\NewsController@update');
+    $router->post('/api/trms/news/{id}/delete', 'App\Http\Controllers\Trms\NewsController@destroy');
     $router->get('/api/trms/concert/ticket/{id}', 'App\Http\Controllers\Trms\ConcertAudienceController@downloadTicket');
     $router->post('/api/trms/concert/send-bulk-email', 'App\Http\Controllers\Trms\ConcertAudienceController@sendBulkEmail');
 });

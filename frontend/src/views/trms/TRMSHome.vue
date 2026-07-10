@@ -90,6 +90,39 @@
       </template>
     </div>
 
+    <!-- ── Latest News ───────────────────────────────────────────────── -->
+    <div v-if="latestNews.length" class="mb-4">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="h4 fw-bold mb-0"><i class="bi bi-newspaper me-2"></i>Latest News</h2>
+        <router-link to="/trms/news" class="btn btn-outline-primary btn-sm">
+          View All <i class="bi bi-arrow-right ms-1"></i>
+        </router-link>
+      </div>
+      <div class="row row-cols-1 row-cols-md-3 g-3">
+        <div v-for="article in latestNews" :key="article.id" class="col">
+          <div class="card h-100 news-card">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex flex-wrap gap-1 mb-2">
+                <span class="program-logo-pill" v-for="p in (article.program_ids || [article.program_id || 'trms'])" :key="p">
+                  <img :src="'/' + p + '_white.png'" :alt="programLabel(p)" class="program-logo-img">
+                </span>
+              </div>
+              <h5 class="card-title">{{ article.title }}</h5>
+              <p class="card-text flex-grow-1 small text-muted">{{ truncateContent(article.content) }}</p>
+              <div class="d-flex align-items-center justify-content-between mt-2">
+                <small class="text-muted">
+                  <i class="bi bi-calendar3 me-1"></i>{{ formatDate(article.published_at) }}
+                </small>
+                <router-link :to="'/trms/news'" class="btn btn-sm btn-outline-secondary">
+                  Read more <i class="bi bi-arrow-right ms-1"></i>
+                </router-link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── Existing content below ───────────────────────────────────── -->
     <div class="content-card">
       <div class="row align-items-center">
@@ -178,6 +211,9 @@ export default {
           return d || a.start_time.localeCompare(b.start_time);
         });
     },
+    latestNews() {
+      return this.trmsStore.news.slice(0, 3);
+    },
     trackStyle() {
       return {
         transform: `translateX(-${this.activeSlide * 100}%)`,
@@ -186,9 +222,12 @@ export default {
   },
 
   async mounted() {
-    // Load schedules (no-op if already cached in the store)
+    // Load schedules and news (no-op if already cached in the store)
     try {
-      await this.trmsStore.fetchSchedules();
+      await Promise.all([
+        this.trmsStore.fetchSchedules(),
+        this.trmsStore.fetchNews()
+      ]);
     } catch {
       // silently fail — the rest of the page still works
     }
@@ -249,6 +288,26 @@ export default {
 
     formatTime(value) {
       return String(value || "").slice(0, 5);
+    },
+
+    programLabel(programId) {
+      const map = { trms: 'TRMS', bms: 'BMS', jco: 'JCO', trcc: 'TRCC' }
+      return map[programId] || (programId || '').toUpperCase()
+    },
+
+    programBadgeClass(programId) {
+      const map = {
+        trms: 'bg-primary',
+        bms: 'bg-success',
+        jco: 'bg-warning text-dark',
+        trcc: 'bg-info text-dark'
+      }
+      return map[programId] || 'bg-secondary'
+    },
+
+    truncateContent(text) {
+      if (!text) return ''
+      return text.length > 200 ? text.substring(0, 200) + '...' : text
     },
   },
 };
@@ -432,5 +491,30 @@ export default {
   .concert-slide__desc {
     display: none;
   }
+}
+
+/* ── News cards ──────────────────────────────────────────────── */
+.news-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.news-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.program-logo-pill {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 4px;
+  padding: 3px 8px;
+  line-height: 1;
+}
+
+.program-logo-img {
+  height: 14px;
+  width: auto;
+  display: block;
 }
 </style>

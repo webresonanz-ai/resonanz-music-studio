@@ -138,8 +138,36 @@ export const useTrmsStore = defineStore('trms', {
       this.courses = await useApiStore().get('/trms/courses')
     },
 
-    async fetchNews() {
-      this.news = await useApiStore().get('/trms/news')
+    async fetchNews(params = {}) {
+      const query = new URLSearchParams()
+      if (params.program_id) query.set('program_id', params.program_id)
+      const qs = query.toString()
+      this.news = await useApiStore().get('/trms/news' + (qs ? `?${qs}` : ''))
+    },
+
+    async createNews(data) {
+      const result = await useApiStore().post('/trms/news', data)
+      if (result?.data) {
+        this.news.unshift(result.data)
+      }
+      return result
+    },
+
+    async updateNews(id, data) {
+      const result = await useApiStore().post(`/trms/news/${id}`, data)
+      if (result?.data) {
+        const idx = this.news.findIndex(n => n.id === id)
+        if (idx !== -1) this.news.splice(idx, 1, result.data)
+      }
+      return result
+    },
+
+    async deleteNews(id) {
+      const result = await useApiStore().post(`/trms/news/${id}/delete`, {})
+      if (result?.success) {
+        this.news = this.news.filter(n => n.id !== id)
+      }
+      return result
     },
 
     async fetchSchedules() {

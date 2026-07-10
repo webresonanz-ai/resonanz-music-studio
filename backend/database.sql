@@ -212,11 +212,18 @@ CREATE TABLE seat_holds (
 -- News table
 CREATE TABLE news (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    program_id VARCHAR(10),
     title VARCHAR(150) NOT NULL,
     content TEXT,
-    published_at DATE,
-    FOREIGN KEY (program_id) REFERENCES programs(id)
+    published_at DATE
+);
+
+-- News programs pivot table for multi-program news articles
+CREATE TABLE news_programs (
+    news_id INT NOT NULL,
+    program_id VARCHAR(10) NOT NULL,
+    PRIMARY KEY (news_id, program_id),
+    FOREIGN KEY (news_id) REFERENCES news(id) ON DELETE CASCADE,
+    FOREIGN KEY (program_id) REFERENCES programs(id) ON DELETE CASCADE
 );
 
 -- Concerts table
