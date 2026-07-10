@@ -34,8 +34,10 @@ class ScheduleController
         $type = $data['type'] ?? 'lesson';
         $concertCode = $this->normalizeConcertCode($data['concert_code'] ?? '');
         $isOpenRegister = !empty($data['is_open_register']) ? 1 : 0;
+        $isRedirectUrl  = !empty($data['is_redirect_url']) ? 1 : 0;
+        $redirectUrl    = ($isRedirectUrl && !empty($data['redirect_url'])) ? trim($data['redirect_url']) : null;
 
-        if ($type === 'concert' && $isOpenRegister && $concertCode === '') {
+        if ($type === 'concert' && $isOpenRegister && !$isRedirectUrl && $concertCode === '') {
             http_response_code(422);
             echo json_encode(['error' => 'Concert Code is required before opening registration']);
             return;
@@ -56,6 +58,8 @@ class ScheduleController
             'description'      => $data['description'] ?? '',
             'banner_url'       => trim($data['banner_url'] ?? ''),
             'is_open_register' => $isOpenRegister,
+            'is_redirect_url'  => $isRedirectUrl,
+            'redirect_url'     => $redirectUrl,
             'audience_capacity'=> isset($data['audience_capacity']) && $data['audience_capacity'] !== '' ? (int) $data['audience_capacity'] : null,
             'is_seat_assign'   => $isSeatAssign,
             'seat_layout_id'   => $seatLayoutId ?: null,
@@ -102,6 +106,15 @@ class ScheduleController
             $updateData['banner_url'] = trim($data['banner_url'] ?? '');
         if (array_key_exists('is_open_register', $data))
             $updateData['is_open_register'] = !empty($data['is_open_register']) ? 1 : 0;
+        if (array_key_exists('is_redirect_url', $data)) {
+            $isRedirectUrl = !empty($data['is_redirect_url']) ? 1 : 0;
+            $updateData['is_redirect_url'] = $isRedirectUrl;
+            if ($isRedirectUrl && !empty($data['redirect_url'])) {
+                $updateData['redirect_url'] = trim($data['redirect_url']);
+            } else {
+                $updateData['redirect_url'] = null;
+            }
+        }
         if (array_key_exists('audience_capacity', $data))
             $updateData['audience_capacity'] = ($data['audience_capacity'] !== '' && $data['audience_capacity'] !== null) ? (int) $data['audience_capacity'] : null;
         if (array_key_exists('is_seat_assign', $data))
@@ -112,8 +125,9 @@ class ScheduleController
         $nextType = $updateData['type'] ?? ($schedule['type'] ?? 'lesson');
         $nextConcertCode = $updateData['concert_code'] ?? $this->normalizeConcertCode($schedule['concert_code'] ?? '');
         $nextIsOpenRegister = $updateData['is_open_register'] ?? (int) ($schedule['is_open_register'] ?? 0);
+        $nextIsRedirectUrl = $updateData['is_redirect_url'] ?? (int) ($schedule['is_redirect_url'] ?? 0);
 
-        if ($nextType === 'concert' && $nextIsOpenRegister && $nextConcertCode === '') {
+        if ($nextType === 'concert' && $nextIsOpenRegister && !$nextIsRedirectUrl && $nextConcertCode === '') {
             http_response_code(422);
             echo json_encode(['error' => 'Concert Code is required before opening registration']);
             return;

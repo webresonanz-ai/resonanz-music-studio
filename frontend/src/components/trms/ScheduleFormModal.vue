@@ -230,8 +230,36 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Seat Assignment toggle -->
                                 <div class="col-12" v-if="form.type === 'concert'">
+                                    <div class="form-check form-switch">
+                                        <input
+                                            id="scheduleIsRedirectUrl"
+                                            v-model="form.is_redirect_url"
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            role="switch"
+                                        >
+                                        <label for="scheduleIsRedirectUrl" class="form-check-label fw-semibold">
+                                            Redirect to External URL
+                                        </label>
+                                        <div class="form-text mt-1">
+                                            When enabled, the "Register Now" button will redirect visitors to the URL below instead of the internal registration page.
+                                        </div>
+                                    </div>
+                                    <div class="mt-3" v-if="form.is_redirect_url">
+                                        <label for="scheduleRedirectUrl" class="form-label">Redirect URL</label>
+                                        <input
+                                            id="scheduleRedirectUrl"
+                                            v-model.trim="form.redirect_url"
+                                            class="form-control"
+                                            type="url"
+                                            placeholder="https://example.com/register"
+                                            required
+                                        >
+                                    </div>
+                                </div>
+                                <!-- Seat Assignment toggle -->
+                                <div class="col-12" v-if="form.type === 'concert' && !form.is_redirect_url">
                                     <div class="p-3 rounded border border-secondary border-opacity-25 bg-light bg-opacity-10">
                                         <div class="form-check form-switch mb-3">
                                             <input
@@ -310,6 +338,8 @@ const emptyForm = () => ({
     description: '',
     banner_url: '',
     is_open_register: false,
+    is_redirect_url: false,
+    redirect_url: '',
     audience_capacity: null,
     is_seat_assign: false,
     seat_layout_id: null,
@@ -382,10 +412,9 @@ export default {
             this.form = {
                 ...schedule,
                 program_ids: schedule.program_ids ? [...schedule.program_ids] : ['trms'],
-                // API returns these as "0"/"1" strings from MySQL — coerce to real booleans
                 is_open_register: !!+schedule.is_open_register,
+                is_redirect_url:  !!+schedule.is_redirect_url,
                 is_seat_assign:   !!+schedule.is_seat_assign,
-                // Ensure seat_layout_id is null when empty string
                 seat_layout_id: schedule.seat_layout_id || null,
             }
             // If there's already a banner URL, default to upload tab so the preview shows

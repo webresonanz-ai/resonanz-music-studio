@@ -33,8 +33,17 @@
               <p v-if="concert.description" class="concert-slide__desc">
                 {{ concert.description }}
               </p>
+              <a
+                v-if="concert.is_open_register && concert.is_redirect_url && concert.redirect_url"
+                :href="concert.redirect_url"
+                class="btn btn-warning btn-lg mt-3 fw-bold"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <i class="bi bi-ticket-perforated me-2"></i>Register Now
+              </a>
               <router-link
-                v-if="concert.is_open_register && concert.concert_code"
+                v-else-if="concert.is_open_register && concert.concert_code"
                 :to="`/concert-reg/${concert.concert_code}`"
                 class="btn btn-warning btn-lg mt-3 fw-bold"
               >

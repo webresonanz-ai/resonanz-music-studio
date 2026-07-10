@@ -72,6 +72,8 @@ CREATE TABLE schedules (
     description TEXT,
     banner_url VARCHAR(500) NULL DEFAULT NULL COMMENT 'Optional banner image URL, shown on homepage slideshow for concert type schedules',
     is_open_register TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = registration is open for this concert schedule',
+    is_redirect_url TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = Register Now button redirects to an external URL',
+    redirect_url VARCHAR(500) NULL DEFAULT NULL COMMENT 'External URL used when is_redirect_url = 1',
     audience_capacity INT NULL DEFAULT NULL COMMENT 'Max audience registrations for this concert; NULL = unlimited',
     is_seat_assign TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = this concert uses seat selection; guests pick a seat on registration',
     seat_rows INT UNSIGNED NULL DEFAULT NULL COMMENT 'Number of rows in the seating layout (e.g. 10)',

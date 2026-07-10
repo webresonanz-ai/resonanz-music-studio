@@ -120,6 +120,10 @@ export default {
       }
     },
     selectConcert(concert) {
+      if (concert.is_redirect_url && concert.redirect_url) {
+        window.open(concert.redirect_url, '_blank', 'noopener,noreferrer');
+        return;
+      }
       if (!concert.concert_code) {
         this.errorMessage = "This concert does not have a concert code yet.";
         return;
