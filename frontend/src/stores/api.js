@@ -429,6 +429,8 @@ export const useLibraryStore = defineStore('library', {
   state: () => ({
     scores: [],
     costumes: [],
+    costumeMeta: { current_page: 1, last_page: 1, total: 0, per_page: 20 },
+    costumeGroups: [],
     loading: false,
     error: null,
   }),
@@ -437,7 +439,6 @@ export const useLibraryStore = defineStore('library', {
     genres: (state) => [...new Set(state.scores.map((s) => s.genre))].sort(),
     composers: (state) => [...new Set(state.scores.map((s) => s.composer))].sort(),
     arrangers: (state) => [...new Set(state.scores.map((s) => s.arranger))].sort(),
-    costumeCategories: (state) => [...new Set(state.costumes.map((c) => c.category))].sort(),
   },
 
   actions: {
@@ -489,18 +490,26 @@ export const useLibraryStore = defineStore('library', {
       return result
     },
 
-    async fetchCostumes() {
+    async fetchCostumes(params = {}) {
       this.loading = true
       this.error = null
       try {
-        const raw = await useApiStore().get('/library/costumes')
-        this.costumes = raw.map((c) => ({
-          ...c,
-          condition: c.item_condition,
-          lastUsed: c.last_used,
-          item_condition: undefined,
-          last_used: undefined,
-        }))
+        const query = new URLSearchParams()
+        if (params.page) query.set('page', params.page)
+        if (params.per_page) query.set('per_page', params.per_page)
+        if (params.search) query.set('search', params.search)
+        if (params.group_category) query.set('group_category', params.group_category)
+        if (params.type) query.set('type', params.type)
+        const qs = query.toString()
+        const result = await useApiStore().get(`/library/costumes${qs ? '?' + qs : ''}`)
+        this.costumes = result.data || []
+        this.costumeMeta = {
+          current_page: result.current_page || 1,
+          last_page: result.last_page || 1,
+          total: result.total || 0,
+          per_page: result.per_page || 20,
+        }
+        if (result.groups) this.costumeGroups = result.groups
       } catch (err) {
         this.error = err.message
       } finally {
@@ -511,14 +520,7 @@ export const useLibraryStore = defineStore('library', {
     async createCostume(data) {
       const result = await useApiStore().post('/library/costumes', data)
       if (result?.data) {
-        const mapped = {
-          ...result.data,
-          condition: result.data.item_condition,
-          lastUsed: result.data.last_used,
-          item_condition: undefined,
-          last_used: undefined,
-        }
-        this.costumes.push(mapped)
+        this.costumes.push(result.data)
       }
       return result
     },
@@ -528,13 +530,7 @@ export const useLibraryStore = defineStore('library', {
       if (result?.data) {
         const idx = this.costumes.findIndex((c) => c.id === id)
         if (idx !== -1) {
-          this.costumes.splice(idx, 1, {
-            ...result.data,
-            condition: result.data.item_condition,
-            lastUsed: result.data.last_used,
-            item_condition: undefined,
-            last_used: undefined,
-          })
+          this.costumes.splice(idx, 1, result.data)
         }
       }
       return result

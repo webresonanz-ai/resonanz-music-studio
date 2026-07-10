@@ -15,7 +15,14 @@ class CostumeController
 
     public function index(): void
     {
-        $this->json($this->model->all());
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $perPage = max(1, min(100, (int) ($_GET['per_page'] ?? 20)));
+        $search = $_GET['search'] ?? '';
+        $groupCategory = $_GET['group_category'] ?? '';
+        $type = $_GET['type'] ?? '';
+
+        $result = $this->model->paginated($page, $perPage, $search, $groupCategory, $type);
+        $this->json($result);
     }
 
     public function show(string $id): void

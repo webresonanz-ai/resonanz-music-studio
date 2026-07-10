@@ -323,13 +323,14 @@ CREATE TABLE library_scores (
 -- Library — Costumes
 CREATE TABLE library_costumes (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    category VARCHAR(100) NOT NULL,
-    size VARCHAR(50) NOT NULL,
-    item_condition ENUM('New','Excellent','Good','Fair') NOT NULL DEFAULT 'Good',
-    last_used DATE DEFAULT NULL,
-    notes TEXT DEFAULT '',
-    image VARCHAR(500) DEFAULT '',
+    name VARCHAR(255) NOT NULL,
+    costume_code VARCHAR(255) NOT NULL,
+    type ENUM('costume','accessory') NOT NULL DEFAULT 'costume',
+    gender ENUM('male','female','unisex') DEFAULT NULL,
+    group_category VARCHAR(255) NOT NULL,
+    rack_id INT NOT NULL DEFAULT 0,
+    image VARCHAR(500) DEFAULT NULL,
+    description TEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -355,18 +356,3 @@ INSERT INTO library_scores (id, title, composer, arranger, genre, difficulty, pa
 (10, 'Viva La Vida', 'Coldplay', 'Audrey Snyder', 'Pop', 'Intermediate', 11, 'https://placehold.co/400x560/6d8175/c8a45d?text=Viva+La+Vida'),
 (11, 'Panis Angelicus', 'César Franck', 'John Leavitt', 'Sacred', 'Intermediate', 7, 'https://placehold.co/400x560/7f2432/eadcc2?text=Panis+Angelicus'),
 (12, 'Killing Me Softly', 'Charles Fox', 'Deke Sharon', 'Contemporary', 'Intermediate', 9, 'https://placehold.co/400x560/10131f/eadcc2?text=Killing+Me+Softly');
-
--- Library seed data — Costumes
-INSERT INTO library_costumes (id, name, category, size, item_condition, last_used, notes, image) VALUES
-(1, 'Concert Tuxedo — Black', 'Tuxedo', 'L', 'Good', '2025-12-01', 'Includes bow tie', 'https://placehold.co/300x400/10131f/c8a45d?text=Tuxedo+Black'),
-(2, 'Batik Traditional — Gold', 'Traditional', 'M', 'Excellent', '2025-11-15', 'Javanese batik pattern', 'https://placehold.co/300x400/c8a45d/10131f?text=Batik+Gold'),
-(3, 'Evening Gown — Burgundy', 'Gown', 'S', 'Fair', '2025-10-20', 'Minor hem repair needed', 'https://placehold.co/300x400/7f2432/eadcc2?text=Gown+Burgundy'),
-(4, 'Choir Robe — Maroon', 'Robe', 'XL', 'Good', '2025-09-10', 'Standard choir robe', 'https://placehold.co/300x400/7f2432/c8a45d?text=Choir+Robe'),
-(5, 'Batik Contemporary — Blue', 'Traditional', 'L', 'Excellent', '2025-11-28', 'Modern batik design', 'https://placehold.co/300x400/1d2433/eadcc2?text=Batik+Blue'),
-(6, 'White Tuxedo Jacket', 'Tuxedo', 'M', 'Good', '2025-08-05', 'Cream white', 'https://placehold.co/300x400/fffdf8/10131f?text=White+Tuxedo'),
-(7, 'Concert Dress — Black', 'Gown', 'M', 'Excellent', '2025-12-10', 'Floor-length', 'https://placehold.co/300x400/10131f/eadcc2?text=Dress+Black'),
-(8, 'Songket Sarong', 'Traditional', 'One Size', 'Good', '2025-07-22', 'Palembang songket', 'https://placehold.co/300x400/c8a45d/7f2432?text=Songket'),
-(9, 'Choir Robe — Navy', 'Robe', 'XXL', 'Fair', '2025-06-30', 'Fading at collar', 'https://placehold.co/300x400/1d2433/eadcc2?text=Choir+Robe+Navy'),
-(10, 'Kasual Batik — Red', 'Traditional', 'M', 'Excellent', '2025-11-05', 'Casual concert wear', 'https://placehold.co/300x400/7f2432/c8a45d?text=Batik+Red'),
-(11, 'Black Pants — Formal', 'Tuxedo', 'L', 'Good', '2025-10-12', 'Wrinkle-free fabric', 'https://placehold.co/300x400/10131f/fffdf8?text=Formal+Pants'),
-(12, 'Corsage — Gold Accent', 'Accessory', 'One Size', 'New', NULL, 'For formal events', 'https://placehold.co/300x400/c8a45d/1d2433?text=Gold+Corsage');
