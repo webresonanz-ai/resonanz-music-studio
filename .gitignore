@@ -43,3 +43,4 @@ __screenshots__/
 .vscode
 /backend/vendor
 /backend/public/uploads/banners
+/backend/public/uploads/scores

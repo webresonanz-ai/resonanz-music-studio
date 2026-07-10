@@ -32,6 +32,13 @@ export const useNavigationStore = defineStore("navigation", {
         img: "/trcc_white.png",
         description: "The Resonanz Children Choir",
       },
+      {
+        id: "library",
+        name: "Library",
+        icon: "bi-collection",
+        img: "",
+        description: "Sheet Music & Costumes",
+      },
     ],
     navItems: {
       trms: [
@@ -96,6 +103,17 @@ export const useNavigationStore = defineStore("navigation", {
         { path: "/trcc/testimonial", label: "Testimonial", icon: "bi-chat-quote" },
         { path: "/trcc/about-us", label: "About Us", icon: "bi-info-circle" },
         { path: "/trcc/contact", label: "Contact", icon: "bi-envelope" },
+      ],
+      library: [
+        { path: "/library/home", label: "Home", icon: "bi-house-door" },
+        {
+          label: "Library",
+          icon: "bi-collection",
+          children: [
+            { path: "/library/sheet-music", label: "Sheet Music", icon: "bi-music-note" },
+            { path: "/library/costumes", label: "Costumes", icon: "bi-person-badge" },
+          ],
+        },
       ],
     },
   }),

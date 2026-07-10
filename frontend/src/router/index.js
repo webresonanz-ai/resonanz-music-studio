@@ -89,6 +89,17 @@ const routes = [
     ],
   },
 
+  // ── Library ───────────────────────────────────────────────────────────────
+  {
+    path: "/library",
+    children: [
+      { path: "", redirect: "/library/home" },
+      { path: "home",        component: () => import("../views/library/LibraryHome.vue") },
+      { path: "sheet-music", component: () => import("../views/library/SheetMusic.vue") },
+      { path: "costumes",    component: () => import("../views/library/Costumes.vue") },
+    ],
+  },
+
   // ── Concert Registration (public, standalone) ─────────────────────────────
   {
     path: "/concert-reg/:concertCode",

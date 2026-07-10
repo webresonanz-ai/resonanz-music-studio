@@ -298,9 +298,68 @@ CREATE INDEX idx_ca_schedule_id ON concert_audiences (schedule_id);
 -- Index for fast seat availability lookup
 CREATE INDEX idx_ca_schedule_seat ON concert_audiences (schedule_id, seat_number);
 
+-- Library — Sheet Music
+CREATE TABLE library_scores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    composer VARCHAR(150) NOT NULL,
+    arranger VARCHAR(150) DEFAULT '',
+    genre VARCHAR(50) NOT NULL,
+    difficulty ENUM('Beginner','Intermediate','Advanced') NOT NULL DEFAULT 'Intermediate',
+    pages INT UNSIGNED NOT NULL DEFAULT 0,
+    file_url VARCHAR(500) DEFAULT '',
+    thumbnail VARCHAR(500) DEFAULT '',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Library — Costumes
+CREATE TABLE library_costumes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    size VARCHAR(50) NOT NULL,
+    item_condition ENUM('New','Excellent','Good','Fair') NOT NULL DEFAULT 'Good',
+    last_used DATE DEFAULT NULL,
+    notes TEXT DEFAULT '',
+    image VARCHAR(500) DEFAULT '',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 -- Insert initial programs
 INSERT INTO programs (id, name, description, icon) VALUES
 ('trms', 'TRMS', 'The Resonanz Music Studio', 'bi-music-note-beamed'),
 ('bms', 'BMS', 'Batavia Madrigal Singers', 'bi-people-fill'),
 ('jco', 'JCO', 'Jakarta Concert Orchestra', 'bi-vinyl-fill'),
 ('trcc', 'TRCC', 'The Resonanz Children Choir', 'bi-trophy-fill');
+
+-- Library seed data — Scores
+INSERT INTO library_scores (id, title, composer, arranger, genre, difficulty, pages, thumbnail) VALUES
+(1, 'Ave Maria', 'Giulio Caccini', 'John Rutter', 'Sacred', 'Intermediate', 6, 'https://placehold.co/400x560/7f2432/c8a45d?text=Ave+Maria'),
+(2, 'Bohemian Rhapsody', 'Freddie Mercury', 'Mark Brymer', 'Pop', 'Advanced', 18, 'https://placehold.co/400x560/1d2433/c8a45d?text=Bohemian+Rhapsody'),
+(3, 'Canon in D', 'Johann Pachelbel', 'Robert Long', 'Classical', 'Beginner', 4, 'https://placehold.co/400x560/c8a45d/1d2433?text=Canon+in+D'),
+(4, 'Over the Rainbow', 'Harold Arlen', 'Roger Emerson', 'Jazz', 'Intermediate', 8, 'https://placehold.co/400x560/6d8175/fffdf8?text=Over+the+Rainbow'),
+(5, 'Gamelan Gong Kebyar', 'Traditional', 'I Wayan Beratha', 'Traditional', 'Advanced', 24, 'https://placehold.co/400x560/7f2432/eadcc2?text=Gamelan'),
+(6, 'Hallelujah', 'Leonard Cohen', 'Deke Sharon', 'Contemporary', 'Intermediate', 10, 'https://placehold.co/400x560/10131f/c8a45d?text=Hallelujah'),
+(7, 'Largo al factotum', 'Gioachino Rossini', 'Luigi Bassi', 'Classical', 'Advanced', 22, 'https://placehold.co/400x560/7f2432/fffdf8?text=Largo'),
+(8, 'Take Five', 'Paul Desmond', 'Dave Brubeck', 'Jazz', 'Advanced', 12, 'https://placehold.co/400x560/1d2433/eadcc2?text=Take+Five'),
+(9, 'Kampuang Nan Jauh Di Mato', 'Traditional', 'A. Malik', 'Traditional', 'Beginner', 3, 'https://placehold.co/400x560/c8a45d/10131f?text=Kampuang+Nan+Jauh'),
+(10, 'Viva La Vida', 'Coldplay', 'Audrey Snyder', 'Pop', 'Intermediate', 11, 'https://placehold.co/400x560/6d8175/c8a45d?text=Viva+La+Vida'),
+(11, 'Panis Angelicus', 'César Franck', 'John Leavitt', 'Sacred', 'Intermediate', 7, 'https://placehold.co/400x560/7f2432/eadcc2?text=Panis+Angelicus'),
+(12, 'Killing Me Softly', 'Charles Fox', 'Deke Sharon', 'Contemporary', 'Intermediate', 9, 'https://placehold.co/400x560/10131f/eadcc2?text=Killing+Me+Softly');
+
+-- Library seed data — Costumes
+INSERT INTO library_costumes (id, name, category, size, item_condition, last_used, notes, image) VALUES
+(1, 'Concert Tuxedo — Black', 'Tuxedo', 'L', 'Good', '2025-12-01', 'Includes bow tie', 'https://placehold.co/300x400/10131f/c8a45d?text=Tuxedo+Black'),
+(2, 'Batik Traditional — Gold', 'Traditional', 'M', 'Excellent', '2025-11-15', 'Javanese batik pattern', 'https://placehold.co/300x400/c8a45d/10131f?text=Batik+Gold'),
+(3, 'Evening Gown — Burgundy', 'Gown', 'S', 'Fair', '2025-10-20', 'Minor hem repair needed', 'https://placehold.co/300x400/7f2432/eadcc2?text=Gown+Burgundy'),
+(4, 'Choir Robe — Maroon', 'Robe', 'XL', 'Good', '2025-09-10', 'Standard choir robe', 'https://placehold.co/300x400/7f2432/c8a45d?text=Choir+Robe'),
+(5, 'Batik Contemporary — Blue', 'Traditional', 'L', 'Excellent', '2025-11-28', 'Modern batik design', 'https://placehold.co/300x400/1d2433/eadcc2?text=Batik+Blue'),
+(6, 'White Tuxedo Jacket', 'Tuxedo', 'M', 'Good', '2025-08-05', 'Cream white', 'https://placehold.co/300x400/fffdf8/10131f?text=White+Tuxedo'),
+(7, 'Concert Dress — Black', 'Gown', 'M', 'Excellent', '2025-12-10', 'Floor-length', 'https://placehold.co/300x400/10131f/eadcc2?text=Dress+Black'),
+(8, 'Songket Sarong', 'Traditional', 'One Size', 'Good', '2025-07-22', 'Palembang songket', 'https://placehold.co/300x400/c8a45d/7f2432?text=Songket'),
+(9, 'Choir Robe — Navy', 'Robe', 'XXL', 'Fair', '2025-06-30', 'Fading at collar', 'https://placehold.co/300x400/1d2433/eadcc2?text=Choir+Robe+Navy'),
+(10, 'Kasual Batik — Red', 'Traditional', 'M', 'Excellent', '2025-11-05', 'Casual concert wear', 'https://placehold.co/300x400/7f2432/c8a45d?text=Batik+Red'),
+(11, 'Black Pants — Formal', 'Tuxedo', 'L', 'Good', '2025-10-12', 'Wrinkle-free fabric', 'https://placehold.co/300x400/10131f/fffdf8?text=Formal+Pants'),
+(12, 'Corsage — Gold Accent', 'Accessory', 'One Size', 'New', NULL, 'For formal events', 'https://placehold.co/300x400/c8a45d/1d2433?text=Gold+Corsage');

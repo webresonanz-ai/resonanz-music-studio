@@ -13,7 +13,8 @@
         type="button"
         @click="changeProgram(item.id)"
       >
-        <img :src="item.img" style="width: auto; height: 3rem" alt="" class="sidebar-icon" />
+        <img v-if="item.img" :src="item.img" style="width: auto; height: 3rem" alt="" class="sidebar-icon" />
+        <i v-else :class="'bi ' + item.icon + ' sidebar-icon'" style="display: flex; align-items: center; justify-content: center; width: auto; height: 3rem; font-size: 2rem; color: var(--gold-color)"></i>
         <span class="sidebar-item-content">
           <span class="sidebar-item-title">{{ item.name }}</span>
           <span class="sidebar-item-desc">{{ item.description }}</span>

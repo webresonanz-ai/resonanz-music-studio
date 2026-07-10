@@ -88,6 +88,24 @@ $router->get('/api/trcc/testimonials', 'App\Http\Controllers\Trcc\TestimonialCon
 $router->get('/api/trcc/about-us', 'App\Http\Controllers\Trcc\AboutController@index');
 $router->post('/api/trcc/contact', 'App\Http\Controllers\Trcc\ContactController@store');
 
+// Library routes (public)
+$router->get('/api/library/scores', 'App\Http\Controllers\Library\ScoreController@index');
+$router->get('/api/library/scores/{id}', 'App\Http\Controllers\Library\ScoreController@show');
+$router->get('/api/library/costumes', 'App\Http\Controllers\Library\CostumeController@index');
+$router->get('/api/library/costumes/{id}', 'App\Http\Controllers\Library\CostumeController@show');
+
+// Protected Library CRUD — admin & manager only
+RoleMiddleware::$roles = ['admin', 'manager'];
+$router->group(['middleware' => [AuthMiddleware::class, RoleMiddleware::class]], function ($router) {
+    $router->post('/api/library/scores', 'App\Http\Controllers\Library\ScoreController@store');
+    $router->post('/api/library/scores/{id}', 'App\Http\Controllers\Library\ScoreController@update');
+    $router->post('/api/library/scores/{id}/delete', 'App\Http\Controllers\Library\ScoreController@destroy');
+    $router->post('/api/library/scores/{id}/upload-pdf', 'App\Http\Controllers\Library\ScoreController@uploadPdf');
+    $router->post('/api/library/costumes', 'App\Http\Controllers\Library\CostumeController@store');
+    $router->post('/api/library/costumes/{id}', 'App\Http\Controllers\Library\CostumeController@update');
+    $router->post('/api/library/costumes/{id}/delete', 'App\Http\Controllers\Library\CostumeController@destroy');
+});
+
 // Protected BMS attendance routes — admin, manager, singers_manager only
 RoleMiddleware::$roles = ['admin', 'manager', 'singers_manager'];
 $router->group(['middleware' => [AuthMiddleware::class, RoleMiddleware::class]], function ($router) {

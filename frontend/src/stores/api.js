@@ -397,6 +397,131 @@ export const useJcoStore = defineStore('jco', {
   }
 })
 
+export const useLibraryStore = defineStore('library', {
+  state: () => ({
+    scores: [],
+    costumes: [],
+    loading: false,
+    error: null,
+  }),
+
+  getters: {
+    genres: (state) => [...new Set(state.scores.map((s) => s.genre))].sort(),
+    composers: (state) => [...new Set(state.scores.map((s) => s.composer))].sort(),
+    arrangers: (state) => [...new Set(state.scores.map((s) => s.arranger))].sort(),
+    costumeCategories: (state) => [...new Set(state.costumes.map((c) => c.category))].sort(),
+  },
+
+  actions: {
+    async fetchScores() {
+      this.loading = true
+      this.error = null
+      try {
+        this.scores = await useApiStore().get('/library/scores')
+      } catch (err) {
+        this.error = err.message
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async createScore(data) {
+      const result = await useApiStore().post('/library/scores', data)
+      if (result?.data) {
+        this.scores.push(result.data)
+      }
+      return result
+    },
+
+    async updateScore(id, data) {
+      const result = await useApiStore().post(`/library/scores/${id}`, data)
+      if (result?.data) {
+        const idx = this.scores.findIndex((s) => s.id === id)
+        if (idx !== -1) this.scores.splice(idx, 1, result.data)
+      }
+      return result
+    },
+
+    async deleteScore(id) {
+      const result = await useApiStore().post(`/library/scores/${id}/delete`, {})
+      if (result?.success) {
+        this.scores = this.scores.filter((s) => s.id !== id)
+      }
+      return result
+    },
+
+    async uploadScorePdf(id, file) {
+      const formData = new FormData()
+      formData.append('pdf', file)
+      const result = await useApiStore().postFormData(`/library/scores/${id}/upload-pdf`, formData)
+      if (result?.data) {
+        const idx = this.scores.findIndex((s) => s.id === id)
+        if (idx !== -1) this.scores.splice(idx, 1, result.data)
+      }
+      return result
+    },
+
+    async fetchCostumes() {
+      this.loading = true
+      this.error = null
+      try {
+        const raw = await useApiStore().get('/library/costumes')
+        this.costumes = raw.map((c) => ({
+          ...c,
+          condition: c.item_condition,
+          lastUsed: c.last_used,
+          item_condition: undefined,
+          last_used: undefined,
+        }))
+      } catch (err) {
+        this.error = err.message
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async createCostume(data) {
+      const result = await useApiStore().post('/library/costumes', data)
+      if (result?.data) {
+        const mapped = {
+          ...result.data,
+          condition: result.data.item_condition,
+          lastUsed: result.data.last_used,
+          item_condition: undefined,
+          last_used: undefined,
+        }
+        this.costumes.push(mapped)
+      }
+      return result
+    },
+
+    async updateCostume(id, data) {
+      const result = await useApiStore().post(`/library/costumes/${id}`, data)
+      if (result?.data) {
+        const idx = this.costumes.findIndex((c) => c.id === id)
+        if (idx !== -1) {
+          this.costumes.splice(idx, 1, {
+            ...result.data,
+            condition: result.data.item_condition,
+            lastUsed: result.data.last_used,
+            item_condition: undefined,
+            last_used: undefined,
+          })
+        }
+      }
+      return result
+    },
+
+    async deleteCostume(id) {
+      const result = await useApiStore().post(`/library/costumes/${id}/delete`, {})
+      if (result?.success) {
+        this.costumes = this.costumes.filter((c) => c.id !== id)
+      }
+      return result
+    },
+  },
+})
+
 export const useTrccStore = defineStore('trcc', {
   state: () => ({
     achievements: [],
