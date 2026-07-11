@@ -2,38 +2,41 @@
     <Teleport to="body">
         <div class="modal fade" id="scheduleModal" tabindex="-1" ref="modalEl">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">{{ editingSchedule ? 'Edit Schedule' : 'Add Schedule' }}</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-content sched-modal">
+                    <div class="modal-header sched-modal-header">
+                        <h5 class="modal-title sched-modal-title">
+                            <i class="bi bi-calendar-plus me-2"></i>
+                            {{ editingSchedule ? 'Edit Schedule' : 'Add Schedule' }}
+                        </h5>
+                        <button type="button" class="btn-close sched-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
-                        <div v-if="successMessage" class="alert alert-success d-flex align-items-center gap-2" role="alert">
+                    <div class="modal-body sched-modal-body">
+                        <div v-if="successMessage" class="alert sched-alert sched-alert-success d-flex align-items-center gap-2" role="alert">
                             <i class="bi bi-check-circle-fill"></i>
                             <span>{{ successMessage }}</span>
                         </div>
-                        <div v-if="errorMessage" class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+                        <div v-if="errorMessage" class="alert sched-alert sched-alert-danger d-flex align-items-center gap-2" role="alert">
                             <i class="bi bi-exclamation-triangle-fill"></i>
                             <span>{{ errorMessage }}</span>
                         </div>
                         <form @submit.prevent="handleSubmit">
                             <div class="row g-3">
                                 <div class="col-md-8">
-                                    <label for="scheduleTitle" class="form-label">Title</label>
+                                    <label for="scheduleTitle" class="form-label sched-label">Title</label>
                                     <input
                                         id="scheduleTitle"
                                         v-model.trim="form.title"
-                                        class="form-control"
+                                        class="form-control sched-input"
                                         type="text"
                                         required
                                     >
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="scheduleType" class="form-label">Type</label>
+                                    <label for="scheduleType" class="form-label sched-label">Type</label>
                                     <select
                                         id="scheduleType"
                                         v-model="form.type"
-                                        class="form-select"
+                                        class="form-select sched-select"
                                         required
                                     >
                                         <option value="lesson">Lesson</option>
@@ -44,75 +47,74 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="scheduleDate" class="form-label">Date</label>
+                                    <label for="scheduleDate" class="form-label sched-label">Date</label>
                                     <input
                                         id="scheduleDate"
                                         v-model="form.date"
-                                        class="form-control"
+                                        class="form-control sched-input"
                                         type="date"
                                         required
                                     >
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="scheduleStartTime" class="form-label">Start Time</label>
+                                    <label for="scheduleStartTime" class="form-label sched-label">Start Time</label>
                                     <input
                                         id="scheduleStartTime"
                                         v-model="form.start_time"
-                                        class="form-control"
+                                        class="form-control sched-input"
                                         type="time"
                                         required
                                     >
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="scheduleEndTime" class="form-label">End Time</label>
+                                    <label for="scheduleEndTime" class="form-label sched-label">End Time</label>
                                     <input
                                         id="scheduleEndTime"
                                         v-model="form.end_time"
-                                        class="form-control"
+                                        class="form-control sched-input"
                                         type="time"
                                         required
                                     >
                                 </div>
                                 <div class="col-12">
-                                    <label for="scheduleVenue" class="form-label">Venue</label>
+                                    <label for="scheduleVenue" class="form-label sched-label">Venue</label>
                                     <input
                                         id="scheduleVenue"
                                         v-model.trim="form.venue"
-                                        class="form-control"
+                                        class="form-control sched-input"
                                         type="text"
                                         maxlength="150"
                                         placeholder="e.g. Aula Simfonia Jakarta"
                                     >
                                 </div>
                                 <div class="col-12">
-                                    <label for="scheduleDescription" class="form-label">Description</label>
+                                    <label for="scheduleDescription" class="form-label sched-label">Description</label>
                                     <textarea
                                         id="scheduleDescription"
                                         v-model.trim="form.description"
-                                        class="form-control"
+                                        class="form-control sched-input sched-textarea"
                                         rows="3"
                                     ></textarea>
                                 </div>
-                                <div class="col-12" v-if="form.type === 'concert'">
-                                    <label for="scheduleConcertCode" class="form-label">Concert Code</label>
+                                <div class="col-12 sched-concert-section" v-if="form.type === 'concert'">
+                                    <label for="scheduleConcertCode" class="form-label sched-label">Concert Code</label>
                                     <input
                                         id="scheduleConcertCode"
                                         v-model.trim="form.concert_code"
-                                        class="form-control text-uppercase"
+                                        class="form-control sched-input text-uppercase"
                                         type="text"
                                         maxlength="50"
                                         placeholder="e.g. SDG"
                                     >
-                                    <div class="form-text">Used as the QR code prefix for audience tickets.</div>
+                                    <div class="form-text sched-form-text">Used as the QR code prefix for audience tickets.</div>
                                 </div>
-                                <div class="col-12" v-if="form.type === 'concert'">
-                                    <label for="scheduleBannerUrl" class="form-label">Concert Banner URL</label>
-                                    <!-- Upload tab or URL tab -->
-                                    <ul class="nav nav-tabs nav-tabs-sm mb-2" role="tablist">
+                                <div class="col-12 sched-concert-section" v-if="form.type === 'concert'">
+                                    <label for="scheduleBannerUrl" class="form-label sched-label">Concert Banner</label>
+                                    <ul class="nav nav-tabs sched-tabs" role="tablist">
                                         <li class="nav-item" role="presentation">
                                             <button
                                                 type="button"
-                                                class="nav-link py-1 px-3"
+                                                class="nav-link sched-tab-link"
                                                 :class="{ active: bannerTab === 'upload' }"
                                                 @click="bannerTab = 'upload'"
                                             >
@@ -122,7 +124,7 @@
                                         <li class="nav-item" role="presentation">
                                             <button
                                                 type="button"
-                                                class="nav-link py-1 px-3"
+                                                class="nav-link sched-tab-link"
                                                 :class="{ active: bannerTab === 'url' }"
                                                 @click="bannerTab = 'url'"
                                             >
@@ -130,11 +132,9 @@
                                             </button>
                                         </li>
                                     </ul>
-
-                                    <!-- Upload file input -->
                                     <div v-if="bannerTab === 'upload'">
                                         <div
-                                            class="banner-dropzone"
+                                            class="sched-dropzone"
                                             :class="{ 'is-dragging': isDragging }"
                                             @dragover.prevent="isDragging = true"
                                             @dragleave.prevent="isDragging = false"
@@ -148,20 +148,20 @@
                                                 class="d-none"
                                                 @change="handleBannerFileChange"
                                             >
-                                            <div v-if="!bannerUploading && !form.banner_url" class="text-center text-muted py-2">
-                                                <i class="bi bi-image fs-2 d-block mb-1"></i>
-                                                <span class="small">Click or drag &amp; drop an image here</span>
-                                                <div class="small opacity-75">JPEG, PNG, WebP — max 3 MB</div>
+                                            <div v-if="!bannerUploading && !form.banner_url" class="text-center py-3">
+                                                <i class="bi bi-image sched-dropzone-icon"></i>
+                                                <span class="d-block small sched-dropzone-text">Click or drag &amp; drop an image here</span>
+                                                <span class="d-block small opacity-50 sched-dropzone-hint">JPEG, PNG, WebP &mdash; max 3 MB</span>
                                             </div>
-                                            <div v-if="bannerUploading" class="text-center py-2">
-                                                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-                                                <span class="small">Uploading…</span>
+                                            <div v-if="bannerUploading" class="text-center py-3">
+                                                <span class="spinner-border spinner-border-sm me-2 sched-spinner" aria-hidden="true"></span>
+                                                <span class="small">Uploading&hellip;</span>
                                             </div>
-                                            <div v-if="!bannerUploading && form.banner_url" class="banner-preview-wrap">
-                                                <img :src="form.banner_url" alt="Banner preview" class="banner-preview-img">
+                                            <div v-if="!bannerUploading && form.banner_url" class="sched-preview-wrap">
+                                                <img :src="form.banner_url" alt="Banner preview" class="sched-preview-img">
                                                 <button
                                                     type="button"
-                                                    class="banner-remove-btn"
+                                                    class="sched-remove-btn"
                                                     @click.stop="clearBanner"
                                                     title="Remove banner"
                                                     aria-label="Remove banner"
@@ -174,13 +174,11 @@
                                             <i class="bi bi-exclamation-triangle me-1"></i>{{ bannerUploadError }}
                                         </div>
                                     </div>
-
-                                    <!-- URL text input -->
                                     <div v-if="bannerTab === 'url'">
                                         <input
                                             id="scheduleBannerUrl"
                                             v-model.trim="form.banner_url"
-                                            class="form-control"
+                                            class="form-control sched-input"
                                             type="url"
                                             placeholder="https://example.com/banner.jpg"
                                         >
@@ -188,7 +186,7 @@
                                             <img
                                                 :src="form.banner_url"
                                                 alt="Banner preview"
-                                                class="banner-url-preview"
+                                                class="sched-url-preview"
                                                 @error="bannerUrlBroken = true"
                                                 @load="bannerUrlBroken = false"
                                             >
@@ -197,120 +195,117 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div class="form-text">Optional banner image shown on the homepage slideshow.</div>
+                                    <div class="form-text sched-form-text">Optional banner image shown on the homepage slideshow.</div>
                                 </div>
-                                <div class="col-md-6" v-if="form.type === 'concert'">
-                                    <label for="scheduleAudienceCapacity" class="form-label">Audience Capacity</label>
+                                <div class="col-md-6 sched-concert-section" v-if="form.type === 'concert'">
+                                    <label for="scheduleAudienceCapacity" class="form-label sched-label">Audience Capacity</label>
                                     <input
                                         id="scheduleAudienceCapacity"
                                         v-model.number="form.audience_capacity"
-                                        class="form-control"
+                                        class="form-control sched-input"
                                         type="number"
                                         min="1"
                                         placeholder="e.g. 500"
                                     >
-                                    <div class="form-text">Leave empty for unlimited registrations.</div>
+                                    <div class="form-text sched-form-text">Leave empty for unlimited registrations.</div>
                                 </div>
-                                <div class="col-md-6 d-flex align-items-center" v-if="form.type === 'concert'">
+                                <div class="col-md-6 d-flex align-items-center sched-concert-section" v-if="form.type === 'concert'">
                                     <div class="form-check form-switch">
                                         <input
                                             id="scheduleIsOpenRegister"
                                             v-model="form.is_open_register"
-                                            class="form-check-input"
+                                            class="form-check-input sched-switch"
                                             type="checkbox"
                                             role="switch"
                                             :disabled="!hasConcertCode"
                                         >
-                                        <label for="scheduleIsOpenRegister" class="form-check-label fw-semibold">
+                                        <label for="scheduleIsOpenRegister" class="form-check-label sched-switch-label">
                                             Open for Registration
                                         </label>
-                                        <div class="form-text mt-1">
+                                        <div class="form-text sched-form-text mt-1">
                                             {{ hasConcertCode ? 'When enabled, the "Register Now" button appears publicly.' : 'Fill Concert Code first to open registration.' }}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12" v-if="form.type === 'concert'">
+                                <div class="col-12 sched-concert-section" v-if="form.type === 'concert'">
                                     <div class="form-check form-switch">
                                         <input
                                             id="scheduleIsRedirectUrl"
                                             v-model="form.is_redirect_url"
-                                            class="form-check-input"
+                                            class="form-check-input sched-switch"
                                             type="checkbox"
                                             role="switch"
                                         >
-                                        <label for="scheduleIsRedirectUrl" class="form-check-label fw-semibold">
+                                        <label for="scheduleIsRedirectUrl" class="form-check-label sched-switch-label">
                                             Redirect to External URL
                                         </label>
-                                        <div class="form-text mt-1">
+                                        <div class="form-text sched-form-text mt-1">
                                             When enabled, the "Register Now" button will redirect visitors to the URL below instead of the internal registration page.
                                         </div>
                                     </div>
                                     <div class="mt-3" v-if="form.is_redirect_url">
-                                        <label for="scheduleRedirectUrl" class="form-label">Redirect URL</label>
+                                        <label for="scheduleRedirectUrl" class="form-label sched-label">Redirect URL</label>
                                         <input
                                             id="scheduleRedirectUrl"
                                             v-model.trim="form.redirect_url"
-                                            class="form-control"
+                                            class="form-control sched-input"
                                             type="url"
                                             placeholder="https://example.com/register"
                                             required
                                         >
                                     </div>
                                 </div>
-                                <!-- Seat Assignment toggle -->
-                                <div class="col-12" v-if="form.type === 'concert' && !form.is_redirect_url">
-                                    <div class="p-3 rounded border border-secondary border-opacity-25 bg-light bg-opacity-10">
+                                <div class="col-12 sched-concert-section" v-if="form.type === 'concert' && !form.is_redirect_url">
+                                    <div class="sched-seat-section">
                                         <div class="form-check form-switch mb-3">
                                             <input
                                                 id="scheduleIsSeatAssign"
                                                 v-model="form.is_seat_assign"
-                                                class="form-check-input"
+                                                class="form-check-input sched-switch"
                                                 type="checkbox"
                                                 role="switch"
                                             >
-                                            <label for="scheduleIsSeatAssign" class="form-check-label fw-semibold">
+                                            <label for="scheduleIsSeatAssign" class="form-check-label sched-switch-label">
                                                 <i class="bi bi-grid-3x3-gap me-1"></i> Seat Assignment
                                             </label>
-                                            <div class="form-text mt-1">
+                                            <div class="form-text sched-form-text mt-1">
                                                 When enabled, guests choose a seat from a visual layout during registration.
                                             </div>
                                         </div>
                                         <div v-if="form.is_seat_assign">
-                                            <label class="form-label fw-semibold small mb-2">Seating Layout</label>
+                                            <label class="form-label sched-label fw-semibold small mb-2">Seating Layout</label>
                                             <ConcertLayoutPicker v-model="form.seat_layout_id" />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label d-block">Programs / Collaborating Groups</label>
-                                    <div class="d-flex flex-wrap gap-4 p-3 rounded border border-secondary border-opacity-25 bg-light bg-opacity-10">
+                                    <label class="form-label sched-label d-block">Programs / Collaborating Groups</label>
+                                    <div class="sched-programs-wrap">
                                         <div class="form-check" v-for="prog in availablePrograms" :key="prog.id">
                                             <input
                                                 :id="'prog-' + prog.id"
-                                                class="form-check-input"
+                                                class="form-check-input sched-check"
                                                 type="checkbox"
                                                 :value="prog.id"
                                                 v-model="form.program_ids"
                                             >
-                                            <label :for="'prog-' + prog.id" class="form-check-label select-none">
+                                            <label :for="'prog-' + prog.id" class="form-check-label sched-check-label select-none">
                                                 {{ prog.name }}
                                             </label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="d-flex gap-3 mt-4">
-                                <button class="btn btn-primary" type="submit" :disabled="loading">
-                                    <span v-if="loading" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                            <div class="sched-actions">
+                                <button class="btn sched-btn-primary" type="submit" :disabled="loading">
+                                    <span v-if="loading" class="spinner-border spinner-border-sm me-2 sched-spinner" aria-hidden="true"></span>
                                     <i v-else class="bi bi-check-circle me-2"></i>
                                     {{ loading ? 'Saving...' : (editingSchedule ? 'Update Schedule' : 'Add Schedule') }}
                                 </button>
-                                <button v-if="editingSchedule" class="btn btn-outline-danger" type="button" @click="handleDelete" :disabled="loading">
+                                <button v-if="editingSchedule" class="btn sched-btn-danger" type="button" @click="handleDelete" :disabled="loading">
                                     <i class="bi bi-trash me-2"></i> Delete
                                 </button>
-                                <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">
+                                <button class="btn sched-btn-ghost" type="button" data-bs-dismiss="modal">
                                     Cancel
                                 </button>
                             </div>
@@ -417,7 +412,6 @@ export default {
                 is_seat_assign:   !!+schedule.is_seat_assign,
                 seat_layout_id: schedule.seat_layout_id || null,
             }
-            // If there's already a banner URL, default to upload tab so the preview shows
             this.bannerTab = schedule.banner_url ? 'upload' : 'upload'
             this.bannerUploadError = ''
             this.bannerUrlBroken = false
@@ -474,7 +468,6 @@ export default {
                 this.bannerUploadError = err.message || 'Upload failed.'
             } finally {
                 this.bannerUploading = false
-                // Reset file input so the same file can be re-selected if needed
                 if (this.$refs.bannerFileInput) {
                     this.$refs.bannerFileInput.value = ''
                 }
@@ -497,54 +490,219 @@ export default {
 </script>
 
 <style scoped>
+/* ── Modal shell ──────────────────────────────────────────── */
 .modal-content {
-    background: var(--surface-color);
+    background: transparent;
 }
 
-.modal-header {
-    background: linear-gradient(135deg, rgba(127, 36, 50, 0.16), rgba(200, 164, 93, 0.08));
-    border-bottom: 1px solid var(--hairline-color);
+.sched-modal {
+    border: 1px solid rgba(234, 220, 194, 0.12);
+    border-radius: 14px;
+    background:
+        linear-gradient(135deg, rgba(200, 164, 93, 0.08), transparent 50%),
+        linear-gradient(180deg, #1a1f30 0%, #111420 100%);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 24px 56px rgba(8, 8, 14, 0.55);
+    color: rgba(234, 220, 194, 0.85);
 }
 
-/* Banner upload */
-.nav-tabs-sm .nav-link {
+/* ── Header ───────────────────────────────────────────────── */
+.sched-modal-header {
+    background: linear-gradient(135deg, rgba(127, 36, 50, 0.2), rgba(200, 164, 93, 0.08));
+    border-bottom: 1px solid rgba(234, 220, 194, 0.08);
+    border-radius: 13px 13px 0 0;
+    padding: 1rem 1.25rem;
+}
+
+.sched-modal-title {
+    color: var(--gold-color, #c8a45d);
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+.sched-close {
+    filter: brightness(0) invert(0.8);
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.sched-close:hover {
+    opacity: 1;
+}
+
+/* ── Body ─────────────────────────────────────────────────── */
+.sched-modal-body {
+    padding: 1.35rem 1.25rem;
+}
+
+/* ── Alerts ───────────────────────────────────────────────── */
+.sched-alert {
+    border: 1px solid rgba(234, 220, 194, 0.1);
+    border-radius: 10px;
+    background: rgba(234, 220, 194, 0.06);
+    color: rgba(234, 220, 194, 0.85);
+    padding: 0.7rem 1rem;
+    font-size: 0.875rem;
+}
+
+.sched-alert-success {
+    border-color: rgba(76, 175, 125, 0.3);
+    background: rgba(76, 175, 125, 0.1);
+    color: #7cdbab;
+}
+
+.sched-alert-danger {
+    border-color: rgba(224, 80, 80, 0.3);
+    background: rgba(224, 80, 80, 0.1);
+    color: #f08080;
+}
+
+/* ── Labels ───────────────────────────────────────────────── */
+.sched-label {
+    color: rgba(234, 220, 194, 0.75);
+    font-weight: 600;
     font-size: 0.82rem;
+    margin-bottom: 0.3rem;
 }
 
-.banner-dropzone {
-    border: 2px dashed rgba(127, 36, 50, 0.3);
+/* ── Inputs / Selects / Textareas ─────────────────────────── */
+.sched-input,
+.sched-select,
+.sched-textarea {
+    background: rgba(10, 12, 22, 0.6);
+    border: 1px solid rgba(234, 220, 194, 0.15);
     border-radius: 8px;
-    min-height: 110px;
+    color: #fffdf8;
+    font-size: 0.9rem;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.sched-input:focus,
+.sched-select:focus,
+.sched-textarea:focus {
+    border-color: rgba(200, 164, 93, 0.5);
+    background: rgba(10, 12, 22, 0.75);
+    box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.12);
+    color: #fffdf8;
+}
+
+.sched-input::placeholder,
+.sched-textarea::placeholder {
+    color: rgba(234, 220, 194, 0.3);
+}
+
+.sched-select option {
+    background: #1a1f30;
+    color: #fffdf8;
+}
+
+/* ── Form text ────────────────────────────────────────────── */
+.sched-form-text {
+    color: rgba(234, 220, 194, 0.45);
+    font-size: 0.78rem;
+    margin-top: 0.25rem;
+}
+
+/* ── Concert sections ─────────────────────────────────────── */
+.sched-concert-section {
+    margin-top: 0.5rem;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────── */
+.sched-tabs {
+    border-bottom: 1px solid rgba(234, 220, 194, 0.1);
+    gap: 0;
+    margin-bottom: 0.75rem;
+}
+
+.sched-tab-link {
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    color: rgba(234, 220, 194, 0.55);
+    background: transparent;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 0.45rem 0.9rem;
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.sched-tab-link:hover {
+    color: rgba(234, 220, 194, 0.85);
+    border-bottom-color: rgba(200, 164, 93, 0.3);
+}
+
+.sched-tab-link.active {
+    color: var(--gold-color, #c8a45d);
+    border-bottom-color: var(--gold-color, #c8a45d);
+    background: transparent;
+}
+
+/* ── Dropzone ─────────────────────────────────────────────── */
+.sched-dropzone {
+    border: 2px dashed rgba(200, 164, 93, 0.25);
+    border-radius: 10px;
+    min-height: 120px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: border-color 0.2s ease, background 0.2s ease;
-    background: rgba(127, 36, 50, 0.03);
+    transition:
+        border-color 0.25s ease,
+        background 0.25s ease;
+    background: rgba(200, 164, 93, 0.04);
     overflow: hidden;
     position: relative;
 }
 
-.banner-dropzone:hover,
-.banner-dropzone.is-dragging {
-    border-color: var(--accent-color);
-    background: rgba(127, 36, 50, 0.07);
+.sched-dropzone:hover,
+.sched-dropzone.is-dragging {
+    border-color: var(--gold-color, #c8a45d);
+    background: rgba(200, 164, 93, 0.08);
 }
 
-.banner-preview-wrap {
+.sched-dropzone-icon {
+    font-size: 1.75rem;
+    color: rgba(200, 164, 93, 0.45);
+    display: block;
+    margin-bottom: 0.35rem;
+}
+
+.sched-dropzone-text {
+    color: rgba(234, 220, 194, 0.55);
+}
+
+.sched-dropzone-hint {
+    color: rgba(234, 220, 194, 0.3);
+}
+
+.sched-spinner {
+    color: var(--gold-color, #c8a45d);
+}
+
+/* ── Preview ──────────────────────────────────────────────── */
+.sched-preview-wrap {
     width: 100%;
     position: relative;
 }
 
-.banner-preview-img {
+.sched-preview-img {
     display: block;
     width: 100%;
     max-height: 180px;
     object-fit: cover;
-    border-radius: 6px;
+    border-radius: 8px;
 }
 
-.banner-remove-btn {
+.sched-remove-btn {
     position: absolute;
     top: 6px;
     right: 6px;
@@ -559,19 +717,180 @@ export default {
     justify-content: center;
     cursor: pointer;
     font-size: 0.75rem;
-    transition: background 0.2s;
+    transition: background 0.2s ease;
 }
 
-.banner-remove-btn:hover {
+.sched-remove-btn:hover {
     background: rgba(200, 0, 0, 0.75);
 }
 
-.banner-url-preview {
+.sched-url-preview {
     display: block;
     width: 100%;
     max-height: 160px;
     object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid var(--hairline-color);
+    border-radius: 8px;
+    border: 1px solid rgba(234, 220, 194, 0.1);
 }
+
+/* ── Seat section ─────────────────────────────────────────── */
+.sched-seat-section {
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(234, 220, 194, 0.08);
+    background: rgba(234, 220, 194, 0.03);
+}
+
+/* ── Programs wrap ────────────────────────────────────────── */
+.sched-programs-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(234, 220, 194, 0.08);
+    background: rgba(234, 220, 194, 0.03);
+}
+
+/* ── Switches / Checkboxes ────────────────────────────────── */
+.sched-switch {
+    cursor: pointer;
+}
+
+.sched-switch:checked {
+    background-color: var(--gold-color, #c8a45d);
+    border-color: var(--gold-color, #c8a45d);
+}
+
+.sched-switch:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.sched-switch-label {
+    color: rgba(234, 220, 194, 0.85);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.sched-check {
+    cursor: pointer;
+}
+
+.sched-check:checked {
+    background-color: var(--gold-color, #c8a45d);
+    border-color: var(--gold-color, #c8a45d);
+}
+
+.sched-check-label {
+    color: rgba(234, 220, 194, 0.8);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+/* ── Actions ──────────────────────────────────────────────── */
+.sched-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.sched-btn-primary {
+    border: 1px solid #9d7d3b;
+    color: #17130a;
+    background: linear-gradient(180deg, #d6b66c 0%, var(--gold-color, #c8a45d) 100%);
+    box-shadow: 0 12px 28px rgba(122, 94, 39, 0.24);
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.sched-btn-primary:hover:not(:disabled) {
+    border-color: #8f6e2f;
+    color: #111;
+    background: linear-gradient(180deg, #e1c47f 0%, #b99245 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px rgba(122, 94, 39, 0.35);
+}
+
+.sched-btn-primary:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.sched-btn-danger {
+    border: 1px solid rgba(224, 80, 80, 0.35);
+    color: #e05050;
+    background: rgba(224, 80, 80, 0.08);
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.sched-btn-danger:hover:not(:disabled) {
+    border-color: rgba(224, 80, 80, 0.55);
+    color: #f06060;
+    background: rgba(224, 80, 80, 0.15);
+    transform: translateY(-2px);
+}
+
+.sched-btn-danger:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.sched-btn-ghost {
+    border: 1px solid rgba(234, 220, 194, 0.15);
+    color: rgba(234, 220, 194, 0.7);
+    background: transparent;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.sched-btn-ghost:hover {
+    border-color: rgba(234, 220, 194, 0.25);
+    color: rgba(234, 220, 194, 0.9);
+    background: rgba(234, 220, 194, 0.06);
+    transform: translateY(-2px);
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 575.98px) {
+    .sched-modal-body {
+        padding: 1rem;
+    }
+
+    .sched-actions {
+        flex-wrap: wrap;
+    }
+
+    .sched-actions .btn {
+        flex: 1 1 auto;
+        text-align: center;
+    }
+
+    .sched-programs-wrap {
+        gap: 0.5rem;
+        padding: 0.65rem 0.75rem;
+    }
+}
+
 </style>

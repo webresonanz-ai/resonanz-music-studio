@@ -190,14 +190,14 @@
         <input
           v-model="layoutName"
           type="text"
-          class="form-control form-control-sm"
+          class="form-control form-control-sm clb-input"
           placeholder="Layout name (e.g. Main Hall)"
           style="max-width: 220px;"
         />
         <input
           v-model="venueName"
           type="text"
-          class="form-control form-control-sm"
+          class="form-control form-control-sm clb-input"
           placeholder="Venue name"
           style="max-width: 180px;"
         />
@@ -206,11 +206,11 @@
         <div v-if="saveError" class="clb-save-error">
           <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ saveError }}
         </div>
-        <button type="button" class="btn btn-sm btn-outline-secondary" @click="$emit('cancel')" :disabled="saving">
+        <button type="button" class="btn btn-sm clb-btn-ghost" @click="$emit('cancel')" :disabled="saving">
           <i class="bi bi-x me-1"></i>Cancel
         </button>
-        <button type="button" class="btn btn-sm btn-primary" @click="saveLayout" :disabled="seats.length === 0 || saving">
-          <span v-if="saving" class="spinner-border spinner-border-sm me-1" role="status"></span>
+        <button type="button" class="btn btn-sm clb-btn-primary" @click="saveLayout" :disabled="seats.length === 0 || saving">
+          <span v-if="saving" class="spinner-border spinner-border-sm me-1 clb-spinner" role="status"></span>
           <i v-else class="bi bi-check-circle me-1"></i>
           {{ saving ? 'Saving…' : 'Use This Layout' }}
         </button>
@@ -644,7 +644,7 @@ export default {
 
 <style scoped>
 /* ═══════════════════════════════════════════════════════
-   CUSTOM LAYOUT BUILDER
+   CUSTOM LAYOUT BUILDER — Dark luxurious theme
    ═══════════════════════════════════════════════════════ */
 .clb {
   display: flex;
@@ -652,6 +652,7 @@ export default {
   gap: 0.75rem;
   height: 100%;
   min-height: 0;
+  color: rgba(234, 220, 194, 0.85);
 }
 
 /* ── Toolbar ─────────────────────────────────────────── */
@@ -661,16 +662,18 @@ export default {
   align-items: flex-start;
   gap: 0.75rem 1.25rem;
   padding: 0.75rem 1rem;
-  background: var(--surface-color, #fff);
-  border: 1px solid var(--hairline-color, #e0e0e0);
-  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(200, 164, 93, 0.08), transparent 50%),
+    linear-gradient(180deg, #1a1f30 0%, #111420 100%);
+  border: 1px solid rgba(234, 220, 194, 0.1);
+  border-radius: 10px;
   flex-shrink: 0;
 }
 
 .clb-tool-divider {
   width: 1px;
   align-self: stretch;
-  background: var(--hairline-color, #e0e0e0);
+  background: rgba(234, 220, 194, 0.12);
   margin: 0 0.25rem;
 }
 
@@ -680,7 +683,7 @@ export default {
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--muted-color, #888);
+  color: rgba(234, 220, 194, 0.5);
   margin-bottom: 0.4rem;
 }
 
@@ -695,14 +698,15 @@ export default {
   align-items: center;
   gap: 0.35rem;
   padding: 0.35rem 0.65rem;
-  border-radius: 6px;
-  border: 2px solid transparent;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
-  background: rgba(255,255,255,0.9);
+  background: rgba(234, 220, 194, 0.05);
   line-height: 1;
+  color: rgba(234, 220, 194, 0.7);
 }
 
 .clb-chip-dot {
@@ -715,34 +719,38 @@ export default {
 .clb-chip kbd {
   font-size: 0.6rem;
   padding: 0.1em 0.3em;
-  background: rgba(0,0,0,0.07);
+  background: rgba(234, 220, 194, 0.1);
   border-radius: 3px;
   font-family: inherit;
   color: inherit;
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
 /* Seat-type colours */
-.clb-chip.st-gold  { border-color: rgba(200,164,93,0.35); color: #7a5c00; }
-.clb-chip.st-blue  { border-color: rgba(13,110,253,0.3);  color: #0a4bbf; }
-.clb-chip.st-green { border-color: rgba(25,135,84,0.3);   color: #0e5c38; }
-.clb-chip.st-red   { border-color: rgba(220,53,69,0.3);   color: #8b1a25; }
-.clb-chip.st-erase { border-color: rgba(108,117,125,0.3); color: #555;    }
-.clb-chip.st-select{ border-color: rgba(13,110,253,0.25); color: #0a4bbf; }
+.clb-chip.st-gold  { border-color: rgba(200,164,93,0.3);  color: #d4b06a; }
+.clb-chip.st-blue  { border-color: rgba(79,142,247,0.25); color: #7db0ff; }
+.clb-chip.st-green { border-color: rgba(76,175,125,0.25); color: #7ddaa5; }
+.clb-chip.st-red   { border-color: rgba(235,80,80,0.25);  color: #f08080; }
+.clb-chip.st-erase { border-color: rgba(234,220,194,0.15); color: rgba(234,220,194,0.6); }
+.clb-chip.st-select{ border-color: rgba(79,142,247,0.2);  color: #7db0ff; }
 
 .clb-chip.st-gold .clb-chip-dot  { background: #c8a45d; }
-.clb-chip.st-blue .clb-chip-dot  { background: #0d6efd; }
-.clb-chip.st-green .clb-chip-dot { background: #198754; }
-.clb-chip.st-red .clb-chip-dot   { background: #dc3545; }
+.clb-chip.st-blue .clb-chip-dot  { background: #4f8ef7; }
+.clb-chip.st-green .clb-chip-dot { background: #4caf7d; }
+.clb-chip.st-red .clb-chip-dot   { background: #eb5050; }
 
-.clb-chip:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.12); }
+.clb-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  background: rgba(234, 220, 194, 0.08);
+}
 
 .clb-chip.active.st-gold  { background: rgba(200,164,93,0.18); border-color: #c8a45d; box-shadow: 0 0 0 3px rgba(200,164,93,0.2); }
-.clb-chip.active.st-blue  { background: rgba(13,110,253,0.12); border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,0.15); }
-.clb-chip.active.st-green { background: rgba(25,135,84,0.12);  border-color: #198754; box-shadow: 0 0 0 3px rgba(25,135,84,0.15); }
-.clb-chip.active.st-red   { background: rgba(220,53,69,0.12);  border-color: #dc3545; box-shadow: 0 0 0 3px rgba(220,53,69,0.15); }
-.clb-chip.active.st-erase { background: rgba(108,117,125,0.1); border-color: #6c757d; box-shadow: 0 0 0 3px rgba(108,117,125,0.15); }
-.clb-chip.active.st-select{ background: rgba(13,110,253,0.1);  border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,0.15); }
+.clb-chip.active.st-blue  { background: rgba(79,142,247,0.12); border-color: #4f8ef7; box-shadow: 0 0 0 3px rgba(79,142,247,0.15); }
+.clb-chip.active.st-green { background: rgba(76,175,125,0.12); border-color: #4caf7d; box-shadow: 0 0 0 3px rgba(76,175,125,0.15); }
+.clb-chip.active.st-red   { background: rgba(235,80,80,0.12);  border-color: #eb5050; box-shadow: 0 0 0 3px rgba(235,80,80,0.15); }
+.clb-chip.active.st-erase { background: rgba(234,220,194,0.08); border-color: rgba(234,220,194,0.3); box-shadow: 0 0 0 3px rgba(234,220,194,0.1); }
+.clb-chip.active.st-select{ background: rgba(79,142,247,0.1);  border-color: #4f8ef7; box-shadow: 0 0 0 3px rgba(79,142,247,0.12); }
 
 /* ── Align group ─────────────────────────────────────── */
 .clb-align-groups {
@@ -754,19 +762,19 @@ export default {
 .clb-align-group {
   display: flex;
   gap: 1px;
-  background: var(--hairline-color, #e5e5e5);
-  border-radius: 5px;
+  background: rgba(234, 220, 194, 0.08);
+  border-radius: 6px;
   padding: 2px;
 }
 
 .clb-icon-btn {
   padding: 0.3rem 0.5rem;
   border: none;
-  background: #fff;
-  border-radius: 3px;
+  background: rgba(234, 220, 194, 0.04);
+  border-radius: 4px;
   cursor: pointer;
   font-size: 0.85rem;
-  color: #444;
+  color: rgba(234, 220, 194, 0.6);
   transition: background 0.13s, color 0.13s;
   display: inline-flex;
   align-items: center;
@@ -774,18 +782,18 @@ export default {
 }
 
 .clb-icon-btn:hover:not(:disabled) {
-  background: rgba(13,110,253,0.1);
-  color: #0d6efd;
+  background: rgba(79, 142, 247, 0.12);
+  color: #7db0ff;
 }
 
 .clb-icon-btn:disabled {
-  opacity: 0.35;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
 .clb-icon-btn.danger:hover:not(:disabled) {
-  background: rgba(220,53,69,0.1);
-  color: #dc3545;
+  background: rgba(235, 80, 80, 0.12);
+  color: #f08080;
 }
 
 /* ── Actions ─────────────────────────────────────────── */
@@ -793,7 +801,7 @@ export default {
   display: flex;
   gap: 0.4rem;
   align-items: flex-end;
-  padding-top: 1.15rem; /* align with icon rows */
+  padding-top: 1.15rem;
 }
 
 /* ── Status bar ──────────────────────────────────────── */
@@ -802,30 +810,36 @@ export default {
   align-items: center;
   justify-content: space-between;
   padding: 0.45rem 0.85rem;
-  background: rgba(13,110,253,0.04);
-  border: 1px solid rgba(13,110,253,0.12);
-  border-radius: 6px;
+  background: rgba(200, 164, 93, 0.05);
+  border: 1px solid rgba(200, 164, 93, 0.12);
+  border-radius: 8px;
   font-size: 0.78rem;
   flex-shrink: 0;
+  color: rgba(234, 220, 194, 0.7);
+}
+
+.clb-status .text-muted {
+  color: rgba(234, 220, 194, 0.4) !important;
 }
 
 .clb-status-count {
   font-weight: 700;
   font-size: 0.8rem;
-  opacity: 0.65;
+  opacity: 0.6;
+  color: rgba(234, 220, 194, 0.5);
 }
 
 /* ── Stage bar ───────────────────────────────────────── */
 .clb-stage {
-  background: linear-gradient(90deg, rgba(127,36,50,0.14), rgba(200,164,93,0.14));
-  border: 1px solid rgba(200,164,93,0.3);
-  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(127,36,50,0.2), rgba(200,164,93,0.15));
+  border: 1px solid rgba(200,164,93,0.25);
+  border-radius: 8px;
   text-align: center;
-  padding: 0.4rem 1rem;
+  padding: 0.45rem 1rem;
   font-weight: 700;
   font-size: 0.78rem;
   letter-spacing: 0.12em;
-  color: var(--accent-color, #7f2432);
+  color: var(--gold-color, #c8a45d);
   text-transform: uppercase;
   flex-shrink: 0;
 }
@@ -835,9 +849,9 @@ export default {
   flex: 1;
   min-height: 240px;
   overflow: auto;
-  border: 2px solid var(--hairline-color, #e0e0e0);
-  border-radius: 8px;
-  background: #fafafa;
+  border: 1.5px solid rgba(234, 220, 194, 0.1);
+  border-radius: 10px;
+  background: rgba(10, 12, 20, 0.6);
   -webkit-overflow-scrolling: touch;
 }
 
@@ -862,7 +876,7 @@ export default {
   text-align: center;
   font-size: 0.6rem;
   font-weight: 700;
-  color: var(--muted-color, #aaa);
+  color: rgba(234, 220, 194, 0.35);
   padding-bottom: 2px;
   display: flex;
   align-items: flex-end;
@@ -876,7 +890,7 @@ export default {
 .clb-row-hdr {
   font-size: 0.65rem;
   font-weight: 700;
-  color: var(--accent-color, #7f2432);
+  color: var(--gold-color, #c8a45d);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -887,7 +901,7 @@ export default {
 .clb-cell {
   width: 42px;
   height: 42px;
-  border: 1.5px solid rgba(200,164,93,0.12);
+  border: 1.5px solid rgba(200,164,93,0.1);
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -901,25 +915,25 @@ export default {
 }
 
 /* Empty hover previews */
-.clb-cell.hover-place         { background: rgba(200,200,200,0.2); }
-.clb-cell.st-hover-gold       { background: rgba(200,164,93,0.22) !important; border-color: #c8a45d !important; }
-.clb-cell.st-hover-blue       { background: rgba(13,110,253,0.15) !important; border-color: #0d6efd !important; }
-.clb-cell.st-hover-green      { background: rgba(25,135,84,0.15)  !important; border-color: #198754 !important; }
-.clb-cell.st-hover-red        { background: rgba(220,53,69,0.15)  !important; border-color: #dc3545 !important; }
-.clb-cell.hover-erase         { background: rgba(220,53,69,0.1); border-color: #dc3545; cursor: not-allowed; }
+.clb-cell.hover-place         { background: rgba(234,220,194,0.06); }
+.clb-cell.st-hover-gold       { background: rgba(200,164,93,0.2) !important; border-color: #c8a45d !important; }
+.clb-cell.st-hover-blue       { background: rgba(79,142,247,0.13) !important; border-color: #4f8ef7 !important; }
+.clb-cell.st-hover-green      { background: rgba(76,175,125,0.13) !important; border-color: #4caf7d !important; }
+.clb-cell.st-hover-red        { background: rgba(235,80,80,0.13) !important; border-color: #eb5050 !important; }
+.clb-cell.hover-erase         { background: rgba(235,80,80,0.1); border-color: #eb5050; cursor: not-allowed; }
 
 /* Occupied seats */
 .clb-cell.has-seat { cursor: pointer; }
 .clb-cell.has-seat:hover { transform: scale(1.08); z-index: 2; }
 
-.clb-cell.st-gold  { background: rgba(200,164,93,0.22); border-color: rgba(200,164,93,0.55); color: #7a5c00; }
-.clb-cell.st-blue  { background: rgba(13,110,253,0.13); border-color: rgba(13,110,253,0.4);  color: #0a4bbf; }
-.clb-cell.st-green { background: rgba(25,135,84,0.13);  border-color: rgba(25,135,84,0.4);   color: #0e5c38; }
-.clb-cell.st-red   { background: rgba(220,53,69,0.13);  border-color: rgba(220,53,69,0.4);   color: #8b1a25; }
+.clb-cell.st-gold  { background: rgba(200,164,93,0.2);  border-color: rgba(200,164,93,0.5);  color: #d4b06a; }
+.clb-cell.st-blue  { background: rgba(79,142,247,0.12); border-color: rgba(79,142,247,0.35); color: #7db0ff; }
+.clb-cell.st-green { background: rgba(76,175,125,0.12); border-color: rgba(76,175,125,0.35); color: #7ddaa5; }
+.clb-cell.st-red   { background: rgba(235,80,80,0.12);  border-color: rgba(235,80,80,0.35);  color: #f08080; }
 
 /* Selection ring */
 .clb-cell.selected {
-  outline: 3px solid var(--accent-color, #7f2432);
+  outline: 3px solid var(--gold-color, #c8a45d);
   outline-offset: -2px;
   z-index: 5;
 }
@@ -936,9 +950,9 @@ export default {
   align-items: center;
   gap: 1rem;
   padding: 0.6rem 1rem;
-  background: rgba(200,164,93,0.04);
-  border: 1px solid rgba(200,164,93,0.2);
-  border-radius: 6px;
+  background: rgba(200, 164, 93, 0.04);
+  border: 1px solid rgba(200, 164, 93, 0.12);
+  border-radius: 8px;
   flex-shrink: 0;
 }
 
@@ -952,15 +966,15 @@ export default {
   font-size: 0.75rem;
   font-weight: 600;
   margin: 0;
-  color: var(--muted-color, #777);
+  color: rgba(234, 220, 194, 0.5);
 }
 
 .clb-stepper {
   display: flex;
   align-items: center;
   gap: 0;
-  border: 1px solid var(--hairline-color, #ddd);
-  border-radius: 5px;
+  border: 1px solid rgba(234, 220, 194, 0.1);
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -968,17 +982,25 @@ export default {
   width: 28px;
   height: 28px;
   border: none;
-  background: #fff;
+  background: rgba(234, 220, 194, 0.06);
   cursor: pointer;
   font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.13s;
+  color: rgba(234, 220, 194, 0.6);
 }
 
-.clb-stepper button:hover:not(:disabled) { background: rgba(13,110,253,0.08); }
-.clb-stepper button:disabled { opacity: 0.4; cursor: not-allowed; }
+.clb-stepper button:hover:not(:disabled) {
+  background: rgba(200, 164, 93, 0.15);
+  color: var(--gold-color, #c8a45d);
+}
+
+.clb-stepper button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
 
 .clb-stepper span {
   padding: 0 0.55rem;
@@ -986,15 +1008,16 @@ export default {
   font-weight: 700;
   min-width: 2rem;
   text-align: center;
-  background: rgba(0,0,0,0.02);
+  background: rgba(234, 220, 194, 0.03);
   line-height: 28px;
-  border-left: 1px solid var(--hairline-color, #ddd);
-  border-right: 1px solid var(--hairline-color, #ddd);
+  border-left: 1px solid rgba(234, 220, 194, 0.1);
+  border-right: 1px solid rgba(234, 220, 194, 0.1);
+  color: rgba(234, 220, 194, 0.8);
 }
 
 .clb-grid-hint {
   font-size: 0.72rem;
-  color: var(--muted-color, #888);
+  color: rgba(234, 220, 194, 0.4);
   margin-left: auto;
 }
 
@@ -1006,7 +1029,7 @@ export default {
   justify-content: space-between;
   gap: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid var(--hairline-color, #e0e0e0);
+  border-top: 1px solid rgba(234, 220, 194, 0.08);
   flex-shrink: 0;
 }
 
@@ -1026,10 +1049,89 @@ export default {
 
 .clb-save-error {
   font-size: 0.75rem;
-  color: #dc3545;
-  background: rgba(220, 53, 69, 0.08);
-  border: 1px solid rgba(220, 53, 69, 0.25);
-  border-radius: 5px;
+  color: #f08080;
+  background: rgba(235, 80, 80, 0.1);
+  border: 1px solid rgba(235, 80, 80, 0.25);
+  border-radius: 6px;
   padding: 0.3rem 0.6rem;
+}
+
+/* ── Inputs ──────────────────────────────────────────── */
+.clb-input {
+  background: rgba(234, 220, 194, 0.06);
+  border: 1px solid rgba(234, 220, 194, 0.12);
+  border-radius: 8px;
+  color: #fffdf8;
+  font-size: 0.85rem;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.clb-input:focus {
+  border-color: rgba(200, 164, 93, 0.4);
+  background: rgba(234, 220, 194, 0.09);
+  box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1);
+  color: #fffdf8;
+}
+
+.clb-input::placeholder {
+  color: rgba(234, 220, 194, 0.3);
+}
+
+/* ── Buttons ──────────────────────────────────────────── */
+.clb-btn-primary {
+  border: 1px solid #9d7d3b;
+  color: #17130a;
+  background: linear-gradient(180deg, #d6b66c 0%, var(--gold-color, #c8a45d) 100%);
+  box-shadow: 0 8px 20px rgba(122, 94, 39, 0.24);
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.clb-btn-primary:hover:not(:disabled) {
+  border-color: #8f6e2f;
+  color: #111;
+  background: linear-gradient(180deg, #e1c47f 0%, #b99245 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(122, 94, 39, 0.35);
+}
+
+.clb-btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.clb-btn-ghost {
+  border: 1px solid rgba(234, 220, 194, 0.15);
+  color: rgba(234, 220, 194, 0.65);
+  background: transparent;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.clb-btn-ghost:hover {
+  border-color: rgba(234, 220, 194, 0.25);
+  color: rgba(234, 220, 194, 0.85);
+  background: rgba(234, 220, 194, 0.06);
+  transform: translateY(-2px);
+}
+
+.clb-spinner {
+  color: #17130a;
 }
 </style>

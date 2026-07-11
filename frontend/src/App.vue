@@ -1,5 +1,13 @@
 <template>
   <div id="app">
+    <div class="ambient-particles" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
     <LoadingScreen :visible="showLoading" />
     <CookieConsent :visible="showCookieConsent" @accept="acceptCookies" @decline="declineCookies" />
     <NotificationPrompt :visible="showNotificationPrompt" @allow="allowNotifications" @dismiss="dismissNotifications" />

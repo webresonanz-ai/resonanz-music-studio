@@ -97,8 +97,10 @@
     <!-- ── Latest News ───────────────────────────────────────────────── -->
     <div v-if="latestNews.length" class="mb-4">
       <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2 class="h4 fw-bold mb-0"><i class="bi bi-newspaper me-2"></i>Latest News</h2>
-        <router-link to="/trms/news" class="btn btn-outline-primary btn-sm">
+        <h2 class="h4 fw-bold mb-0 text-warning">
+          <i class="bi bi-newspaper me-2"></i>Latest News
+        </h2>
+        <router-link to="/trms/news" class="btn btn-outline-gold btn-sm">
           View All <i class="bi bi-arrow-right ms-1"></i>
         </router-link>
       </div>
@@ -119,15 +121,15 @@
                   />
                 </span>
               </div>
-              <h5 class="card-title">{{ article.title }}</h5>
-              <p class="card-text flex-grow-1 small text-muted">
+              <h5 class="card-title text-champagne">{{ article.title }}</h5>
+              <p class="card-text flex-grow-1 small text-champagne-muted">
                 {{ truncateContent(article.content) }}
               </p>
               <div class="d-flex align-items-center justify-content-between mt-2">
-                <small class="text-muted">
+                <small class="text-champagne-muted">
                   <i class="bi bi-calendar3 me-1"></i>{{ formatDate(article.published_at) }}
                 </small>
-                <router-link :to="'/trms/news'" class="btn btn-sm btn-outline-secondary">
+                <router-link :to="'/trms/news'" class="btn btn-sm btn-outline-gold">
                   Read more <i class="bi bi-arrow-right ms-1"></i>
                 </router-link>
               </div>
@@ -138,11 +140,11 @@
     </div>
 
     <!-- ── Existing content below ───────────────────────────────────── -->
-    <div class="content-card">
+    <div class="content-card bg-dark">
       <div class="row align-items-center">
         <div class="col-lg-6">
-          <h1 class="display-4 fw-bold mb-4">The Resonanz Music Studio</h1>
-          <p class="lead text-muted mb-4">
+          <h1 class="display-4 fw-bold mb-4 text-warning">The Resonanz Music Studio</h1>
+          <p class="lead mb-4 text-champagne">
             Discover your musical potential with world-class instruction and state-of-the-art
             facilities.
           </p>
@@ -150,15 +152,15 @@
             <router-link to="/trms/courses-fees" class="btn btn-primary btn-lg">
               Explore Courses
             </router-link>
-            <router-link to="/trms/contact" class="btn btn-outline-primary btn-lg">
+            <router-link to="/trms/contact" class="btn btn-outline-gold btn-lg">
               Contact Us
             </router-link>
           </div>
         </div>
         <div class="col-lg-6">
-          <div class="bg-light rounded-3 p-4 text-center">
-            <i class="bi bi-music-note-beamed display-1 text-primary"></i>
-            <h3 class="mt-3">Start Your Musical Journey Today</h3>
+          <div class="bg-dark-card rounded-3 p-4 text-center">
+            <i class="bi bi-music-note-beamed display-1 text-warning"></i>
+            <h3 class="mt-3 text-champagne">Start Your Musical Journey Today</h3>
           </div>
         </div>
       </div>
@@ -166,30 +168,32 @@
 
     <div class="row mt-4">
       <div class="col-md-4 mb-4">
-        <div class="content-card h-100">
+        <div class="content-card bg-dark h-100">
           <div class="text-center mb-3">
-            <i class="bi bi-people-fill display-4 text-primary"></i>
+            <i class="bi bi-people-fill display-4 text-warning"></i>
           </div>
-          <h4 class="text-center">Expert Teachers</h4>
-          <p class="text-muted">Learn from internationally acclaimed musicians and educators.</p>
+          <h4 class="text-center text-champagne fw-bold">Expert Teachers</h4>
+          <p class="text-champagne-muted">
+            Learn from internationally acclaimed musicians and educators.
+          </p>
         </div>
       </div>
       <div class="col-md-4 mb-4">
-        <div class="content-card h-100">
+        <div class="content-card bg-dark h-100">
           <div class="text-center mb-3">
-            <i class="bi bi-building display-4 text-primary"></i>
+            <i class="bi bi-building display-4 text-warning"></i>
           </div>
-          <h4 class="text-center">World-Class Facilities</h4>
-          <p class="text-muted">State-of-the-art studios and performance spaces.</p>
+          <h4 class="text-center text-champagne fw-bold">World-Class Facilities</h4>
+          <p class="text-champagne-muted">State-of-the-art studios and performance spaces.</p>
         </div>
       </div>
       <div class="col-md-4 mb-4">
-        <div class="content-card h-100">
+        <div class="content-card bg-dark h-100">
           <div class="text-center mb-3">
-            <i class="bi bi-calendar-check display-4 text-primary"></i>
+            <i class="bi bi-calendar-check display-4 text-warning"></i>
           </div>
-          <h4 class="text-center">Flexible Schedules</h4>
-          <p class="text-muted">Programs designed to fit your busy lifestyle.</p>
+          <h4 class="text-center text-champagne fw-bold">Flexible Schedules</h4>
+          <p class="text-champagne-muted">Programs designed to fit your busy lifestyle.</p>
         </div>
       </div>
     </div>
@@ -325,14 +329,72 @@ export default {
 </script>
 
 <style scoped>
+/* ── Theme variables ──────────────────────────────────────────── */
+.text-champagne {
+  color: rgba(234, 220, 194, 0.88) !important;
+}
+.text-champagne-muted {
+  color: rgba(234, 220, 194, 0.68) !important;
+}
+.text-gold {
+  color: var(--gold-color, #c8a45d) !important;
+}
+.card-title {
+  color: rgba(234, 220, 194, 0.92) !important;
+}
+
+/* ── Override Bootstrap utilities ─────────────────────────────── */
+.text-muted {
+  color: rgba(234, 220, 194, 0.6) !important;
+}
+
+/* ── bg-dark-card (replaces bg-light) ─────────────────────────── */
+.bg-dark-card {
+  border: 1px solid rgba(234, 220, 194, 0.12);
+  border-radius: var(--radius-md, 8px);
+  background:
+    linear-gradient(135deg, rgba(200, 164, 93, 0.1), transparent 50%),
+    linear-gradient(180deg, #1a1f30 0%, #111420 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 12px 32px rgba(10, 10, 18, 0.25);
+}
+
+/* ── btn-outline-gold ─────────────────────────────────────────── */
+.btn-outline-gold {
+  border: 1px solid rgba(200, 164, 93, 0.4) !important;
+  color: var(--gold-color, #c8a45d) !important;
+  background: transparent !important;
+  font-weight: 600;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.btn-outline-gold:hover {
+  border-color: var(--gold-color, #c8a45d) !important;
+  color: #fffdf8 !important;
+  background: rgba(200, 164, 93, 0.12) !important;
+  transform: translateY(-2px);
+}
+
+.btn-outline-gold:active {
+  background: rgba(200, 164, 93, 0.22) !important;
+  transform: translateY(0);
+}
+
 /* ── Slider container ─────────────────────────────────────────── */
 .concert-slider {
   position: relative;
-  border-radius: var(--radius-md, 0.75rem);
+  border-radius: 12px;
   overflow: hidden;
-  /* height is driven by the slides themselves */
   min-height: 320px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(234, 220, 194, 0.1);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 20px 44px rgba(10, 10, 18, 0.28);
 }
 
 /* ── Track (holds all slides side-by-side) ───────────────────── */
@@ -385,7 +447,7 @@ export default {
 /* Inner text block */
 .concert-slide__inner {
   padding: 2rem 2.5rem;
-  color: #fff;
+  color: #fffdf8;
   max-width: 700px;
 }
 
@@ -395,6 +457,7 @@ export default {
   line-height: 1.2;
   margin-bottom: 0.5rem;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  color: var(--gold-color, #c8a45d);
 }
 
 .concert-slide__meta {
@@ -402,13 +465,13 @@ export default {
   flex-wrap: wrap;
   align-items: center;
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(234, 220, 194, 0.75);
   margin-bottom: 0.25rem;
 }
 
 .concert-slide__desc {
   font-size: 0.92rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(234, 220, 194, 0.6);
   margin-top: 0.5rem;
   margin-bottom: 0;
   max-width: 520px;
@@ -433,7 +496,7 @@ export default {
   height: 0.55rem;
   border-radius: 50%;
   border: none;
-  background: rgba(255, 255, 255, 0.4);
+  background: rgba(234, 220, 194, 0.3);
   padding: 0;
   cursor: pointer;
   transition:
@@ -442,8 +505,9 @@ export default {
 }
 
 .concert-slider__dot--active {
-  background: #ffc107;
+  background: var(--gold-color, #c8a45d);
   transform: scale(1.3);
+  box-shadow: 0 0 10px rgba(200, 164, 93, 0.5);
 }
 
 /* ── Prev / Next arrows ──────────────────────────────────────── */
@@ -452,9 +516,9 @@ export default {
   top: 50%;
   transform: translateY(-50%);
   z-index: 10;
-  background: rgba(0, 0, 0, 0.35);
-  border: none;
-  color: #fff;
+  background: rgba(10, 10, 18, 0.5);
+  border: 1px solid rgba(234, 220, 194, 0.12);
+  color: rgba(234, 220, 194, 0.8);
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
@@ -463,11 +527,17 @@ export default {
   justify-content: center;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+  backdrop-filter: blur(4px);
 }
 
 .concert-slider__arrow:hover {
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(200, 164, 93, 0.18);
+  border-color: rgba(200, 164, 93, 0.35);
+  color: #fffdf8;
 }
 
 .concert-slider__arrow--prev {
@@ -513,8 +583,19 @@ export default {
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.35s ease,
     border-color 0.35s ease;
-  border: 1px solid transparent;
+  border: 1px solid rgba(234, 220, 194, 0.1);
+  background:
+    linear-gradient(135deg, rgba(200, 164, 93, 0.08), transparent 50%),
+    linear-gradient(180deg, #1a1f30 0%, #111420 100%) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 12px 32px rgba(10, 10, 18, 0.25);
+  border-radius: 10px;
   will-change: transform;
+}
+
+.news-card:hover {
+  border-color: rgba(200, 164, 93, 0.3) !important;
 }
 
 .news-card:nth-child(1) {
@@ -530,8 +611,10 @@ export default {
 @media (hover: hover) {
   .news-card:hover {
     transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-    border-color: rgba(13, 110, 253, 0.2);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 16px 40px rgba(10, 10, 18, 0.35);
+    border-color: rgba(200, 164, 93, 0.35);
   }
 }
 
@@ -550,7 +633,8 @@ export default {
 .program-logo-pill {
   display: inline-flex;
   align-items: center;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(234, 220, 194, 0.1);
+  border: 1px solid rgba(234, 220, 194, 0.08);
   border-radius: 4px;
   padding: 3px 8px;
   line-height: 1;

@@ -1,12 +1,12 @@
 <template>
   <div>
     <div class="fade-in-up">
-      <div class="content-card mb-4">
+      <div class="content-card bg-dark mb-4">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
           <div>
-            <p class="text-uppercase text-primary fw-bold small mb-2">TRMS Concert</p>
-            <h1 class="display-4 fw-bold mb-2">Registered Audiences</h1>
-            <p class="lead text-muted mb-0">
+            <p class="text-uppercase text-warning fw-bold small mb-2">TRMS Concert</p>
+            <h1 class="display-4 fw-bold mb-2 text-champagne">Registered Audiences</h1>
+            <p class="lead text-champagne-muted mb-0">
               Review audience registrations that have been submitted for the concert.
             </p>
           </div>
@@ -15,29 +15,31 @@
             <i class="bi bi-person-plus me-2"></i>
             Add Audience
           </router-link>
-          <router-link class="btn btn-outline-primary btn-lg" to="/trms/concert/invitation-reg">
+          <router-link class="btn btn-outline-gold btn-lg" to="/trms/concert/invitation-reg">
             <i class="bi bi-ticket-perforated me-2"></i>
             Invitation Registration
           </router-link>
         </div>
       </div>
 
-      <div class="content-card">
+      <div class="content-card bg-dark">
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
           <div>
-            <h2 class="h4 fw-bold mb-1">Audience List</h2>
-            <p class="text-muted mb-0">{{ total }} registration{{ total === 1 ? "" : "s" }}</p>
+            <h2 class="h4 fw-bold mb-1 text-champagne">Audience List</h2>
+            <p class="text-champagne-muted mb-0">
+              {{ total }} registration{{ total === 1 ? "" : "s" }}
+            </p>
           </div>
 
           <div class="d-flex gap-2 align-items-center flex-wrap">
             <div class="position-relative">
               <i
-                class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"
+                class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-champagne-muted"
               ></i>
               <input
                 v-model="search"
                 type="text"
-                class="form-control ps-4"
+                class="form-control form-control-dark ps-4"
                 placeholder="Search by name or email..."
                 style="width: 240px"
               />
@@ -47,7 +49,7 @@
                 title="Searching..."
               >
                 <span
-                  class="spinner-border spinner-border-sm text-secondary"
+                  class="spinner-border spinner-border-sm text-warning"
                   aria-hidden="true"
                 ></span>
               </span>
@@ -56,7 +58,7 @@
             <!-- Filter: Concert -->
             <select
               v-model="filterConcert"
-              class="form-select form-select-sm"
+              class="form-select form-select-dark form-select-sm"
               style="width: auto; max-width: 200px"
               :disabled="loading"
               aria-label="Filter by concert"
@@ -69,7 +71,7 @@
             <!-- Filter: Notes (Guest / Invitation) -->
             <select
               v-model="filterNotes"
-              class="form-select form-select-sm"
+              class="form-select form-select-dark form-select-sm"
               style="width: auto"
               :disabled="loading"
               aria-label="Filter by type"
@@ -81,11 +83,13 @@
             </select>
 
             <div class="d-flex align-items-center gap-2">
-              <label for="per-page-select" class="text-muted small mb-0 text-nowrap">Rows per page:</label>
+              <label for="per-page-select" class="text-champagne-muted small mb-0 text-nowrap"
+                >Rows per page:</label
+              >
               <select
                 id="per-page-select"
                 v-model.number="perPage"
-                class="form-select form-select-sm"
+                class="form-select form-select-dark form-select-sm"
                 style="width: auto"
                 :disabled="loading"
                 @change="onPerPageChange"
@@ -97,7 +101,7 @@
               </select>
             </div>
             <button
-              class="btn btn-outline-primary"
+              class="btn btn-outline-gold"
               type="button"
               :disabled="loading"
               @click="fetchAudiences"
@@ -131,62 +135,73 @@
           <span>{{ successMessage }}</span>
         </div>
 
-        <div v-if="loading" class="py-5 text-center text-muted">
-          <div class="spinner-border text-primary mb-3" role="status"></div>
-          <div>Loading audiences...</div>
+        <div v-if="loading" class="py-5 text-center">
+          <div class="spinner-border text-warning mb-3" role="status"></div>
+          <div class="text-champagne-muted">Loading audiences...</div>
         </div>
 
         <div v-else-if="audiences.length" class="table-responsive">
-          <table class="table table-hover align-middle mb-0">
+          <table class="table tbl align-middle mb-0">
             <thead>
               <tr>
                 <th scope="col">Name</th>
-                <th scope="col">Contact</th>
-                <th scope="col">Concert</th>
-                <th scope="col" class="text-center">Tickets</th>
-                <th scope="col">Registered</th>
-                <th scope="col" class="text-center">Attendance</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Concert Title</th>
+                <th scope="col" class="text-center">Qty</th>
+                <th scope="col" class="text-center">Seat #</th>
+                <th scope="col">Created At</th>
+                <th scope="col" class="text-center">Attended At</th>
                 <th scope="col">Notes</th>
                 <th scope="col" class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="audience in audiences" :key="audience.id">
-                <td class="fw-semibold">{{ audience.name }}</td>
+              <tr v-for="audience in audiences" :key="audience.id" class="tbl-row">
                 <td>
-                  <div>{{ audience.email }}</div>
-                  <div class="small text-muted">{{ audience.phone }}</div>
-                  <div v-if="audience.send_email_status" class="small mt-1">
+                  <span class="tbl-name">{{ audience.name }}</span>
+                </td>
+                <td>
+                  <div class="tbl-email">{{ audience.email }}</div>
+                  <div v-if="audience.send_email_status" class="mt-1">
                     <span
-                      :class="audience.send_email_status === 'sent' ? 'text-success' : audience.send_email_status === 'failed' ? 'text-danger' : 'text-warning'"
+                      class="tbl-email-status"
+                      :class="'tbl-email-status--' + audience.send_email_status"
                     >
-                      Email: {{ audience.send_email_status }}
+                      {{ audience.send_email_status }}
                     </span>
                   </div>
                 </td>
-                <td>{{ audience.concert_title }}</td>
+                <td class="tbl-phone">{{ audience.phone }}</td>
+                <td class="tbl-cell">{{ audience.concert_title }}</td>
                 <td class="text-center">
-                  <span class="badge rounded-pill text-bg-warning">{{
-                    audience.ticket_quantity
-                  }}</span>
+                  <span class="tbl-badge tbl-badge-ticket">{{ audience.ticket_quantity }}</span>
                 </td>
-                <td>{{ formatDate(audience.created_at) }}</td>
+                <td class="text-center">
+                  <span v-if="audience.seat_number" class="tbl-seat">{{
+                    audience.seat_number
+                  }}</span>
+                  <span v-else class="tbl-cell text-center" style="opacity: 0.3">—</span>
+                </td>
+                <td class="tbl-cell">{{ formatDate(audience.created_at) }}</td>
                 <td class="text-center">
                   <span
                     v-if="audience.attended_at"
-                    class="badge text-bg-success"
-                    :title="formatDate(audience.attended_at)"
+                    class="tbl-badge tbl-badge-checked"
+                    :title="'Checked in ' + formatDate(audience.attended_at)"
                   >
                     <i class="bi bi-check-lg me-1"></i>{{ formatDate(audience.attended_at) }}
                   </span>
-                  <span v-else class="badge text-bg-secondary">—</span>
+                  <span v-else class="tbl-badge tbl-badge-pending">
+                    <i class="bi bi-clock me-1"></i>Pending
+                  </span>
                 </td>
-                <td class="text-muted">{{ audience.notes || "-" }}</td>
+                <td class="tbl-cell">{{ audience.notes || "—" }}</td>
                 <td class="text-center">
-                  <div class="btn-group btn-group-sm" role="group" aria-label="Audience actions">
+                  <div class="tbl-actions">
                     <button
                       type="button"
-                      class="btn btn-outline-success"
+                      class="tbl-action-btn tbl-action-btn--pdf"
                       title="Download Ticket PDF"
                       @click="downloadTicketPdf(audience.id)"
                     >
@@ -194,76 +209,67 @@
                     </button>
                     <button
                       type="button"
-                      class="btn btn-outline-info"
+                      class="tbl-action-btn tbl-action-btn--email"
                       :disabled="audience.send_email_status === 'sent'"
-                      :title="audience.send_email_status === 'sent' ? 'Email already sent' : 'Send Email'"
+                      :title="
+                        audience.send_email_status === 'sent' ? 'Email already sent' : 'Send Email'
+                      "
                       @click="confirmResendEmail(audience)"
                     >
                       <i class="bi bi-envelope"></i>
                     </button>
                     <button
                       type="button"
-                      class="btn btn-outline-primary"
+                      class="tbl-action-btn tbl-action-btn--edit"
                       title="Edit"
                       @click="openEditModal(audience)"
                     >
                       <i class="bi bi-pencil"></i>
                     </button>
-                    <!-- <button
-                      type="button"
-                      class="btn btn-outline-danger"
-                      title="Delete"
-                      @click="confirmDelete(audience)"
-                    >
-                      <i class="bi bi-trash"></i>
-                    </button> -->
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
 
-          <nav
-            v-if="lastPage > 1"
-            class="d-flex align-items-center justify-content-between pt-3"
-            aria-label="Audience pagination"
-          >
-            <div class="text-muted small">
-              Showing {{ (currentPage - 1) * perPage + 1 }} to
-              {{ Math.min(currentPage * perPage, total) }} of {{ total }} registration{{
-                total === 1 ? "" : "s"
-              }}
+          <nav v-if="lastPage > 1" class="tbl-pagination" aria-label="Audience pagination">
+            <div class="tbl-pagination-info">
+              Showing {{ (currentPage - 1) * perPage + 1 }} –
+              {{ Math.min(currentPage * perPage, total) }} of {{ total }}
             </div>
-            <div class="btn-group">
+            <div class="tbl-pagination-btns">
               <button
-                class="btn btn-outline-primary"
+                class="tbl-page-btn"
                 type="button"
                 :disabled="currentPage <= 1 || loading"
                 @click="goToPage(currentPage - 1)"
               >
-                <i class="bi bi-chevron-left me-1"></i>
-                Previous
+                <i class="bi bi-chevron-left"></i>
               </button>
+              <span class="tbl-page-indicator">{{ currentPage }} / {{ lastPage }}</span>
               <button
-                class="btn btn-outline-primary"
+                class="tbl-page-btn"
                 type="button"
                 :disabled="currentPage >= lastPage || loading"
                 @click="goToPage(currentPage + 1)"
               >
-                Next
-                <i class="bi bi-chevron-right ms-1"></i>
+                <i class="bi bi-chevron-right"></i>
               </button>
             </div>
           </nav>
         </div>
 
-        <div v-else class="py-5 text-center text-muted">
-          <i class="bi bi-ticket-perforated display-1 d-block mb-3"></i>
-          <h2 class="h4 fw-bold">{{ search ? "No matching audiences" : "No audiences yet" }}</h2>
-          <p class="mb-4">
+        <div v-else class="tbl-empty">
+          <div class="tbl-empty-icon">
+            <i class="bi bi-ticket-perforated"></i>
+          </div>
+          <h3 class="tbl-empty-title">
+            {{ search ? "No matching audiences" : "No audiences yet" }}
+          </h3>
+          <p class="tbl-empty-text">
             {{
               search
-                ? "Try adjusting your search keyword."
+                ? "Try adjusting your search keyword or filters."
                 : "Submitted concert registrations will appear here."
             }}
           </p>
@@ -291,15 +297,15 @@
             class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
             role="document"
           >
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="editModalLabel">
+            <div class="modal-content modal-content-dark">
+              <div class="modal-header modal-header-dark">
+                <h5 class="modal-title fw-bold text-warning" id="editModalLabel">
                   <i class="bi bi-pencil-square me-2"></i>
                   Edit Audience
                 </h5>
                 <button
                   type="button"
-                  class="btn-close"
+                  class="btn-close btn-close-white"
                   aria-label="Close"
                   @click="closeEditModal"
                 ></button>
@@ -312,55 +318,55 @@
 
                   <div class="row g-3">
                     <div class="col-12 col-sm-6">
-                      <label class="form-label fw-semibold" for="edit-name"
+                      <label class="form-label fw-semibold text-champagne" for="edit-name"
                         >Name <span class="text-danger">*</span></label
                       >
                       <input
                         id="edit-name"
                         v-model="editForm.name"
                         type="text"
-                        class="form-control"
+                        class="form-control form-control-dark"
                         required
                       />
                     </div>
                     <div class="col-12 col-sm-6">
-                      <label class="form-label fw-semibold" for="edit-email"
+                      <label class="form-label fw-semibold text-champagne" for="edit-email"
                         >Email <span class="text-danger">*</span></label
                       >
                       <input
                         id="edit-email"
                         v-model="editForm.email"
                         type="email"
-                        class="form-control"
+                        class="form-control form-control-dark"
                         required
                       />
                     </div>
                     <div class="col-12 col-sm-6">
-                      <label class="form-label fw-semibold" for="edit-phone"
+                      <label class="form-label fw-semibold text-champagne" for="edit-phone"
                         >Phone <span class="text-danger">*</span></label
                       >
                       <input
                         id="edit-phone"
                         v-model="editForm.phone"
                         type="text"
-                        class="form-control"
+                        class="form-control form-control-dark"
                         required
                       />
                     </div>
                     <div class="col-12 col-sm-6">
-                      <label class="form-label fw-semibold" for="edit-concert"
+                      <label class="form-label fw-semibold text-champagne" for="edit-concert"
                         >Concert Title <span class="text-danger">*</span></label
                       >
                       <input
                         id="edit-concert"
                         v-model="editForm.concert_title"
                         type="text"
-                        class="form-control"
+                        class="form-control form-control-dark"
                         required
                       />
                     </div>
                     <div class="col-12 col-sm-6">
-                      <label class="form-label fw-semibold" for="edit-qty"
+                      <label class="form-label fw-semibold text-champagne" for="edit-qty"
                         >Ticket Quantity <span class="text-danger">*</span></label
                       >
                       <input
@@ -368,25 +374,27 @@
                         v-model.number="editForm.ticket_quantity"
                         type="number"
                         min="1"
-                        class="form-control"
+                        class="form-control form-control-dark"
                         required
                       />
                     </div>
                     <div class="col-12 col-sm-6">
-                      <label class="form-label fw-semibold" for="edit-notes">Notes</label>
+                      <label class="form-label fw-semibold text-champagne" for="edit-notes"
+                        >Notes</label
+                      >
                       <input
                         id="edit-notes"
                         v-model="editForm.notes"
                         type="text"
-                        class="form-control"
+                        class="form-control form-control-dark"
                       />
                     </div>
                   </div>
                 </div>
-                <div class="modal-footer flex-column flex-sm-row gap-2">
+                <div class="modal-footer modal-footer-dark flex-column flex-sm-row gap-2">
                   <button
                     type="button"
-                    class="btn btn-outline-secondary w-100 w-sm-auto"
+                    class="btn btn-outline-gold w-100 w-sm-auto"
                     @click="closeEditModal"
                   >
                     Cancel
@@ -425,30 +433,32 @@
           @click.self="closeDeleteModal"
         >
           <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-              <div class="modal-header border-0">
+            <div class="modal-content modal-content-dark">
+              <div class="modal-header modal-header-dark border-0">
                 <h5 class="modal-title fw-bold text-danger" id="deleteModalLabel">
                   <i class="bi bi-exclamation-triangle-fill me-2"></i>
                   Delete Registration
                 </h5>
                 <button
                   type="button"
-                  class="btn-close"
+                  class="btn-close btn-close-white"
                   aria-label="Close"
                   @click="closeDeleteModal"
                 ></button>
               </div>
               <div class="modal-body pt-0">
-                <p class="mb-1">Are you sure you want to delete this registration?</p>
-                <p class="fw-semibold mb-0">
+                <p class="mb-1 text-champagne-muted">
+                  Are you sure you want to delete this registration?
+                </p>
+                <p class="fw-semibold mb-0 text-champagne">
                   {{ deleteModal.audience?.name }} &mdash; {{ deleteModal.audience?.concert_title }}
                 </p>
-                <p class="text-muted small mt-1">This action cannot be undone.</p>
+                <p class="text-champagne-muted small mt-1">This action cannot be undone.</p>
               </div>
-              <div class="modal-footer border-0 flex-column flex-sm-row gap-2">
+              <div class="modal-footer modal-footer-dark border-0 flex-column flex-sm-row gap-2">
                 <button
                   type="button"
-                  class="btn btn-outline-secondary w-100 w-sm-auto"
+                  class="btn btn-outline-gold w-100 w-sm-auto"
                   @click="closeDeleteModal"
                 >
                   Cancel
@@ -487,28 +497,30 @@
           @click.self="closeEmailModal"
         >
           <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-              <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold" id="emailModalLabel">
-                  <i class="bi bi-envelope-check me-2 text-info"></i>
+            <div class="modal-content modal-content-dark">
+              <div class="modal-header modal-header-dark border-0">
+                <h5 class="modal-title fw-bold text-warning" id="emailModalLabel">
+                  <i class="bi bi-envelope-check me-2"></i>
                   Resend Ticket Email
                 </h5>
                 <button
                   type="button"
-                  class="btn-close"
+                  class="btn-close btn-close-white"
                   aria-label="Close"
                   @click="closeEmailModal"
                 ></button>
               </div>
               <div class="modal-body pt-0">
-                <p class="mb-1">Resend the ticket email with PDF attachment to:</p>
-                <p class="fw-semibold mb-0">{{ emailModal.audience?.name }}</p>
-                <p class="text-muted small mt-1">{{ emailModal.audience?.email }}</p>
+                <p class="mb-1 text-champagne-muted">
+                  Resend the ticket email with PDF attachment to:
+                </p>
+                <p class="fw-semibold mb-0 text-champagne">{{ emailModal.audience?.name }}</p>
+                <p class="text-champagne-muted small mt-1">{{ emailModal.audience?.email }}</p>
               </div>
-              <div class="modal-footer border-0 flex-column flex-sm-row gap-2">
+              <div class="modal-footer modal-footer-dark border-0 flex-column flex-sm-row gap-2">
                 <button
                   type="button"
-                  class="btn btn-outline-secondary w-100 w-sm-auto"
+                  class="btn btn-outline-gold w-100 w-sm-auto"
                   @click="closeEmailModal"
                 >
                   Cancel
@@ -516,7 +528,9 @@
                 <button
                   type="button"
                   class="btn btn-info text-white w-100 w-sm-auto"
-                  :disabled="emailModal.loading || emailModal.audience?.send_email_status === 'sent'"
+                  :disabled="
+                    emailModal.loading || emailModal.audience?.send_email_status === 'sent'
+                  "
                   @click="executeResendEmail"
                 >
                   <span
@@ -525,7 +539,9 @@
                     aria-hidden="true"
                   ></span>
                   <i v-else class="bi bi-send me-2"></i>
-                  {{ emailModal.audience?.send_email_status === 'sent' ? 'Email Sent' : 'Send Email' }}
+                  {{
+                    emailModal.audience?.send_email_status === "sent" ? "Email Sent" : "Send Email"
+                  }}
                 </button>
               </div>
             </div>
@@ -782,6 +798,364 @@ export default {
 </script>
 
 <style scoped>
+/* ── Modal dark theme ──────────────────────────────────────────── */
+.modal-content-dark {
+  border: 1px solid rgba(234, 220, 194, 0.12) !important;
+  border-radius: 12px !important;
+  background:
+    linear-gradient(135deg, rgba(200, 164, 93, 0.08), transparent 50%),
+    linear-gradient(180deg, #1a1f30 0%, #111420 100%) !important;
+  box-shadow: 0 20px 48px rgba(8, 8, 14, 0.5) !important;
+  color: rgba(234, 220, 194, 0.85);
+}
+
+.modal-header-dark {
+  background: linear-gradient(135deg, rgba(127, 36, 50, 0.2), rgba(200, 164, 93, 0.08)) !important;
+  border-bottom: 1px solid rgba(234, 220, 194, 0.08) !important;
+  border-radius: 11px 11px 0 0 !important;
+  padding: 1rem 1.25rem !important;
+}
+
+.modal-footer-dark {
+  border-top: 1px solid rgba(234, 220, 194, 0.08) !important;
+  padding: 0.85rem 1.25rem !important;
+}
+
+/* ── Dark form controls ────────────────────────────────────────── */
+.form-control-dark {
+  background: rgba(234, 220, 194, 0.06) !important;
+  border: 1px solid rgba(234, 220, 194, 0.15) !important;
+  color: rgba(234, 220, 194, 0.88) !important;
+}
+
+.form-control-dark:focus {
+  border-color: rgba(200, 164, 93, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1) !important;
+  background: rgba(234, 220, 194, 0.08) !important;
+}
+
+.form-control-dark::placeholder {
+  color: rgba(234, 220, 194, 0.35);
+}
+
+.form-select-dark {
+  background-color: rgba(234, 220, 194, 0.06) !important;
+  border: 1px solid rgba(234, 220, 194, 0.15) !important;
+  color: rgba(234, 220, 194, 0.88) !important;
+}
+
+.form-select-dark:focus {
+  border-color: rgba(200, 164, 93, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1) !important;
+}
+
+.form-select-dark option {
+  background: #1a1f30 !important;
+  color: rgba(234, 220, 194, 0.88) !important;
+}
+
+/* ── Table ──────────────────────────────────────────────────────── */
+:deep(table.tbl) {
+  color: rgba(234, 220, 194, 0.78);
+  font-size: 0.85rem;
+}
+
+:deep(table.tbl thead th) {
+  padding: 1rem 0.85rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #c8a45d;
+  border-bottom: 1px solid rgba(200, 164, 93, 0.18);
+  background: linear-gradient(180deg, rgba(200, 164, 93, 0.06), transparent);
+  white-space: nowrap;
+}
+
+:deep(table.tbl thead th:first-child) {
+  padding-left: 1.25rem;
+}
+
+:deep(table.tbl thead th:last-child) {
+  padding-right: 1.25rem;
+}
+
+:deep(table.tbl tbody tr) {
+  transition: background 0.2s;
+}
+
+:deep(table.tbl tbody tr:hover) {
+  background: rgba(200, 164, 93, 0.06);
+}
+
+:deep(table.tbl tbody tr td) {
+  padding: 0.85rem 0.85rem;
+  border-bottom: 1px solid rgba(234, 220, 194, 0.04);
+  background: transparent;
+  vertical-align: middle;
+}
+
+:deep(table.tbl tbody tr td:first-child) {
+  padding-left: 1.25rem;
+}
+
+:deep(table.tbl tbody tr td:last-child) {
+  padding-right: 1.25rem;
+}
+
+:deep(table.tbl tbody tr:last-child td) {
+  border-bottom: none;
+}
+
+:deep(.tbl-name) {
+  font-weight: 600;
+  color: rgba(234, 220, 194, 0.92);
+}
+
+:deep(.tbl-email) {
+  color: rgba(234, 220, 194, 0.6);
+  font-size: 0.8rem;
+  line-height: 1.3;
+}
+
+:deep(.tbl-phone) {
+  color: rgba(234, 220, 194, 0.55);
+  font-size: 0.82rem;
+}
+
+:deep(.tbl-cell) {
+  color: rgba(234, 220, 194, 0.55);
+}
+
+/* ── Email status tag ──────────────────────────────────────────── */
+:deep(.tbl-email-status) {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+:deep(.tbl-email-status--sent) {
+  color: #4caf7d;
+  background: rgba(76, 175, 125, 0.12);
+}
+
+:deep(.tbl-email-status--failed) {
+  color: #e05050;
+  background: rgba(220, 53, 69, 0.12);
+}
+
+:deep(.tbl-email-status--pending),
+:deep(.tbl-email-status--queued) {
+  color: #d4a84b;
+  background: rgba(200, 164, 93, 0.12);
+}
+
+/* ── Seat number ──────────────────────────────────────────────── */
+:deep(.tbl-seat) {
+  display: inline-block;
+  padding: 0.18rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(234, 220, 194, 0.75);
+  background: rgba(200, 164, 93, 0.07);
+  border: 1px solid rgba(200, 164, 93, 0.12);
+  border-radius: 6px;
+}
+
+/* ── Badges ────────────────────────────────────────────────────── */
+:deep(.tbl-badge) {
+  display: inline-block;
+  padding: 0.22rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 20px;
+}
+
+:deep(.tbl-badge-ticket) {
+  color: #c8a45d;
+  background: rgba(200, 164, 93, 0.12);
+  border: 1px solid rgba(200, 164, 93, 0.18);
+}
+
+:deep(.tbl-badge-checked) {
+  color: #4caf7d;
+  background: rgba(76, 175, 125, 0.1);
+  border: 1px solid rgba(76, 175, 125, 0.18);
+}
+
+:deep(.tbl-badge-pending) {
+  color: rgba(234, 220, 194, 0.4);
+  background: rgba(234, 220, 194, 0.05);
+  border: 1px solid rgba(234, 220, 194, 0.08);
+}
+
+/* ── Action buttons ────────────────────────────────────────────── */
+:deep(.tbl-actions) {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+:deep(.tbl-action-btn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(234, 220, 194, 0.1);
+  border-radius: 8px;
+  background: rgba(234, 220, 194, 0.04);
+  color: rgba(234, 220, 194, 0.5);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+:deep(.tbl-action-btn:hover) {
+  transform: translateY(-1px);
+}
+
+:deep(.tbl-action-btn:disabled) {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+:deep(.tbl-action-btn--pdf:hover) {
+  color: #4caf7d;
+  border-color: rgba(76, 175, 125, 0.35);
+  background: rgba(76, 175, 125, 0.1);
+}
+
+:deep(.tbl-action-btn--email:hover) {
+  color: #5bc0de;
+  border-color: rgba(91, 192, 222, 0.35);
+  background: rgba(91, 192, 222, 0.1);
+}
+
+:deep(.tbl-action-btn--edit:hover) {
+  color: #c8a45d;
+  border-color: rgba(200, 164, 93, 0.35);
+  background: rgba(200, 164, 93, 0.1);
+}
+
+/* ── Pagination ────────────────────────────────────────────────── */
+:deep(.tbl-pagination) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(234, 220, 194, 0.06);
+  margin-top: 0.25rem;
+}
+
+:deep(.tbl-pagination-info) {
+  color: rgba(234, 220, 194, 0.4);
+  font-size: 0.78rem;
+}
+
+:deep(.tbl-pagination-btns) {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:deep(.tbl-page-btn) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(234, 220, 194, 0.08);
+  border-radius: 8px;
+  background: rgba(234, 220, 194, 0.04);
+  color: rgba(234, 220, 194, 0.5);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+:deep(.tbl-page-btn:hover:not(:disabled)) {
+  border-color: rgba(200, 164, 93, 0.3);
+  color: #c8a45d;
+  background: rgba(200, 164, 93, 0.08);
+  transform: translateY(-1px);
+}
+
+:deep(.tbl-page-btn:disabled) {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+:deep(.tbl-page-indicator) {
+  color: rgba(234, 220, 194, 0.35);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0 0.25rem;
+}
+
+/* ── Empty state ───────────────────────────────────────────────── */
+:deep(.tbl-empty) {
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+}
+
+:deep(.tbl-empty-icon i) {
+  font-size: 3rem;
+  color: rgba(234, 220, 194, 0.15);
+  margin-bottom: 1rem;
+}
+
+:deep(.tbl-empty-title) {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(234, 220, 194, 0.78);
+  margin-bottom: 0.4rem;
+}
+
+:deep(.tbl-empty-text) {
+  color: rgba(234, 220, 194, 0.4);
+  font-size: 0.88rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  :deep(table.tbl) thead {
+    display: none;
+  }
+
+  :deep(table.tbl),
+  :deep(table.tbl) tbody,
+  :deep(table.tbl) tr,
+  :deep(table.tbl) td {
+    display: block;
+  }
+}
+
+/* ── Alert overrides ────────────────────────────────────────────── */
+:deep(.alert) {
+  background: rgba(234, 220, 194, 0.06) !important;
+  border: 1px solid rgba(234, 220, 194, 0.1) !important;
+  color: rgba(234, 220, 194, 0.85) !important;
+}
+
+:deep(.alert-danger) {
+  border-color: rgba(220, 53, 69, 0.3) !important;
+  background: rgba(220, 53, 69, 0.1) !important;
+  color: #e05050 !important;
+}
+
+:deep(.alert-success) {
+  border-color: rgba(76, 175, 125, 0.3) !important;
+  background: rgba(76, 175, 125, 0.1) !important;
+  color: #4caf7d !important;
+}
+
 /* Full-viewport modal overlay */
 :global(.modal.show) {
   z-index: 1055;

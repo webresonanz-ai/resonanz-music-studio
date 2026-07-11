@@ -1,20 +1,20 @@
 <template>
   <div class="fade-in-up">
-    <div class="content-card mb-4">
+    <div class="content-card bg-dark mb-4">
       <div class="row g-4 align-items-center">
         <div class="col-lg-7">
-          <p class="text-uppercase text-primary fw-bold small mb-2">TRMS Concert</p>
-          <h1 class="display-4 fw-bold mb-3">
+          <p class="text-uppercase text-warning fw-bold small mb-2">TRMS Concert</p>
+          <h1 class="display-4 fw-bold mb-3 text-champagne">
             {{ selectedConcert ? selectedConcert.title : "Concert Registration" }}
           </h1>
-          <p class="lead text-muted mb-0">
+          <p class="lead text-champagne-muted mb-0">
             {{
               selectedConcert
                 ? concertScheduleLabel
                 : "Select a concert first or reserve audience seats for the upcoming TRMS concert."
             }}
           </p>
-          <p v-if="selectedConcert" class="lead text-muted mt-2 mb-0">
+          <p v-if="selectedConcert" class="lead text-champagne-muted mt-2 mb-0">
             <a
               :href="`https://wa.me/628118747755`"
               target="_blank"
@@ -26,19 +26,19 @@
           </p>
         </div>
         <div class="col-lg-5">
-          <div class="bg-dark text-white rounded p-4 h-100">
+          <div class="bg-dark-card rounded-3 p-4 h-100">
             <div class="d-flex align-items-center gap-3 mb-3">
               <i class="bi bi-ticket-perforated display-6 text-warning"></i>
               <div>
-                <div class="fw-bold">
+                <div class="fw-bold text-champagne">
                   {{ selectedConcert ? "Konser yang Dipilih" : "Audience Pass" }}
                 </div>
-                <div class="text-white-50 small">
+                <div class="text-champagne-muted small">
                   {{ selectedConcert ? concertTimeLabel : "Konfirmasi registrasi" }}
                 </div>
               </div>
             </div>
-            <p class="mb-0 text-white-50">
+            <p class="mb-0 text-champagne-muted">
               {{
                 selectedConcert
                   ? selectedConcert.description ||
@@ -51,10 +51,10 @@
       </div>
     </div>
 
-    <div class="content-card">
-      <div v-if="loadingSchedule" class="py-4 text-center text-muted">
-        <div class="spinner-border text-primary mb-3" role="status"></div>
-        <div>Loading selected concert...</div>
+    <div class="content-card bg-dark">
+      <div v-if="loadingSchedule" class="py-4 text-center">
+        <div class="spinner-border text-warning mb-3" role="status"></div>
+        <div class="text-champagne-muted">Loading selected concert...</div>
       </div>
 
       <div
@@ -64,7 +64,7 @@
       >
         <i class="bi bi-exclamation-triangle-fill"></i>
         <span>Concert not found. Please choose another upcoming concert.</span>
-        <router-link class="btn btn-sm btn-outline-primary ms-auto" to="/trms/concert/select"
+        <router-link class="btn btn-sm btn-outline-gold ms-auto" to="/trms/concert/select"
           >Select Concert</router-link
         >
       </div>
@@ -74,13 +74,13 @@
         v-else-if="selectedConcert && !selectedConcert.is_open_register"
         class="py-4 text-center"
       >
-        <i class="bi bi-lock-fill display-1 text-muted d-block mb-3 opacity-50"></i>
-        <h2 class="h4 fw-bold mb-2">Registration is Closed</h2>
-        <p class="text-muted mb-4">
+        <i class="bi bi-lock-fill display-1 d-block mb-3 opacity-50 text-champagne-muted"></i>
+        <h2 class="h4 fw-bold mb-2 text-champagne">Registration is Closed</h2>
+        <p class="text-champagne-muted mb-4">
           Registration for <strong>{{ selectedConcert.title }}</strong> is currently not open.<br />Please
           check back later.
         </p>
-        <router-link class="btn btn-outline-primary" to="/trms/home">Back to Home</router-link>
+        <router-link class="btn btn-outline-gold" to="/trms/home">Back to Home</router-link>
       </div>
 
       <!-- Success confirmation card (shown after submit) -->
@@ -153,7 +153,7 @@
             <i v-else class="bi bi-download me-2"></i>
             {{ screenshotLoading ? "Mengunduh..." : "Unduh Konfirmasi" }}
           </button>
-          <router-link class="btn btn-outline-secondary btn-lg" to="/trms/home">
+          <router-link class="btn btn-outline-gold btn-lg" to="/trms/home">
             <i class="bi bi-house me-2"></i>Kembali ke Beranda
           </router-link>
         </div>
@@ -181,42 +181,42 @@
 
         <div class="row g-3">
           <div class="col-md-6">
-            <label for="audienceName" class="form-label">Nama Lengkap (Sesuai KTP)</label>
+            <label for="audienceName" class="form-label text-champagne">Nama Lengkap (Sesuai KTP)</label>
             <input
               id="audienceName"
               v-model.trim="form.name"
-              class="form-control"
+              class="form-control form-control-dark"
               type="text"
               autocomplete="name"
               required
             />
-            <div class="form-text">
+            <div class="form-text-dark">
               1 tiket hanya berlaku untuk 1 orang. Mohon tuliskan nama sesuai KTP agar dapat
               digunakan sebagai bukti masuk.
             </div>
           </div>
 
           <div class="col-md-6">
-            <label for="audienceEmail" class="form-label">Email</label>
+            <label for="audienceEmail" class="form-label text-champagne">Email</label>
             <input
               id="audienceEmail"
               v-model.trim="form.email"
-              class="form-control"
+              class="form-control form-control-dark"
               type="email"
               autocomplete="email"
               required
             />
-            <div class="form-text">
+            <div class="form-text-dark">
               Pastikan alamat email Anda valid. Tiket Anda akan dikirim ke alamat email tersebut.
             </div>
           </div>
 
           <div class="col-12">
-            <label for="audiencePhone" class="form-label">Nomor HP</label>
+            <label for="audiencePhone" class="form-label text-champagne">Nomor HP</label>
             <input
               id="audiencePhone"
               v-model.trim="form.phone"
-              class="form-control"
+              class="form-control form-control-dark"
               type="tel"
               autocomplete="tel"
               required
@@ -486,13 +486,37 @@ export default {
 </script>
 
 <style scoped>
-/* ── Confirmation card ─────────────────────────────────────────────── */
+/* ── Dark form controls ────────────────────────────────────────────── */
+.form-control-dark {
+  background: rgba(234, 220, 194, 0.06) !important;
+  border: 1px solid rgba(234, 220, 194, 0.15) !important;
+  color: rgba(234, 220, 194, 0.88) !important;
+}
+
+.form-control-dark:focus {
+  border-color: rgba(200, 164, 93, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1) !important;
+  background: rgba(234, 220, 194, 0.08) !important;
+}
+
+.form-control-dark::placeholder {
+  color: rgba(234, 220, 194, 0.35);
+}
+
+.form-text-dark {
+  color: rgba(234, 220, 194, 0.5);
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+/* ── Confirmation card (kept light for print/screenshot) ───────────── */
 .confirmation-card {
   background: #fff;
   border: 1px solid #e0e0e0;
   max-width: 480px;
   margin: 0 auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  color: #191b24;
 }
 
 .confirmation-header .confirmation-logo {
@@ -515,5 +539,30 @@ export default {
 .logo-resonanz {
   width: auto;
   height: 100%;
+}
+
+/* ── Alert overrides ───────────────────────────────────────────────── */
+:deep(.alert) {
+  background: rgba(234, 220, 194, 0.06) !important;
+  border: 1px solid rgba(234, 220, 194, 0.1) !important;
+  color: rgba(234, 220, 194, 0.85) !important;
+}
+
+:deep(.alert-warning) {
+  border-color: rgba(200, 164, 93, 0.3) !important;
+  background: rgba(200, 164, 93, 0.1) !important;
+  color: var(--gold-color, #c8a45d) !important;
+}
+
+:deep(.alert-danger) {
+  border-color: rgba(220, 53, 69, 0.3) !important;
+  background: rgba(220, 53, 69, 0.1) !important;
+  color: #e05050 !important;
+}
+
+:deep(.alert-success) {
+  border-color: rgba(76, 175, 125, 0.3) !important;
+  background: rgba(76, 175, 125, 0.1) !important;
+  color: #4caf7d !important;
 }
 </style>

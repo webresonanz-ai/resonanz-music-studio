@@ -1,12 +1,12 @@
 <template>
     <div class="fade-in-up">
         <!-- ══ PAGE HEADER ══════════════════════════════════════════════ -->
-        <div class="content-card mb-4">
+        <div class="content-card bg-dark mb-4">
             <div class="row g-4 align-items-center">
                 <div class="col-12 col-lg-7">
-                    <p class="text-uppercase text-primary fw-bold small mb-2">Batavia Madrigal Singers</p>
-                    <h1 class="display-4 fw-bold mb-3">Upcoming Events</h1>
-                    <p class="lead text-muted mb-0">
+                    <p class="text-uppercase text-warning fw-bold small mb-2">Batavia Madrigal Singers</p>
+                    <h1 class="display-4 fw-bold mb-3 text-champagne">Upcoming Events</h1>
+                    <p class="lead text-champagne-muted mb-0">
                         Stay updated with the Batavia Madrigal Singers rehearsals, concerts, and scheduled performances.
                     </p>
                 </div>
@@ -22,7 +22,7 @@
                                     <div class="text-white-50 small">{{ filteredEvents.length }} upcoming schedule{{ filteredEvents.length === 1 ? '' : 's' }}</div>
                                 </div>
                             </div>
-                            <button class="btn btn-primary btn-lg mt-3 mt-lg-0 w-100 w-lg-auto" @click="openAddModal" v-if="canManageSchedule">
+                            <button class="btn btn-gold btn-lg mt-3 mt-lg-0 w-100 w-lg-auto" @click="openAddModal" v-if="canManageSchedule">
                                 <i class="bi bi-plus-lg me-2"></i> Add Schedule
                             </button>
                         </div>
@@ -32,7 +32,7 @@
         </div>
 
         <!-- ══ FILTERS BAR ══════════════════════════════════════════════ -->
-        <div class="content-card mb-4">
+        <div class="content-card bg-dark mb-4">
             <div class="row g-3 align-items-center">
                 <div class="col-12 col-md-6 col-lg-4">
                     <div class="input-group search-group">
@@ -77,12 +77,12 @@
         </div>
 
         <div v-else>
-            <div v-if="filteredEvents.length === 0" class="content-card py-5 text-center text-muted">
+            <div v-if="filteredEvents.length === 0" class="content-card bg-dark py-5 text-center text-champagne-muted">
                 <div class="empty-state-icon">
                     <i class="bi bi-calendar-x display-2 mb-3 text-secondary"></i>
                 </div>
-                <h3 class="fw-bold mb-2">No upcoming events</h3>
-                <p class="mb-0">Please check back later or modify your search filters.</p>
+                <h3 class="fw-bold mb-2 text-champagne">No upcoming events</h3>
+                <p class="mb-0 text-champagne-muted">Please check back later or modify your search filters.</p>
             </div>
 
             <div v-else class="row g-4">
@@ -428,6 +428,140 @@ export default {
 </script>
 
 <style scoped>
+/* ══ Dark theme overrides ════════════════════════════════════════ */
+.content-card.bg-dark {
+    --surface-color: rgba(234, 220, 194, 0.04);
+    --hairline-color: rgba(234, 220, 194, 0.08);
+    --text-color: rgba(234, 220, 194, 0.85);
+    --muted-color: rgba(234, 220, 194, 0.45);
+    --ink-color: rgba(234, 220, 194, 0.92);
+}
+
+.search-group {
+    border-color: rgba(234, 220, 194, 0.12) !important;
+    background: rgba(234, 220, 194, 0.03) !important;
+}
+
+.search-group .form-control {
+    color: rgba(234, 220, 194, 0.75) !important;
+}
+
+.search-group .form-control::placeholder {
+    color: rgba(234, 220, 194, 0.3) !important;
+}
+
+.search-group .input-group-text {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.filter-pill-btn.btn-outline-secondary {
+    border-color: rgba(234, 220, 194, 0.15) !important;
+    color: rgba(234, 220, 194, 0.6) !important;
+}
+
+.filter-pill-btn.btn-outline-secondary:hover {
+    border-color: rgba(200, 164, 93, 0.4) !important;
+    color: #c8a45d !important;
+    background: rgba(200, 164, 93, 0.08) !important;
+}
+
+.event-premium-card {
+    background: rgba(234, 220, 194, 0.03) !important;
+    border-color: rgba(234, 220, 194, 0.08) !important;
+}
+
+.event-premium-card:hover {
+    border-color: rgba(200, 164, 93, 0.35) !important;
+}
+
+.event-premium-card h3 {
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.event-premium-card .text-muted {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.calendar-widget-sheet {
+    background: rgba(26, 31, 48, 0.95) !important;
+    border-color: rgba(234, 220, 194, 0.1) !important;
+}
+
+.calendar-widget-header {
+    background: #7f2432 !important;
+    color: #fff !important;
+}
+
+.calendar-widget-day {
+    color: rgba(234, 220, 194, 0.9) !important;
+}
+
+.calendar-widget-weekday {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.event-premium-card .border-top {
+    border-top-color: rgba(234, 220, 194, 0.06) !important;
+}
+
+.event-premium-card .btn-outline-primary {
+    border-color: rgba(200, 164, 93, 0.25) !important;
+    color: #c8a45d !important;
+}
+
+.event-premium-card .btn-outline-primary:hover {
+    background: rgba(200, 164, 93, 0.1) !important;
+    border-color: rgba(200, 164, 93, 0.4) !important;
+}
+
+.event-premium-card .btn-outline-danger {
+    border-color: rgba(220, 53, 69, 0.25) !important;
+}
+
+.schedule-detail-modal {
+    background: #1a1f30 !important;
+    border: 1px solid rgba(234, 220, 194, 0.12) !important;
+}
+
+.schedule-detail-modal .modal-header {
+    background: linear-gradient(135deg, rgba(127, 36, 50, 0.2), rgba(200, 164, 93, 0.08)) !important;
+    border-bottom: 1px solid rgba(234, 220, 194, 0.08) !important;
+}
+
+.schedule-detail-modal .modal-header .modal-title {
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.schedule-detail-modal .modal-body {
+    color: rgba(234, 220, 194, 0.7) !important;
+}
+
+.schedule-detail-modal .modal-body .text-muted {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.schedule-detail-modal .modal-footer {
+    border-top: 1px solid rgba(234, 220, 194, 0.08) !important;
+}
+
+.schedule-detail-modal .btn-close-white {
+    filter: brightness(0) invert(0.8) !important;
+}
+
+.schedule-detail-modal .btn-secondary {
+    background: rgba(234, 220, 194, 0.08) !important;
+    border-color: rgba(234, 220, 194, 0.12) !important;
+    color: rgba(234, 220, 194, 0.7) !important;
+}
+
+.empty-state-icon {
+    background: rgba(234, 220, 194, 0.06) !important;
+}
+
+.loading-state div.text-muted {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
 /* ══ RESPONSIVE HEADER CARD ═══════════════════════════════════════ */
 .schedule-header-card {
     background: var(--primary-color);

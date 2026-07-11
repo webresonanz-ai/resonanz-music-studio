@@ -1,6 +1,6 @@
 <template>
   <div class="fade-in-up">
-    <div class="content-card mb-4">
+    <div class="content-card bg-dark mb-4">
       <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
         <div>
           <p class="costumes-eyebrow mb-1">Library</p>
@@ -8,7 +8,7 @@
         </div>
         <button
           v-if="isAdmin"
-          class="btn btn-primary d-flex align-items-center gap-2"
+          class="btn btn-gold d-flex align-items-center gap-2"
           @click="openCreate"
         >
           <i class="bi bi-plus-lg"></i><span>Add Costume</span>
@@ -24,7 +24,7 @@
             <input
               v-model="search"
               type="text"
-              class="search-input"
+              class="form-control-dark search-input"
               placeholder="Search costumes by name, group, or description…"
             />
             <button
@@ -63,10 +63,10 @@
         {{ store.error }}
       </div>
 
-      <div v-if="!store.costumes.length" class="empty-state content-card">
+      <div v-if="!store.costumes.length" class="empty-state content-card bg-dark">
         <div class="empty-icon"><i class="bi bi-person-badge"></i></div>
-        <h5 class="mt-3 mb-1">No costumes found</h5>
-        <p class="text-muted mb-0">Try adjusting your filters.</p>
+        <h5 class="mt-3 mb-1 text-champagne">No costumes found</h5>
+        <p class="text-champagne-muted mb-0">Try adjusting your filters.</p>
       </div>
 
       <div v-if="store.costumes.length > 0" class="grid-wrapper" :key="page">
@@ -142,8 +142,8 @@
           class="modal-overlay"
           @click.self="selectedCostume = null"
         >
-          <div class="modal-sheet" role="dialog" aria-modal="true">
-            <button class="modal-close-btn" @click="selectedCostume = null" aria-label="Close">
+          <div class="modal-sheet modal-sheet-dark" role="dialog" aria-modal="true">
+            <button class="modal-close-btn modal-close-btn-dark" @click="selectedCostume = null" aria-label="Close">
               <i class="bi bi-x-lg"></i>
             </button>
             <div class="d-flex flex-column flex-md-row gap-4">
@@ -182,8 +182,8 @@
                   <span class="df-label">Description</span
                   ><span class="df-value">{{ selectedCostume.description }}</span>
                 </div>
-                <div v-if="isAdmin" class="d-flex gap-2 mt-3">
-                  <button class="btn btn-sm btn-outline-primary" @click="openEdit(selectedCostume)">
+                  <div v-if="isAdmin" class="d-flex gap-2 mt-3">
+                  <button class="btn btn-sm btn-outline-gold" @click="openEdit(selectedCostume)">
                     <i class="bi bi-pencil me-1"></i>Edit
                   </button>
                   <button
@@ -203,8 +203,8 @@
     <Teleport to="body">
       <transition name="modal">
         <div v-if="showForm" class="modal-overlay" @click.self="closeForm">
-          <div class="modal-sheet" role="dialog" aria-modal="true">
-            <button class="modal-close-btn" @click="closeForm" aria-label="Close">
+          <div class="modal-sheet modal-sheet-dark" role="dialog" aria-modal="true">
+            <button class="modal-close-btn modal-close-btn-dark" @click="closeForm" aria-label="Close">
               <i class="bi bi-x-lg"></i>
             </button>
             <div class="modal-header-row d-flex align-items-center gap-2 mb-3">
@@ -212,45 +212,45 @@
                 <i class="bi" :class="isEditing ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
               </div>
               <div>
-                <h5 class="mb-0">{{ isEditing ? "Edit Costume" : "Add Costume" }}</h5>
-                <p class="text-muted mb-0 small">
+                <h5 class="mb-0 text-champagne">{{ isEditing ? "Edit Costume" : "Add Costume" }}</h5>
+                <p class="text-champagne-muted mb-0 small">
                   {{ isEditing ? "Update the costume details" : "Fill in the details below" }}
                 </p>
               </div>
             </div>
-            <div v-if="formError" class="alert alert-danger py-2 small">{{ formError }}</div>
+            <div v-if="formError" class="alert alert-danger py-2 small" style="background: rgba(127,36,50,0.2);border-color:rgba(127,36,50,0.5);color:#e8a0a8;">{{ formError }}</div>
             <form @submit.prevent="submitForm">
               <div class="row g-3">
                 <div class="col-12">
-                  <label class="form-label small fw-bold"
+                  <label class="form-label small fw-bold text-champagne"
                     >Name <span class="text-danger">*</span></label
                   ><input
                     v-model="form.name"
                     type="text"
-                    class="form-control form-control-sm"
+                    class="form-control-dark form-control-sm"
                     placeholder="Costume name"
                     required
                   />
                 </div>
                 <div class="col-4">
-                  <label class="form-label small fw-bold">Code</label
+                  <label class="form-label small fw-bold text-champagne">Code</label
                   ><input
                     v-model="form.costume_code"
                     type="text"
-                    class="form-control form-control-sm"
+                    class="form-control-dark form-control-sm"
                     placeholder="e.g. K.1.001"
                   />
                 </div>
                 <div class="col-4">
-                  <label class="form-label small fw-bold">Type</label>
-                  <select v-model="form.type" class="form-select form-select-sm">
+                  <label class="form-label small fw-bold text-champagne">Type</label>
+                  <select v-model="form.type" class="form-control-dark form-select-sm">
                     <option value="costume">Costume</option>
                     <option value="accessory">Accessory</option>
                   </select>
                 </div>
                 <div class="col-4">
-                  <label class="form-label small fw-bold">Gender</label>
-                  <select v-model="form.gender" class="form-select form-select-sm">
+                  <label class="form-label small fw-bold text-champagne">Gender</label>
+                  <select v-model="form.gender" class="form-control-dark form-select-sm">
                     <option value="">—</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
@@ -258,47 +258,47 @@
                   </select>
                 </div>
                 <div class="col-4">
-                  <label class="form-label small fw-bold">Group Category</label
+                  <label class="form-label small fw-bold text-champagne">Group Category</label
                   ><input
                     v-model="form.group_category"
                     type="text"
-                    class="form-control form-control-sm"
+                    class="form-control-dark form-control-sm"
                     placeholder="e.g. BMS, TRMS"
                   />
                 </div>
                 <div class="col-4">
-                  <label class="form-label small fw-bold">Rack ID</label
+                  <label class="form-label small fw-bold text-champagne">Rack ID</label
                   ><input
                     v-model="form.rack_id"
                     type="number"
-                    class="form-control form-control-sm"
+                    class="form-control-dark form-control-sm"
                     placeholder="0"
                   />
                 </div>
                 <div class="col-12">
-                  <label class="form-label small fw-bold">Google Drive File ID</label
+                  <label class="form-label small fw-bold text-champagne">Google Drive File ID</label
                   ><input
                     v-model="form.image"
                     type="text"
-                    class="form-control form-control-sm"
+                    class="form-control-dark form-control-sm"
                     placeholder="Google Drive file ID"
                   />
                 </div>
                 <div class="col-12">
-                  <label class="form-label small fw-bold">Description</label
+                  <label class="form-label small fw-bold text-champagne">Description</label
                   ><textarea
                     v-model="form.description"
-                    class="form-control form-control-sm"
+                    class="form-control-dark form-control-sm"
                     rows="2"
                     placeholder="Optional description"
                   ></textarea>
                 </div>
               </div>
               <div class="d-flex gap-2 justify-content-end mt-4">
-                <button type="button" class="btn btn-sm btn-secondary" @click="closeForm">
+                <button type="button" class="btn btn-sm btn-outline-gold" @click="closeForm">
                   Cancel
                 </button>
-                <button type="submit" class="btn btn-sm btn-primary" :disabled="submitting">
+                <button type="submit" class="btn btn-sm btn-gold" :disabled="submitting">
                   <span v-if="submitting" class="spinner-border spinner-border-sm me-1"></span
                   >{{ isEditing ? "Save Changes" : "Add Costume" }}
                 </button>
@@ -312,17 +312,17 @@
     <Teleport to="body">
       <transition name="modal">
         <div v-if="deleteTarget" class="modal-overlay" @click.self="cancelDelete">
-          <div class="modal-sheet modal-sheet--sm text-center" role="dialog" aria-modal="true">
+          <div class="modal-sheet modal-sheet-dark modal-sheet--sm text-center" role="dialog" aria-modal="true">
             <div class="delete-icon-wrap">
-              <i class="bi bi-trash3-fill" style="font-size: 2rem; color: var(--accent-color)"></i>
+              <i class="bi bi-trash3-fill" style="font-size: 2rem; color: var(--gold-color)"></i>
             </div>
-            <h5 class="mt-3 mb-1">Delete Costume</h5>
-            <p class="text-muted mb-4 small">
-              Remove <strong>{{ deleteTarget.name }}</strong
+            <h5 class="mt-3 mb-1 text-champagne">Delete Costume</h5>
+            <p class="text-champagne-muted mb-4 small">
+              Remove <strong style="color:rgba(234,220,194,0.92)">{{ deleteTarget.name }}</strong
               >? This cannot be undone.
             </p>
             <div class="d-flex gap-2 justify-content-center">
-              <button class="btn btn-sm btn-secondary" @click="cancelDelete" :disabled="deleting">
+              <button class="btn btn-sm btn-outline-gold" @click="cancelDelete" :disabled="deleting">
                 Cancel
               </button>
               <button class="btn btn-sm btn-danger" @click="doDelete" :disabled="deleting">
@@ -538,6 +538,10 @@ export default {
 </script>
 
 <style scoped>
+.content-card.bg-dark {
+  color: rgba(234, 220, 194, 0.78);
+}
+
 .costumes-eyebrow {
   font-size: 0.75rem;
   font-weight: 700;
@@ -548,7 +552,7 @@ export default {
 .costumes-title {
   font-size: 2rem;
   font-weight: 800;
-  color: var(--ink-color);
+  color: rgba(234, 220, 194, 0.92) !important;
   letter-spacing: -0.01em;
 }
 .search-wrap {
@@ -563,20 +567,14 @@ export default {
   font-size: 0.9rem;
   pointer-events: none;
 }
-.search-input {
+.search-input.form-control-dark {
   width: 100%;
   padding: 0.6rem 2.5rem 0.6rem 2.4rem;
-  border: 1px solid var(--hairline-color);
-  border-radius: var(--radius-md);
-  background: rgba(255, 253, 248, 0.9);
-  color: var(--ink-color);
-  font-size: 0.9rem;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
+  background: rgba(26, 31, 48, 0.6);
+  border-color: rgba(234, 220, 194, 0.1);
+  color: rgba(234, 220, 194, 0.78);
 }
-.search-input:focus {
-  outline: none;
+.search-input.form-control-dark:focus {
   border-color: var(--gold-color);
   box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.18);
 }
@@ -585,7 +583,7 @@ export default {
   right: 0.7rem;
   border: 0;
   background: transparent;
-  color: var(--muted-color);
+  color: rgba(234, 220, 194, 0.4);
   cursor: pointer;
   padding: 0.1rem 0.3rem;
   font-size: 0.8rem;
@@ -593,20 +591,20 @@ export default {
   transition: color 0.15s;
 }
 .search-clear:hover {
-  color: var(--accent-color);
+  color: rgba(234, 220, 194, 0.78);
 }
 .filter-select {
   width: 100%;
   padding: 0.55rem 0.85rem;
-  border: 1px solid var(--hairline-color);
+  border: 1px solid rgba(234, 220, 194, 0.1);
   border-radius: var(--radius-md);
-  background: rgba(255, 253, 248, 0.9);
-  color: var(--ink-color);
+  background: rgba(26, 31, 48, 0.6);
+  color: rgba(234, 220, 194, 0.78);
   font-size: 0.85rem;
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2390887b'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23c8a45d'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   padding-right: 2rem;
@@ -623,7 +621,7 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 5rem 0;
-  color: var(--muted-color);
+  color: rgba(234, 220, 194, 0.5);
   gap: 1rem;
 }
 .loading-ring {
@@ -639,9 +637,10 @@ export default {
     transform: rotate(360deg);
   }
 }
-.empty-state {
+.empty-state.content-card.bg-dark {
   text-align: center;
   padding: 4rem 2rem;
+  color: rgba(234, 220, 194, 0.78);
 }
 .empty-icon {
   display: inline-grid;
@@ -661,9 +660,9 @@ export default {
   align-items: center;
   padding: 0.75rem 1rem;
   border-radius: var(--radius-md);
-  background: #fef0f0;
-  border: 1px solid #f5c6cb;
-  color: #b33c3c;
+  background: rgba(127, 36, 50, 0.2);
+  border: 1px solid rgba(127, 36, 50, 0.4);
+  color: #e8a0a8;
   font-size: 0.85rem;
   margin-bottom: 1rem;
 }
@@ -678,7 +677,7 @@ export default {
   inset: 0;
   display: grid;
   place-items: center;
-  background: rgba(255,253,248,0.55);
+  background: rgba(26,31,48,0.55);
   backdrop-filter: blur(2px);
   border-radius: var(--radius-md);
   z-index: 2;
@@ -695,9 +694,9 @@ export default {
 }
 .costume-card {
   border-radius: var(--radius-md);
-  border: 1px solid var(--hairline-color);
-  background: rgba(255, 253, 248, 0.96);
-  box-shadow: 0 2px 12px rgba(19, 18, 16, 0.06);
+  border: 1px solid rgba(234, 220, 194, 0.08);
+  background: rgba(26, 31, 48, 0.5);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -710,7 +709,7 @@ export default {
 }
 .costume-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(19, 18, 16, 0.13), 0 0 0 1px rgba(200, 164, 93, 0.25);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(200, 164, 93, 0.25);
   border-color: rgba(200, 164, 93, 0.3);
 }
 .costume-img-wrap {
@@ -792,7 +791,7 @@ export default {
   margin: 0 0 0.35rem;
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--ink-color);
+  color: rgba(234, 220, 194, 0.92);
 }
 .costume-meta {
   display: flex;
@@ -805,14 +804,14 @@ export default {
   align-items: center;
   gap: 0.25rem;
   font-size: 0.78rem;
-  color: var(--muted-color);
+  color: rgba(234, 220, 194, 0.5);
 }
 .costume-meta-item i {
   font-size: 0.72rem;
 }
 .costume-notes {
   font-size: 0.78rem;
-  color: var(--muted-color);
+  color: rgba(234, 220, 194, 0.45);
   font-style: italic;
   margin: 0.3rem 0 0;
   display: -webkit-box;
@@ -822,7 +821,7 @@ export default {
 }
 .costume-actions {
   display: flex;
-  border-top: 1px solid var(--hairline-color);
+  border-top: 1px solid rgba(234, 220, 194, 0.08);
   padding: 0.45rem 0.65rem;
   gap: 0.35rem;
 }
@@ -846,11 +845,11 @@ export default {
   gap: 0.75rem;
   margin-top: 1.5rem;
   padding: 0.75rem 0.5rem;
-  border-top: 1px solid var(--hairline-color);
+  border-top: 1px solid rgba(234, 220, 194, 0.08);
 }
 .result-count {
   font-size: 0.8rem;
-  color: var(--muted-color);
+  color: rgba(234, 220, 194, 0.5);
 }
 .pagination-controls {
   display: flex;
@@ -860,10 +859,10 @@ export default {
 .page-btn {
   min-width: 34px;
   height: 34px;
-  border: 1px solid var(--hairline-color);
+  border: 1px solid rgba(234, 220, 194, 0.08);
   border-radius: 6px;
-  background: rgba(255, 253, 248, 0.9);
-  color: var(--ink-color);
+  background: rgba(26, 31, 48, 0.5);
+  color: rgba(234, 220, 194, 0.78);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
@@ -889,15 +888,15 @@ export default {
 }
 .page-ellipsis {
   padding: 0 0.2rem;
-  color: var(--muted-color);
+  color: rgba(234, 220, 194, 0.4);
   font-size: 0.85rem;
 }
 .action-btn {
   flex: 1;
-  border: 1px solid var(--hairline-color);
+  border: 1px solid rgba(234, 220, 194, 0.08);
   border-radius: 6px;
   background: transparent;
-  color: var(--muted-color);
+  color: rgba(234, 220, 194, 0.45);
   font-size: 0.82rem;
   padding: 0.32rem;
   cursor: pointer;
@@ -905,9 +904,9 @@ export default {
   line-height: 1;
 }
 .action-btn:hover {
-  border-color: var(--ink-color);
-  color: var(--ink-color);
-  background: rgba(25, 27, 36, 0.06);
+  border-color: rgba(234, 220, 194, 0.3);
+  color: rgba(234, 220, 194, 0.78);
+  background: rgba(234, 220, 194, 0.06);
 }
 .action-btn.action-edit:hover {
   border-color: var(--gold-color);
@@ -933,7 +932,6 @@ export default {
 }
 .modal-sheet {
   position: relative;
-  background: var(--surface-color, #fffdf8);
   border-radius: 14px;
   border: 1px solid var(--hairline-color);
   box-shadow:
@@ -942,6 +940,11 @@ export default {
   width: 100%;
   max-width: 640px;
   padding: 1.75rem;
+}
+.modal-sheet-dark {
+  background: linear-gradient(135deg, rgba(26,31,48,0.98), rgba(17,20,32,0.98));
+  border-color: rgba(234, 220, 194, 0.1);
+  box-shadow: 0 32px 72px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(200, 164, 93, 0.1);
 }
 .modal-sheet--sm {
   max-width: 400px;
@@ -953,8 +956,6 @@ export default {
   top: 1rem;
   right: 1rem;
   border: 0;
-  background: rgba(34, 29, 20, 0.08);
-  color: var(--muted-color);
   width: 34px;
   height: 34px;
   border-radius: 8px;
@@ -966,8 +967,12 @@ export default {
     background 0.18s,
     color 0.18s;
 }
-.modal-close-btn:hover {
-  background: var(--accent-color);
+.modal-close-btn-dark {
+  background: rgba(200, 164, 93, 0.1);
+  color: rgba(234, 220, 194, 0.5);
+}
+.modal-close-btn-dark:hover {
+  background: var(--gold-color);
   color: #fff;
 }
 .detail-img-wrap {
@@ -981,7 +986,7 @@ export default {
 .detail-title {
   font-size: 1.35rem;
   font-weight: 800;
-  color: var(--ink-color);
+  color: rgba(234, 220, 194, 0.92);
   margin-bottom: 1rem;
 }
 .detail-field {
@@ -989,7 +994,7 @@ export default {
   align-items: baseline;
   gap: 0.5rem;
   padding: 0.4rem 0;
-  border-bottom: 1px solid var(--hairline-color);
+  border-bottom: 1px solid rgba(234, 220, 194, 0.08);
 }
 .detail-field:last-child {
   border-bottom: none;
@@ -997,12 +1002,12 @@ export default {
 .df-label {
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--muted-color);
+  color: rgba(234, 220, 194, 0.5);
   min-width: 80px;
 }
 .df-value {
   font-size: 0.9rem;
-  color: var(--ink-color);
+  color: rgba(234, 220, 194, 0.78);
 }
 .modal-icon-wrap {
   display: grid;

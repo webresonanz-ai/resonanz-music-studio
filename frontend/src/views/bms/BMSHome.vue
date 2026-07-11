@@ -2,20 +2,20 @@
     <div class="fade-in-up">
 
         <!-- ══ HERO ══════════════════════════════════════════════════════ -->
-        <div class="bms-hero content-card mb-4">
+        <div class="bms-hero content-card bg-dark mb-4">
             <div class="bms-hero-inner">
                 <p class="text-uppercase fw-bold small mb-2" style="color: var(--gold-color); letter-spacing: 0.12em;">
                     <i class="bi bi-music-note-beamed me-1"></i> Batavia Madrigal Singers
                 </p>
-                <h1 class="display-4 fw-bold mb-3">Where Voices Unite</h1>
-                <p class="lead mb-4" style="color: var(--muted-color); max-width: 560px;">
+                <h1 class="display-4 fw-bold mb-3 text-champagne">Where Voices Unite</h1>
+                <p class="lead mb-4 text-champagne-muted" style="max-width: 560px;">
                     A premier professional choir dedicated to the art of choral singing — from classical masterworks to contemporary compositions.
                 </p>
                 <div class="d-flex flex-wrap gap-3">
                     <router-link to="/bms/events" class="btn btn-primary btn-lg">
                         <i class="bi bi-calendar-event me-2"></i>View All Events
                     </router-link>
-                    <router-link to="/bms/members" class="btn btn-outline-secondary btn-lg">
+                    <router-link to="/bms/members" class="btn btn-outline-gold btn-lg">
                         <i class="bi bi-people me-2"></i>Our Singers
                     </router-link>
                 </div>
@@ -54,7 +54,7 @@
 
             <!-- ── Upcoming Events ───────────────────────────────────────── -->
             <div class="col-12 col-lg-7">
-                <div class="content-card h-100">
+                <div class="content-card bg-dark h-100">
                     <div class="section-header mb-4">
                         <div>
                             <h3 class="section-title mb-0">
@@ -129,7 +129,7 @@
 
             <!-- ── Our Singers ────────────────────────────────────────────── -->
             <div class="col-12 col-lg-5">
-                <div class="content-card h-100">
+                <div class="content-card bg-dark h-100">
                     <div class="section-header mb-4">
                         <div>
                             <h3 class="section-title mb-0">
@@ -340,6 +340,96 @@ export default {
 </script>
 
 <style scoped>
+/* ══ Dark theme overrides ════════════════════════════════════════ */
+.content-card.bg-dark {
+    --surface-color: rgba(234, 220, 194, 0.04);
+    --hairline-color: rgba(234, 220, 194, 0.08);
+    --text-color: rgba(234, 220, 194, 0.85);
+    --muted-color: rgba(234, 220, 194, 0.45);
+    --ink-color: rgba(234, 220, 194, 0.92);
+    color: rgba(234, 220, 194, 0.78);
+}
+
+.stats-strip {
+    background: rgba(234, 220, 194, 0.03) !important;
+    border-color: rgba(234, 220, 194, 0.08) !important;
+}
+
+.stat-sep {
+    background: rgba(234, 220, 194, 0.12) !important;
+}
+
+.section-title {
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.section-sub {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.upcoming-item {
+    background: rgba(234, 220, 194, 0.03) !important;
+    border-color: rgba(234, 220, 194, 0.08) !important;
+}
+
+.upcoming-title {
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.upcoming-desc {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.mini-cal {
+    background: rgba(26, 31, 48, 0.95) !important;
+    border-color: rgba(234, 220, 194, 0.1) !important;
+}
+
+.mini-cal-month {
+    background: #7f2432 !important;
+}
+
+.mini-cal-day {
+    color: rgba(234, 220, 194, 0.9) !important;
+}
+
+.mini-cal-weekday {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.more-events-hint {
+    border-color: rgba(234, 220, 194, 0.08) !important;
+}
+
+.voice-part-card {
+    border-color: rgba(234, 220, 194, 0.08) !important;
+    background: rgba(234, 220, 194, 0.03) !important;
+}
+
+.singers-description {
+    color: rgba(234, 220, 194, 0.5) !important;
+}
+
+.singers-description strong {
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.singers-highlights li {
+    color: rgba(234, 220, 194, 0.5) !important;
+}
+
+.members-stat-footer {
+    border-top-color: rgba(234, 220, 194, 0.08) !important;
+}
+
+.msf-desc {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.msf-divider {
+    background: rgba(234, 220, 194, 0.12) !important;
+}
+
 /* ══ HERO ════════════════════════════════════════════════════════ */
 .bms-hero {
     position: relative;

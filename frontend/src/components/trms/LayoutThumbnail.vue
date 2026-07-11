@@ -12,8 +12,11 @@
     style="display:block;width:100%;height:100%;"
     aria-hidden="true"
   >
+    <!-- Dark background -->
+    <rect x="0" y="0" :width="W" :height="H" rx="2" fill="rgba(10,12,20,0.5)" />
+
     <!-- Stage bar at top -->
-    <rect x="4" y="2" :width="W - 8" height="6" rx="2" fill="rgba(127,36,50,0.25)" />
+    <rect x="4" y="2" :width="W - 8" height="6" rx="2" fill="rgba(200,164,93,0.35)" />
 
     <!-- Seat rows -->
     <template v-for="(item, idx) in rowItems" :key="idx">
@@ -24,7 +27,7 @@
         height="ROW_H"
         rx="1"
         :fill="item.fill"
-        :fill-opacity="0.7"
+        :fill-opacity="0.75"
       />
     </template>
   </svg>
@@ -42,9 +45,9 @@ const TOP_PAD = 12   // below the stage bar
 // Colour map matching the section-colour tokens
 const FILL_MAP = {
   gold:  '#c8a45d',
-  blue:  '#0d6efd',
-  green: '#198754',
-  red:   '#dc3545',
+  blue:  '#4f8ef7',
+  green: '#4caf7d',
+  red:   '#eb5050',
 }
 
 export default {

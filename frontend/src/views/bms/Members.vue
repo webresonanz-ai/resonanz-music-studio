@@ -1,13 +1,13 @@
 <template>
   <div class="fade-in-up">
     <!-- ══ PAGE HEADER ══════════════════════════════════════════════ -->
-    <div class="members-header content-card mb-4">
+    <div class="members-header content-card bg-dark mb-4">
       <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
         <div>
           <p class="members-eyebrow mb-1">Batavia Madrigal Singers</p>
           <h1 class="members-title mb-0">Members</h1>
         </div>
-        <button class="btn btn-primary d-flex align-items-center gap-2" @click="openCreate">
+        <button class="btn btn-gold d-flex align-items-center gap-2" @click="openCreate">
           <i class="bi bi-person-plus-fill"></i>
           <span>Add Member</span>
         </button>
@@ -135,7 +135,7 @@
 
     <template v-else>
       <!-- ══ EMPTY STATE ════════════════════════════════════════════ -->
-      <div v-if="filteredMembers.length === 0" class="empty-state content-card">
+      <div v-if="filteredMembers.length === 0" class="empty-state content-card bg-dark">
         <div class="empty-icon"><i class="bi bi-people"></i></div>
         <h5 class="mt-3 mb-1">No members found</h5>
         <p class="text-muted mb-3">
@@ -1119,6 +1119,448 @@ export default {
 </script>
 
 <style scoped>
+/* ══ Dark theme overrides ════════════════════════════════════════ */
+.content-card.bg-dark {
+    --surface-color: rgba(234, 220, 194, 0.04);
+    --hairline-color: rgba(234, 220, 194, 0.08);
+    --text-color: rgba(234, 220, 194, 0.85);
+    --muted-color: rgba(234, 220, 194, 0.45);
+    --ink-color: rgba(234, 220, 194, 0.92);
+    color: rgba(234, 220, 194, 0.78);
+}
+
+.members-title {
+    color: rgba(234, 220, 194, 0.92) !important;
+}
+
+.stats-row {
+    border-top-color: rgba(234, 220, 194, 0.08) !important;
+}
+
+.stat-value {
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.stat-label {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.stat-divider {
+    background: rgba(234, 220, 194, 0.12) !important;
+}
+
+.text-success-custom {
+    color: #4caf7d !important;
+}
+
+.filters-bar .search-input {
+    background: rgba(234, 220, 194, 0.04) !important;
+    border-color: rgba(234, 220, 194, 0.12) !important;
+    color: rgba(234, 220, 194, 0.8) !important;
+}
+
+.filters-bar .search-input::placeholder {
+    color: rgba(234, 220, 194, 0.3) !important;
+}
+
+.filters-bar .search-input:focus {
+    border-color: rgba(200, 164, 93, 0.4) !important;
+    box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1) !important;
+}
+
+.filters-bar .search-icon {
+    color: rgba(234, 220, 194, 0.35) !important;
+}
+
+.filters-bar .search-clear {
+    color: rgba(234, 220, 194, 0.35) !important;
+}
+
+.filters-bar .search-clear:hover {
+    color: rgba(200, 164, 93, 0.7) !important;
+}
+
+.filter-chip {
+    border-color: rgba(234, 220, 194, 0.12) !important;
+    background: rgba(234, 220, 194, 0.03) !important;
+    color: rgba(234, 220, 194, 0.55) !important;
+}
+
+.filter-chip:hover {
+    border-color: rgba(200, 164, 93, 0.35) !important;
+    color: rgba(234, 220, 194, 0.8) !important;
+    background: rgba(200, 164, 93, 0.08) !important;
+}
+
+.filter-chip.active {
+    border-color: rgba(200, 164, 93, 0.4) !important;
+    background: rgba(200, 164, 93, 0.12) !important;
+    color: #c8a45d !important;
+}
+
+.view-btn {
+    border-color: rgba(234, 220, 194, 0.12) !important;
+    color: rgba(234, 220, 194, 0.4) !important;
+    background: rgba(234, 220, 194, 0.03) !important;
+}
+
+.view-btn.active,
+.view-btn:hover {
+    border-color: rgba(200, 164, 93, 0.35) !important;
+    color: #c8a45d !important;
+    background: rgba(200, 164, 93, 0.08) !important;
+}
+
+.perpage-select {
+    background: rgba(234, 220, 194, 0.04) !important;
+    border-color: rgba(234, 220, 194, 0.12) !important;
+    color: rgba(234, 220, 194, 0.7) !important;
+}
+
+.perpage-label {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.member-card {
+    background: rgba(26, 31, 48, 0.95) !important;
+    border-color: rgba(234, 220, 194, 0.08) !important;
+    box-shadow: 0 2px 12px rgba(8, 8, 14, 0.2) !important;
+}
+
+.member-card:hover {
+    border-color: rgba(200, 164, 93, 0.35) !important;
+    box-shadow: 0 12px 32px rgba(8, 8, 14, 0.3) !important;
+}
+
+.member-name {
+    color: rgba(234, 220, 194, 0.88) !important;
+}
+
+.member-sub {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.meta-item {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.member-actions {
+    border-top-color: rgba(234, 220, 194, 0.06) !important;
+}
+
+.action-btn {
+    border-color: rgba(234, 220, 194, 0.1) !important;
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.action-btn:hover {
+    border-color: rgba(234, 220, 194, 0.25) !important;
+    color: rgba(234, 220, 194, 0.7) !important;
+    background: rgba(234, 220, 194, 0.06) !important;
+}
+
+.action-btn.action-edit:hover {
+    border-color: rgba(200, 164, 93, 0.4) !important;
+    color: #c8a45d !important;
+    background: rgba(200, 164, 93, 0.08) !important;
+}
+
+.action-btn.action-delete:hover {
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #e05050 !important;
+    background: rgba(220, 53, 69, 0.08) !important;
+}
+
+.list-header {
+    border-bottom-color: rgba(234, 220, 194, 0.08) !important;
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.list-row {
+    border-bottom-color: rgba(234, 220, 194, 0.04) !important;
+}
+
+.list-row:hover {
+    background: rgba(200, 164, 93, 0.04) !important;
+}
+
+.list-name {
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.list-sub {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.list-muted {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.list-role-text {
+    color: rgba(234, 220, 194, 0.7) !important;
+}
+
+.pagination-bar {
+    border-top-color: rgba(234, 220, 194, 0.06) !important;
+}
+
+.pagination-info,
+.result-count {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.page-btn {
+    border-color: rgba(234, 220, 194, 0.1) !important;
+    color: rgba(234, 220, 194, 0.4) !important;
+    background: rgba(234, 220, 194, 0.03) !important;
+}
+
+.page-btn:hover:not(:disabled):not(.ellipsis) {
+    border-color: rgba(200, 164, 93, 0.3) !important;
+    color: #c8a45d !important;
+    background: rgba(200, 164, 93, 0.08) !important;
+}
+
+.page-btn.active {
+    border-color: #c8a45d !important;
+    background: rgba(200, 164, 93, 0.12) !important;
+    color: #c8a45d !important;
+}
+
+.page-btn:disabled {
+    opacity: 0.2 !important;
+}
+
+.result-count {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.loading-state {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.member-photo-wrap {
+    background: rgba(26, 31, 48, 0.9) !important;
+}
+
+.member-photo-overlay {
+    background: rgba(8, 8, 14, 0.5) !important;
+}
+
+.status-dot.is-active {
+    background: #4caf7d !important;
+    box-shadow: 0 0 0 3px rgba(76, 175, 125, 0.18) !important;
+}
+
+/* Modal dark theme */
+.modal-overlay {
+    background: rgba(8, 8, 14, 0.7) !important;
+    backdrop-filter: blur(6px) !important;
+}
+
+.modal-sheet {
+    background: linear-gradient(135deg, rgba(200, 164, 93, 0.04), transparent),
+                linear-gradient(180deg, #1a1f30, #111420) !important;
+    border: 1px solid rgba(234, 220, 194, 0.12) !important;
+    color: rgba(234, 220, 194, 0.8) !important;
+}
+
+.modal-sheet-title {
+    color: rgba(234, 220, 194, 0.88) !important;
+}
+
+.modal-sheet-sub {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.modal-header-row {
+    border-bottom: 1px solid rgba(234, 220, 194, 0.08) !important;
+}
+
+.modal-footer-row {
+    border-top: 1px solid rgba(234, 220, 194, 0.08) !important;
+}
+
+.modal-close-btn {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.modal-close-btn:hover {
+    color: rgba(234, 220, 194, 0.7) !important;
+    background: rgba(234, 220, 194, 0.06) !important;
+}
+
+.modal-icon-wrap {
+    background: rgba(200, 164, 93, 0.1) !important;
+    color: #c8a45d !important;
+}
+
+.form-error-banner {
+    background: rgba(220, 53, 69, 0.1) !important;
+    border: 1px solid rgba(220, 53, 69, 0.2) !important;
+    color: #e05050 !important;
+}
+
+.form-section-label {
+    color: rgba(234, 220, 194, 0.5) !important;
+}
+
+.form-lbl {
+    color: rgba(234, 220, 194, 0.7) !important;
+}
+
+.form-inp {
+    background: rgba(234, 220, 194, 0.05) !important;
+    border: 1px solid rgba(234, 220, 194, 0.12) !important;
+    color: rgba(234, 220, 194, 0.8) !important;
+}
+
+.form-inp:focus {
+    border-color: rgba(200, 164, 93, 0.4) !important;
+    box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1) !important;
+    background: rgba(234, 220, 194, 0.08) !important;
+}
+
+.form-inp::placeholder {
+    color: rgba(234, 220, 194, 0.25) !important;
+}
+
+.form-hint {
+    color: rgba(234, 220, 194, 0.35) !important;
+}
+
+.form-hint.error {
+    color: #e05050 !important;
+}
+
+.role-option {
+    border-color: rgba(234, 220, 194, 0.12) !important;
+    background: rgba(234, 220, 194, 0.03) !important;
+    color: rgba(234, 220, 194, 0.6) !important;
+}
+
+.role-option:hover {
+    border-color: rgba(200, 164, 93, 0.3) !important;
+    color: #c8a45d !important;
+}
+
+.status-option {
+    border-color: rgba(234, 220, 194, 0.12) !important;
+    background: rgba(234, 220, 194, 0.03) !important;
+    color: rgba(234, 220, 194, 0.6) !important;
+}
+
+.status-option.active {
+    border-color: rgba(200, 164, 93, 0.35) !important;
+    background: rgba(200, 164, 93, 0.08) !important;
+    color: #c8a45d !important;
+}
+
+.delete-icon-wrap {
+    background: rgba(220, 53, 69, 0.1) !important;
+    color: #e05050 !important;
+}
+
+.detail-banner {
+    background: linear-gradient(135deg, rgba(127, 36, 50, 0.15), rgba(200, 164, 93, 0.05)) !important;
+}
+
+.detail-name {
+    color: rgba(234, 220, 194, 0.92) !important;
+}
+
+.detail-stagename {
+    color: rgba(234, 220, 194, 0.55) !important;
+}
+
+.detail-section-title {
+    color: rgba(234, 220, 194, 0.5) !important;
+}
+
+.df-label {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.df-value {
+    color: rgba(234, 220, 194, 0.75) !important;
+}
+
+.df-link {
+    color: #c8a45d !important;
+}
+
+.df-link:hover {
+    color: rgba(200, 164, 93, 0.8) !important;
+}
+
+.empty-state {
+    text-align: center;
+}
+
+.modal-body-scroll .text-muted {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.add-name {
+    color: rgba(234, 220, 194, 0.8) !important;
+}
+
+.add-meta {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.add-row {
+    border-color: rgba(234, 220, 194, 0.06) !important;
+}
+
+.add-row:hover {
+    background: rgba(200, 164, 93, 0.04) !important;
+}
+
+.add-row.selected {
+    background: rgba(200, 164, 93, 0.06) !important;
+    border-color: rgba(200, 164, 93, 0.2) !important;
+}
+
+.list-status-badge {
+    background: rgba(234, 220, 194, 0.06) !important;
+    color: rgba(234, 220, 194, 0.6) !important;
+}
+
+.badge-active {
+    background: rgba(76, 175, 125, 0.12) !important;
+    color: #4caf7d !important;
+}
+
+.badge-passive {
+    background: rgba(234, 220, 194, 0.06) !important;
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.detail-badge {
+    background: rgba(234, 220, 194, 0.06) !important;
+    color: rgba(234, 220, 194, 0.6) !important;
+    border-color: rgba(234, 220, 194, 0.1) !important;
+}
+
+.badge-role {
+    background: transparent !important;
+}
+
+.badge-gold {
+    background: rgba(200, 164, 93, 0.1) !important;
+    color: #c8a45d !important;
+    border-color: rgba(200, 164, 93, 0.15) !important;
+}
+
+.btn-link {
+    color: #c8a45d !important;
+}
+
+.btn-link:hover {
+    color: rgba(200, 164, 93, 0.8) !important;
+}
+
 /* ── Page header ─────────────────────────────────────────────────── */
 .members-eyebrow {
   font-size: 0.75rem;

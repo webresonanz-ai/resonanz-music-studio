@@ -1,19 +1,19 @@
 <template>
   <div class="fade-in-up">
-    <div class="content-card mb-4">
+    <div class="content-card bg-dark mb-4">
       <p class="eyebrow mb-1">Library</p>
-      <h1 class="page-title mb-0">Welcome to the Music Library</h1>
+      <h1 class="page-title mb-0" style="color: rgba(234, 220, 194, 0.92) !important;">Welcome to the Music Library</h1>
     </div>
 
     <div class="row g-4">
       <div class="col-12 col-md-6">
         <router-link to="/library/sheet-music" class="text-decoration-none">
-          <div class="content-card library-card h-100">
+          <div class="content-card bg-dark library-card h-100">
             <div class="library-icon-wrap">
               <i class="bi bi-music-note"></i>
             </div>
-            <h4 class="mt-3 mb-1">Sheet Music</h4>
-            <p class="text-muted mb-0">
+            <h4 class="mt-3 mb-1 text-champagne">Sheet Music</h4>
+            <p class="text-champagne-muted mb-0">
               Browse and search scores by genre, composer, arranger, and title.
             </p>
           </div>
@@ -21,12 +21,12 @@
       </div>
       <div class="col-12 col-md-6">
         <router-link to="/library/costumes" class="text-decoration-none">
-          <div class="content-card library-card h-100">
+          <div class="content-card bg-dark library-card h-100">
             <div class="library-icon-wrap">
               <i class="bi bi-person-badge"></i>
             </div>
-            <h4 class="mt-3 mb-1">Costumes</h4>
-            <p class="text-muted mb-0">
+            <h4 class="mt-3 mb-1 text-champagne">Costumes</h4>
+            <p class="text-champagne-muted mb-0">
               Browse the costume collection with previews and condition info.
             </p>
           </div>
@@ -43,6 +43,21 @@ export default {
 </script>
 
 <style scoped>
+.content-card.bg-dark {
+  color: rgba(234, 220, 194, 0.78);
+}
+
+.library-card {
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  border: 1px solid rgba(234, 220, 194, 0.08);
+}
+
+.library-card:hover {
+  border-color: rgba(200, 164, 93, 0.35);
+  box-shadow: 0 4px 20px rgba(200, 164, 93, 0.08);
+  transform: translateY(-3px);
+}
+
 .eyebrow {
   font-size: 0.75rem;
   font-weight: 700;

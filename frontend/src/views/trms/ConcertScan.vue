@@ -1,22 +1,22 @@
 <template>
     <div class="fade-in-up">
         <!-- ── Header ──────────────────────────────────────────────────── -->
-        <div class="content-card mb-4">
+        <div class="content-card bg-dark mb-4">
             <div class="row g-4 align-items-center">
                 <div class="col-lg-7">
-                    <p class="text-uppercase text-primary fw-bold small mb-2">TRMS Concert</p>
-                    <h1 class="display-4 fw-bold mb-3">Scan Registration</h1>
-                    <p class="lead text-muted mb-0">
+                    <p class="text-uppercase text-warning fw-bold small mb-2">TRMS Concert</p>
+                    <h1 class="display-4 fw-bold mb-3 text-champagne">Scan Registration</h1>
+                    <p class="lead text-champagne-muted mb-0">
                         Verify audience registrations by scanning the QR code on their ticket or entering the registration number manually.
                     </p>
                 </div>
                 <div class="col-lg-5">
-                    <div class="bg-dark text-white rounded p-4">
+                    <div class="bg-dark-card rounded-3 p-4">
                         <div class="d-flex align-items-center gap-3">
                             <i class="bi bi-qr-code-scan display-6 text-warning"></i>
                             <div>
-                                <div class="fw-bold">Quick Verification</div>
-                                <div class="text-white-50 small">Camera scan or manual entry</div>
+                                <div class="fw-bold text-champagne">Quick Verification</div>
+                                <div class="text-champagne-muted small">Camera scan or manual entry</div>
                             </div>
                         </div>
                     </div>
@@ -27,9 +27,9 @@
         <div class="row g-4">
             <!-- ── Left: Input panel ──────────────────────────────────── -->
             <div class="col-lg-5">
-                <div class="content-card h-100">
+                <div class="content-card bg-dark h-100">
                     <!-- Mode tabs -->
-                    <ul class="nav nav-pills mb-4" role="tablist">
+                    <ul class="nav nav-pills nav-pills-gold mb-4" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button
                                 class="nav-link"
@@ -99,7 +99,7 @@
                             <button
                                 v-else
                                 type="button"
-                                class="btn btn-outline-secondary"
+                                class="btn btn-outline-gold"
                                 @click="stopCamera"
                             >
                                 <i class="bi bi-stop-circle me-2"></i>Stop Camera
@@ -111,24 +111,24 @@
                     <div v-if="mode === 'manual'">
                         <form @submit.prevent="submitManual">
                             <div class="mb-3">
-                                <label for="manualInput" class="form-label fw-semibold">
+                                <label for="manualInput" class="form-label fw-semibold text-champagne">
                                     QR Code or Registration Number
                                 </label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                    <span class="input-group-text input-group-text-dark"><i class="bi bi-search"></i></span>
                                     <input
                                         id="manualInput"
                                         ref="manualInputEl"
                                         v-model.trim="manualValue"
                                         type="text"
-                                        class="form-control form-control-lg"
+                                        class="form-control form-control-dark form-control-lg"
                                         placeholder="e.g. SDG_42_… or 42"
                                         autocomplete="off"
                                         autofocus
                                         @keydown.enter.prevent="submitManual"
                                     />
                                 </div>
-                                <div class="form-text">
+                                <div class="form-text-dark">
                                     Enter the QR code string from the ticket, or just the numeric registration ID.
                                 </div>
                             </div>
@@ -151,27 +151,27 @@
 
             <!-- ── Right: Result panel ────────────────────────────────── -->
             <div class="col-lg-7">
-                <div class="content-card h-100">
-                    <h2 class="h5 fw-bold mb-4">Result</h2>
+                <div class="content-card bg-dark h-100">
+                    <h2 class="h5 fw-bold mb-4 text-champagne">Result</h2>
 
                     <!-- Idle state -->
-                    <div v-if="state === 'idle'" class="py-5 text-center text-muted">
-                        <i class="bi bi-qr-code display-1 d-block mb-3 opacity-25"></i>
-                        <p class="mb-0">Scan or enter a registration to see the details here.</p>
+                    <div v-if="state === 'idle'" class="py-5 text-center">
+                        <i class="bi bi-qr-code display-1 d-block mb-3 opacity-25 text-champagne-muted"></i>
+                        <p class="mb-0 text-champagne-muted">Scan or enter a registration to see the details here.</p>
                     </div>
 
                     <!-- Loading -->
-                    <div v-else-if="state === 'loading'" class="py-5 text-center text-muted">
-                        <div class="spinner-border text-primary mb-3" role="status"></div>
-                        <div>Looking up registration…</div>
+                    <div v-else-if="state === 'loading'" class="py-5 text-center">
+                        <div class="spinner-border text-warning mb-3" role="status"></div>
+                        <div class="text-champagne-muted">Looking up registration…</div>
                     </div>
 
                     <!-- Error -->
                     <div v-else-if="state === 'error'" class="py-5 text-center">
                         <i class="bi bi-x-circle-fill display-1 d-block mb-3 text-danger"></i>
                         <h3 class="h5 fw-bold text-danger mb-2">Not Found</h3>
-                        <p class="text-muted mb-4">{{ errorMessage }}</p>
-                        <button type="button" class="btn btn-outline-secondary" @click="reset">
+                        <p class="text-champagne-muted mb-4">{{ errorMessage }}</p>
+                        <button type="button" class="btn btn-outline-gold" @click="reset">
                             <i class="bi bi-arrow-counterclockwise me-2"></i>Try Again
                         </button>
                     </div>
@@ -180,10 +180,10 @@
                     <div v-else-if="state === 'found' && result">
                         <!-- Duplicate scan warning -->
                         <div v-if="alreadyAttended" class="alert alert-warning d-flex align-items-start gap-2 mb-4" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1 fs-5"></i>
+                            <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1 fs-5 text-warning"></i>
                             <div>
-                                <div class="fw-bold">Already Checked In</div>
-                                <div class="small">This ticket was scanned at {{ formatDate(result.attended_at) }}.</div>
+                                <div class="fw-bold text-warning">Already Checked In</div>
+                                <div class="small text-champagne-muted">This ticket was scanned at {{ formatDate(result.attended_at) }}.</div>
                             </div>
                         </div>
 
@@ -193,7 +193,7 @@
                             </div>
                             <div>
                                 <div class="fw-bold text-success">{{ alreadyAttended ? 'Registration Valid' : 'Check-In Successful' }}</div>
-                                <div class="text-muted small">{{ alreadyAttended ? 'Duplicate scan detected' : 'Attendance recorded' }}</div>
+                                <div class="text-champagne-muted small">{{ alreadyAttended ? 'Duplicate scan detected' : 'Attendance recorded' }}</div>
                             </div>
                         </div>
 
@@ -201,40 +201,40 @@
                             <div class="row g-3">
                                 <div class="col-12">
                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-person-fill text-primary"></i>
-                                        <span class="text-muted small">Name</span>
+                                        <i class="bi bi-person-fill text-warning"></i>
+                                        <span class="text-champagne-muted small">Name</span>
                                     </div>
-                                    <div class="fw-bold fs-5">{{ result.name }}</div>
+                                    <div class="fw-bold fs-5 text-champagne">{{ result.name }}</div>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-envelope-fill text-primary"></i>
-                                        <span class="text-muted small">Email</span>
+                                        <i class="bi bi-envelope-fill text-warning"></i>
+                                        <span class="text-champagne-muted small">Email</span>
                                     </div>
-                                    <div class="fw-semibold text-break">{{ result.email }}</div>
+                                    <div class="fw-semibold text-champagne text-break">{{ result.email }}</div>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-telephone-fill text-primary"></i>
-                                        <span class="text-muted small">Phone</span>
+                                        <i class="bi bi-telephone-fill text-warning"></i>
+                                        <span class="text-champagne-muted small">Phone</span>
                                     </div>
-                                    <div class="fw-semibold">{{ result.phone }}</div>
+                                    <div class="fw-semibold text-champagne">{{ result.phone }}</div>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-music-note-beamed text-primary"></i>
-                                        <span class="text-muted small">Concert</span>
+                                        <i class="bi bi-music-note-beamed text-warning"></i>
+                                        <span class="text-champagne-muted small">Concert</span>
                                     </div>
-                                    <div class="fw-semibold">{{ result.concert_title }}</div>
+                                    <div class="fw-semibold text-champagne">{{ result.concert_title }}</div>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-ticket-fill text-primary"></i>
-                                        <span class="text-muted small">Tickets</span>
+                                        <i class="bi bi-ticket-fill text-warning"></i>
+                                        <span class="text-champagne-muted small">Tickets</span>
                                     </div>
                                     <div>
                                         <span class="badge rounded-pill text-bg-warning fs-6">{{ result.ticket_quantity }}</span>
@@ -243,51 +243,51 @@
 
                                 <div class="col-sm-6">
                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-hash text-primary"></i>
-                                        <span class="text-muted small">Registration ID</span>
+                                        <i class="bi bi-hash text-warning"></i>
+                                        <span class="text-champagne-muted small">Registration ID</span>
                                     </div>
-                                    <div class="fw-semibold">#{{ result.id }}</div>
+                                    <div class="fw-semibold text-champagne">#{{ result.id }}</div>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-calendar-check-fill text-primary"></i>
-                                        <span class="text-muted small">Registered</span>
+                                        <i class="bi bi-calendar-check-fill text-warning"></i>
+                                        <span class="text-champagne-muted small">Registered</span>
                                     </div>
-                                    <div class="fw-semibold">{{ formatDate(result.created_at) }}</div>
+                                    <div class="fw-semibold text-champagne">{{ formatDate(result.created_at) }}</div>
                                 </div>
 
                                 <div class="col-sm-6">
                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-door-open-fill text-primary"></i>
-                                        <span class="text-muted small">Checked In</span>
+                                        <i class="bi bi-door-open-fill text-warning"></i>
+                                        <span class="text-champagne-muted small">Checked In</span>
                                     </div>
                                     <div v-if="result.attended_at" class="fw-semibold text-success">
                                         {{ formatDate(result.attended_at) }}
                                     </div>
-                                    <div v-else class="text-muted">—</div>
+                                    <div v-else class="text-champagne-muted">—</div>
                                 </div>
 
                                 <div v-if="result.notes" class="col-12">
                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-chat-left-text-fill text-primary"></i>
-                                        <span class="text-muted small">Notes</span>
+                                        <i class="bi bi-chat-left-text-fill text-warning"></i>
+                                        <span class="text-champagne-muted small">Notes</span>
                                     </div>
-                                    <div class="fw-semibold">{{ result.notes }}</div>
+                                    <div class="fw-semibold text-champagne">{{ result.notes }}</div>
                                 </div>
 
                                 <div v-if="result.qr_code" class="col-12">
                                     <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-qr-code text-primary"></i>
-                                        <span class="text-muted small">QR Code</span>
+                                        <i class="bi bi-qr-code text-warning"></i>
+                                        <span class="text-champagne-muted small">QR Code</span>
                                     </div>
-                                    <code class="small text-muted">{{ result.qr_code }}</code>
+                                    <code class="small text-champagne-muted">{{ result.qr_code }}</code>
                                 </div>
                             </div>
                         </div>
 
                         <div class="d-flex flex-wrap gap-2">
-                            <button type="button" class="btn btn-outline-secondary" @click="reset">
+                            <button type="button" class="btn btn-outline-gold" @click="reset">
                                 <i class="bi bi-arrow-counterclockwise me-2"></i>Scan Another
                             </button>
                             <button type="button" class="btn btn-outline-success" @click="downloadTicket(result.id)">
@@ -300,15 +300,15 @@
         </div>
 
         <!-- Scan history -->
-        <div v-if="history.length" class="content-card mt-4">
+        <div v-if="history.length" class="content-card bg-dark mt-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
-                <h2 class="h5 fw-bold mb-0">Scan History</h2>
+                <h2 class="h5 fw-bold mb-0 text-champagne">Scan History</h2>
                 <button type="button" class="btn btn-sm btn-outline-danger" @click="clearHistory">
                     <i class="bi bi-trash me-1"></i>Clear
                 </button>
             </div>
             <div class="table-responsive">
-                <table class="table table-sm table-hover align-middle mb-0">
+                <table class="table table-sm table-hover align-middle mb-0 table-dark-custom">
                     <thead>
                         <tr>
                             <th>Time</th>
@@ -320,9 +320,9 @@
                     </thead>
                     <tbody>
                         <tr v-for="entry in history" :key="entry.scannedAt">
-                            <td class="text-muted small text-nowrap">{{ formatTime(entry.scannedAt) }}</td>
-                            <td class="fw-semibold">{{ entry.name }}</td>
-                            <td>{{ entry.concert_title }}</td>
+                            <td class="text-champagne-muted small text-nowrap">{{ formatTime(entry.scannedAt) }}</td>
+                            <td class="fw-semibold text-champagne">{{ entry.name }}</td>
+                            <td class="text-champagne-muted">{{ entry.concert_title }}</td>
                             <td class="text-center">
                                 <span class="badge rounded-pill text-bg-warning">{{ entry.ticket_quantity }}</span>
                             </td>
@@ -546,10 +546,38 @@ export default {
 </script>
 
 <style scoped>
+/* ── Nav pills ──────────────────────────────────────────────────── */
+.nav-pills-gold .nav-link {
+    color: rgba(234, 220, 194, 0.6);
+    background: transparent;
+    border: 1px solid rgba(234, 220, 194, 0.1);
+    border-radius: 8px;
+    transition:
+        background 0.2s,
+        color 0.2s,
+        border-color 0.2s;
+}
+
+.nav-pills-gold .nav-link:hover {
+    color: rgba(234, 220, 194, 0.85);
+    background: rgba(234, 220, 194, 0.06);
+}
+
+.nav-pills-gold .nav-link.active,
+.nav-pills-gold .nav-link.active:hover {
+    color: #111420;
+    background: var(--gold-color, #c8a45d);
+    border-color: var(--gold-color, #c8a45d);
+    font-weight: 600;
+}
+
+/* ── Scanner ────────────────────────────────────────────────────── */
 .scanner-wrapper {
     aspect-ratio: 4 / 3;
     max-height: 360px;
-    background: #111;
+    background: #0a0a12;
+    border: 1px solid rgba(234, 220, 194, 0.1);
+    border-radius: 10px;
 }
 
 .scanner-wrapper video {
@@ -564,20 +592,19 @@ export default {
 .scan-frame {
     width: 200px;
     height: 200px;
-    border: 3px solid rgba(255, 193, 7, 0.85);
+    border: 3px solid rgba(200, 164, 93, 0.85);
     border-radius: 12px;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 0 0 9999px rgba(10, 10, 18, 0.55);
     position: relative;
 }
 
-/* Corner accents */
 .scan-frame::before,
 .scan-frame::after {
     content: '';
     position: absolute;
     width: 24px;
     height: 24px;
-    border-color: #ffc107;
+    border-color: var(--gold-color, #c8a45d);
     border-style: solid;
 }
 
@@ -595,8 +622,67 @@ export default {
     border-radius: 0 0 6px 0;
 }
 
+/* ── Result card ────────────────────────────────────────────────── */
 .result-card {
-    background: rgba(255, 253, 248, 0.72);
-    border-color: var(--hairline-color, #e8e4dc) !important;
+    background:
+        linear-gradient(135deg, rgba(200, 164, 93, 0.06), transparent 50%),
+        linear-gradient(180deg, #1a1f30 0%, #111420 100%);
+    border-color: rgba(234, 220, 194, 0.1) !important;
+}
+
+/* ── Input group dark ───────────────────────────────────────────── */
+.input-group-text-dark {
+    background: rgba(234, 220, 194, 0.06) !important;
+    border: 1px solid rgba(234, 220, 194, 0.15) !important;
+    color: rgba(234, 220, 194, 0.5) !important;
+}
+
+/* ── Dark form controls ─────────────────────────────────────────── */
+.form-control-dark {
+    background: rgba(234, 220, 194, 0.06) !important;
+    border: 1px solid rgba(234, 220, 194, 0.15) !important;
+    color: rgba(234, 220, 194, 0.88) !important;
+}
+
+.form-control-dark:focus {
+    border-color: rgba(200, 164, 93, 0.4) !important;
+    box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1) !important;
+    background: rgba(234, 220, 194, 0.08) !important;
+}
+
+.form-control-dark::placeholder {
+    color: rgba(234, 220, 194, 0.35);
+}
+
+.form-text-dark {
+    color: rgba(234, 220, 194, 0.5);
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+}
+
+/* ── Dark table ─────────────────────────────────────────────────── */
+:deep(.table-dark-custom) {
+    color: rgba(234, 220, 194, 0.75);
+}
+
+:deep(.table-dark-custom thead th) {
+    border-bottom: 1px solid rgba(234, 220, 194, 0.1);
+    color: var(--gold-color, #c8a45d);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+:deep(.table-dark-custom tbody tr) {
+    border-color: rgba(234, 220, 194, 0.06);
+    transition: background 0.15s;
+}
+
+:deep(.table-dark-custom tbody tr:hover) {
+    background: rgba(200, 164, 93, 0.06);
+}
+
+:deep(.table-dark-custom td) {
+    border-color: rgba(234, 220, 194, 0.06);
 }
 </style>

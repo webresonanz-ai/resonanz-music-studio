@@ -1,15 +1,14 @@
 <template>
   <div class="fade-in-up">
 
-    <!-- ── Page header ───────────────────────────────────────────────────── -->
-    <div class="content-card mb-4">
+    <div class="content-card bg-dark mb-4">
       <div class="row g-4 align-items-center">
         <div class="col-lg-7">
-          <p class="text-uppercase text-primary fw-bold small mb-2">TRMS Concert</p>
-          <h1 class="display-4 fw-bold mb-3">
+          <p class="text-uppercase text-warning fw-bold small mb-2">TRMS Concert</p>
+          <h1 class="display-4 fw-bold mb-3 text-champagne">
             {{ selectedConcert ? selectedConcert.title : "Invitation Registration" }}
           </h1>
-          <p class="lead text-muted mb-0">
+          <p class="lead text-champagne-muted mb-0">
             {{
               selectedConcert
                 ? concertScheduleLabel
@@ -18,19 +17,19 @@
           </p>
         </div>
         <div class="col-lg-5">
-          <div class="bg-dark text-white rounded p-4 h-100">
+          <div class="bg-dark-card rounded-3 p-4 h-100">
             <div class="d-flex align-items-center gap-3 mb-3">
               <i class="bi bi-ticket-perforated display-6 text-warning"></i>
               <div>
-                <div class="fw-bold">
+                <div class="fw-bold text-champagne">
                   {{ selectedConcert ? "Konser yang Dipilih" : "Invitation Pass" }}
                 </div>
-                <div class="text-white-50 small">
+                <div class="text-champagne-muted small">
                   {{ selectedConcert ? concertTimeLabel : "Register audiences with invitation access" }}
                 </div>
               </div>
             </div>
-            <p class="mb-0 text-white-50">
+            <p class="mb-0 text-champagne-muted">
               Only admin and manager can access this page.
             </p>
           </div>
@@ -38,16 +37,15 @@
       </div>
     </div>
 
-    <!-- ── Step 1 : Concert picker ────────────────────────────────────────── -->
-    <div v-if="!selectedConcert" class="content-card">
-      <div v-if="loadingSchedule" class="py-5 text-center text-muted">
-        <div class="spinner-border text-primary mb-3" role="status"></div>
-        <div>Loading concerts...</div>
+    <div v-if="!selectedConcert" class="content-card bg-dark">
+      <div v-if="loadingSchedule" class="py-5 text-center">
+        <div class="spinner-border text-warning mb-3" role="status"></div>
+        <div class="text-champagne-muted">Loading concerts...</div>
       </div>
 
       <div
         v-else-if="errorMessage && !selectedConcert"
-        class="alert alert-danger d-flex align-items-center gap-2"
+        class="alert alert-themed alert-danger d-flex align-items-center gap-2"
         role="alert"
       >
         <i class="bi bi-exclamation-triangle-fill"></i>
@@ -61,43 +59,43 @@
           class="col-md-6 col-xl-4"
         >
           <button
-            class="concert-option w-100 text-start"
+            class="concert-card w-100 text-start"
             type="button"
             @click="pickConcert(concert)"
           >
             <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
-              <span class="badge bg-warning text-dark">Concert</span>
-              <i class="bi bi-arrow-right-circle text-primary fs-4"></i>
+              <span class="concert-badge">Concert</span>
+              <i class="bi bi-arrow-right-circle concert-arrow"></i>
             </div>
-            <h2 class="h5 fw-bold mb-2">{{ concert.title }}</h2>
-            <div class="text-muted mb-3">{{ formatDate(concert.date) }}</div>
-            <div class="d-flex align-items-center gap-2 text-muted small">
-              <i class="bi bi-clock"></i>
+            <h2 class="concert-title">{{ concert.title }}</h2>
+            <div class="concert-date">{{ formatDate(concert.date) }}</div>
+            <div class="concert-time">
+              <i class="bi bi-clock me-1"></i>
               <span>{{ formatTime(concert.start_time) }} - {{ formatTime(concert.end_time) }}</span>
             </div>
-            <p v-if="concert.description" class="small text-muted mt-3 mb-0">
+            <p v-if="concert.description" class="concert-desc mt-3 mb-0">
               {{ concert.description }}
             </p>
           </button>
         </div>
       </div>
 
-      <div v-else class="py-5 text-center text-muted">
-        <i class="bi bi-calendar-x display-1 d-block mb-3"></i>
-        <h2 class="h4 fw-bold">No upcoming concerts</h2>
-        <p class="mb-0">Concert schedules added from the Schedules page will appear here.</p>
+      <div v-else class="py-5 text-center">
+        <i class="bi bi-calendar-x empty-icon d-block mb-3"></i>
+        <h2 class="h4 fw-bold text-champagne">No upcoming concerts</h2>
+        <p class="text-champagne-muted mb-0">Concert schedules added from the Schedules page will appear here.</p>
       </div>
     </div>
 
-    <!-- ── Step 2 : Registration form ────────────────────────────────────── -->
-    <div v-else class="content-card">
-      <!-- Selected concert summary + change button -->
-      <div class="d-flex align-items-center justify-content-between gap-3 mb-4 p-3 rounded selected-concert-bar">
+    <div v-else class="content-card bg-dark">
+      <div
+        class="d-flex align-items-center justify-content-between gap-3 mb-4 p-3 rounded selected-bar"
+      >
         <div class="d-flex align-items-center gap-3">
-          <i class="bi bi-calendar-check text-primary fs-4"></i>
+          <i class="bi bi-calendar-check text-warning fs-4"></i>
           <div>
-            <div class="fw-semibold">{{ selectedConcert.title }}</div>
-            <div class="text-muted small">
+            <div class="fw-semibold text-champagne">{{ selectedConcert.title }}</div>
+            <div class="text-champagne-muted small">
               {{ formatDate(selectedConcert.date) }} &middot;
               {{ formatTime(selectedConcert.start_time) }} - {{ formatTime(selectedConcert.end_time) }}
             </div>
@@ -105,7 +103,7 @@
         </div>
         <button
           type="button"
-          class="btn btn-sm btn-outline-secondary flex-shrink-0"
+          class="btn btn-sm btn-outline-gold flex-shrink-0"
           @click="changeConcert"
         >
           <i class="bi bi-arrow-left-circle me-1"></i>Ganti Konser
@@ -115,7 +113,7 @@
       <form @submit.prevent="submitRegistration">
         <div
           v-if="errorMessage"
-          class="alert alert-danger d-flex align-items-center gap-2"
+          class="alert alert-themed alert-danger d-flex align-items-center gap-2"
           role="alert"
         >
           <i class="bi bi-exclamation-triangle-fill"></i>
@@ -124,7 +122,7 @@
 
         <div
           v-if="successMessage"
-          class="alert alert-success d-flex align-items-center gap-2"
+          class="alert alert-themed alert-success d-flex align-items-center gap-2"
           role="alert"
         >
           <i class="bi bi-check-circle-fill"></i>
@@ -133,11 +131,11 @@
 
         <div class="row g-3">
           <div class="col-md-6">
-            <label for="inviteeName" class="form-label">Nama Lengkap</label>
+            <label for="inviteeName" class="form-label text-champagne">Nama Lengkap</label>
             <input
               id="inviteeName"
               v-model.trim="form.name"
-              class="form-control"
+              class="form-control form-control-dark"
               type="text"
               autocomplete="name"
               required
@@ -145,11 +143,11 @@
           </div>
 
           <div class="col-md-6">
-            <label for="inviteeEmail" class="form-label">Email</label>
+            <label for="inviteeEmail" class="form-label text-champagne">Email</label>
             <input
               id="inviteeEmail"
               v-model.trim="form.email"
-              class="form-control"
+              class="form-control form-control-dark"
               type="email"
               autocomplete="email"
               required
@@ -157,11 +155,11 @@
           </div>
 
           <div class="col-md-6">
-            <label for="inviteePhone" class="form-label">Nomor HP</label>
+            <label for="inviteePhone" class="form-label text-champagne">Nomor HP</label>
             <input
               id="inviteePhone"
               v-model.trim="form.phone"
-              class="form-control"
+              class="form-control form-control-dark"
               type="tel"
               autocomplete="tel"
               required
@@ -169,11 +167,11 @@
           </div>
 
           <div class="col-md-6">
-            <label for="inviteeTickets" class="form-label">Jumlah Tiket</label>
+            <label for="inviteeTickets" class="form-label text-champagne">Jumlah Tiket</label>
             <input
               id="inviteeTickets"
               v-model.number="form.ticket_quantity"
-              class="form-control"
+              class="form-control form-control-dark"
               type="number"
               min="1"
               required
@@ -183,7 +181,7 @@
 
         <div class="d-flex gap-3 mt-4">
           <button
-            class="btn btn-primary btn-lg"
+            class="btn btn-gold btn-lg"
             type="submit"
             :disabled="loading"
           >
@@ -332,27 +330,81 @@ export default {
 </script>
 
 <style scoped>
-.concert-option {
+.concert-card {
   min-height: 100%;
-  border: 1px solid var(--hairline-color);
-  border-radius: var(--radius-md);
-  background: rgba(255, 253, 248, 0.72);
+  border: 1px solid rgba(234, 220, 194, 0.1);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(200, 164, 93, 0.04), transparent 50%),
+              linear-gradient(180deg, #1a1f30, #111420);
   padding: 1.25rem;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  color: inherit;
 }
 
-.concert-option:hover,
-.concert-option:focus-visible {
-  border-color: rgba(200, 164, 93, 0.52);
-  box-shadow: var(--shadow-soft);
+.concert-card:hover,
+.concert-card:focus-visible {
+  border-color: rgba(200, 164, 93, 0.35);
+  box-shadow: 0 4px 20px rgba(200, 164, 93, 0.1);
   transform: translateY(-3px);
+  outline: none;
 }
 
-.selected-concert-bar {
-  background: rgba(var(--bs-primary-rgb), 0.05);
-  border: 1px solid rgba(var(--bs-primary-rgb), 0.15);
+.concert-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #1a1f30;
+  background: #c8a45d;
+  border-radius: 6px;
+}
+
+.concert-arrow {
+  font-size: 1.4rem;
+  color: rgba(200, 164, 93, 0.4);
+  transition: color 0.2s, transform 0.2s;
+}
+
+.concert-card:hover .concert-arrow {
+  color: #c8a45d;
+  transform: translateX(3px);
+}
+
+.concert-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: rgba(234, 220, 194, 0.9);
+  margin-bottom: 0.4rem;
+}
+
+.concert-date {
+  color: rgba(234, 220, 194, 0.5);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.concert-time {
+  display: flex;
+  align-items: center;
+  color: rgba(234, 220, 194, 0.35);
+  font-size: 0.78rem;
+}
+
+.concert-desc {
+  color: rgba(234, 220, 194, 0.35);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: rgba(234, 220, 194, 0.15);
+}
+
+.selected-bar {
+  background: linear-gradient(135deg, rgba(200, 164, 93, 0.06), transparent);
+  border: 1px solid rgba(200, 164, 93, 0.12);
 }
 </style>

@@ -1,12 +1,12 @@
 <template>
   <div class="fade-in-up">
     <!-- ══ PAGE HEADER ══════════════════════════════════════════════ -->
-    <div class="content-card mb-4">
+    <div class="content-card bg-dark mb-4">
       <div class="row g-4 align-items-center">
         <div class="col-12 col-lg-7">
           <p class="attendance-eyebrow mb-2">Batavia Madrigal Singers</p>
-          <h1 class="display-5 fw-bold mb-3">Rehearsal Attendance</h1>
-          <p class="lead text-muted mb-0">
+          <h1 class="display-5 fw-bold mb-3 text-champagne">Rehearsal Attendance</h1>
+          <p class="lead text-champagne-muted mb-0">
             Select an upcoming concert, assign participating singers, and track their rehearsal
             attendance until performance day.
           </p>
@@ -44,7 +44,7 @@
     </div>
 
     <!-- ══ CONCERT SELECTOR ═════════════════════════════════════════ -->
-    <div class="content-card mb-4">
+    <div class="content-card bg-dark mb-4">
       <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
         <h2 class="h5 fw-bold mb-0">
           <i class="bi bi-calendar-event me-2 text-primary"></i>Select Concert
@@ -100,14 +100,14 @@
 
     <template v-if="selectedConcertId">
       <!-- ══ LOADING DETAIL ═════════════════════════════════════════ -->
-      <div v-if="loadingDetail" class="content-card text-center py-5">
+      <div v-if="loadingDetail" class="content-card bg-dark text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
         <div class="text-muted mt-3">Loading roster &amp; rehearsals…</div>
       </div>
 
       <template v-else>
         <!-- ══ ROSTER ═════════════════════════════════════════════ -->
-        <div class="content-card mb-4">
+        <div class="content-card bg-dark mb-4">
           <!-- Roster Header -->
           <div
             class="roster-header-bar d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4"
@@ -265,7 +265,7 @@
         </div>
 
         <!-- ══ REHEARSAL MANAGEMENT ══════════════════════════════ -->
-        <div class="content-card mb-4">
+        <div class="content-card bg-dark mb-4">
           <div
             class="rehearsal-mgmt-header d-flex align-items-start justify-content-between flex-wrap gap-3 mb-4"
           >
@@ -342,7 +342,7 @@
         </div>
 
         <!-- ══ TAKE ATTENDANCE ════════════════════════════════════ -->
-        <div class="content-card">
+        <div class="content-card bg-dark">
           <div v-if="!selectedRehearsalId" class="attendance-prompt text-center py-5">
             <div class="attendance-prompt-icon">
               <i class="bi bi-hand-index-thumb"></i>
@@ -1166,6 +1166,327 @@ export default {
 </script>
 
 <style scoped>
+/* ══ Dark theme overrides ════════════════════════════════════════ */
+.content-card.bg-dark {
+    --surface-color: rgba(234, 220, 194, 0.04);
+    --hairline-color: rgba(234, 220, 194, 0.08);
+    --text-color: rgba(234, 220, 194, 0.85);
+    --muted-color: rgba(234, 220, 194, 0.45);
+    --ink-color: rgba(234, 220, 194, 0.92);
+    color: rgba(234, 220, 194, 0.78);
+}
+
+.concert-pick-card {
+    background: rgba(234, 220, 194, 0.03) !important;
+    border-color: rgba(234, 220, 194, 0.08) !important;
+    color: rgba(234, 220, 194, 0.7) !important;
+}
+
+.concert-pick-card h3 {
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.concert-pick-card .text-muted {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.concert-pick-card.active {
+    background: rgba(200, 164, 93, 0.06) !important;
+    border-color: rgba(200, 164, 93, 0.35) !important;
+}
+
+.calendar-widget-sheet {
+    background: rgba(26, 31, 48, 0.95) !important;
+    border-color: rgba(234, 220, 194, 0.1) !important;
+}
+
+.calendar-widget-header {
+    background: #7f2432 !important;
+    color: #fff !important;
+}
+
+.calendar-widget-day {
+    color: rgba(234, 220, 194, 0.9) !important;
+}
+
+.empty-hint {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.roster-section-icon {
+    background: rgba(200, 164, 93, 0.1) !important;
+    color: #c8a45d !important;
+}
+
+.singer-card {
+    background: rgba(234, 220, 194, 0.03) !important;
+    border-color: rgba(234, 220, 194, 0.08) !important;
+}
+
+.singer-card:hover {
+    border-color: rgba(200, 164, 93, 0.3) !important;
+}
+
+.singer-card-name {
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.singer-card-role {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.singer-card-remove {
+    background: rgba(234, 220, 194, 0.04) !important;
+    border-color: rgba(234, 220, 194, 0.08) !important;
+    color: rgba(234, 220, 194, 0.35) !important;
+}
+
+.singer-card-remove:hover {
+    border-color: rgba(220, 53, 69, 0.4) !important;
+    color: #e05050 !important;
+    background: rgba(220, 53, 69, 0.08) !important;
+}
+
+.sort-btn {
+    border-color: rgba(234, 220, 194, 0.1) !important;
+    color: rgba(234, 220, 194, 0.4) !important;
+    background: rgba(234, 220, 194, 0.03) !important;
+}
+
+.sort-btn:hover,
+.sort-btn.active {
+    border-color: rgba(200, 164, 93, 0.3) !important;
+    color: #c8a45d !important;
+    background: rgba(200, 164, 93, 0.08) !important;
+}
+
+.roster-count-bar {
+    color: rgba(234, 220, 194, 0.5) !important;
+}
+
+.roster-count-pill {
+    background: rgba(200, 164, 93, 0.08) !important;
+    border-color: rgba(200, 164, 93, 0.2) !important;
+    color: rgba(234, 220, 194, 0.7) !important;
+}
+
+.roster-count-divider {
+    background: rgba(234, 220, 194, 0.1) !important;
+}
+
+.reh-date-pill {
+    background: rgba(234, 220, 194, 0.03) !important;
+    border-color: rgba(234, 220, 194, 0.1) !important;
+}
+
+.reh-date-pill:hover {
+    border-color: rgba(200, 164, 93, 0.35) !important;
+}
+
+.reh-date-pill.active {
+    background: linear-gradient(135deg, rgba(127, 36, 50, 0.15), rgba(200, 164, 93, 0.08)) !important;
+    border-color: #7f2432 !important;
+}
+
+.reh-pill-month {
+    color: #c8a45d !important;
+}
+
+.reh-pill-day {
+    color: rgba(234, 220, 194, 0.9) !important;
+}
+
+.reh-pill-time {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.checklist-row {
+    background: rgba(234, 220, 194, 0.03) !important;
+    border-color: rgba(234, 220, 194, 0.08) !important;
+}
+
+.checklist-row:hover {
+    border-color: rgba(200, 164, 93, 0.3) !important;
+    background: rgba(200, 164, 93, 0.04) !important;
+}
+
+.checklist-row.is-present {
+    border-color: rgba(76, 175, 125, 0.35) !important;
+    background: rgba(76, 175, 125, 0.05) !important;
+}
+
+.checklist-name {
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.checklist-role {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.singer-group-label {
+    color: rgba(234, 220, 194, 0.5) !important;
+}
+
+.singer-group-count {
+    background: rgba(234, 220, 194, 0.08) !important;
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.attendance-prompt h4 {
+    color: rgba(234, 220, 194, 0.8) !important;
+}
+
+.attendance-prompt .text-muted {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.rehearsal-count-pill {
+    color: rgba(234, 220, 194, 0.7) !important;
+}
+
+.text-muted {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.roster-empty-title {
+    color: rgba(234, 220, 194, 0.8) !important;
+}
+
+.roster-empty-sub {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.attendance-prompt .small.text-muted {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.floating-save-bar {
+    background: linear-gradient(135deg, #1a1f30, #111420) !important;
+    border: 1px solid rgba(234, 220, 194, 0.08) !important;
+}
+
+/* Modals */
+.modal-overlay {
+    background: rgba(8, 8, 14, 0.7) !important;
+    backdrop-filter: blur(6px) !important;
+}
+
+.modal-sheet {
+    background: linear-gradient(135deg, rgba(200, 164, 93, 0.04), transparent),
+                linear-gradient(180deg, #1a1f30, #111420) !important;
+    border: 1px solid rgba(234, 220, 194, 0.12) !important;
+    color: rgba(234, 220, 194, 0.8) !important;
+}
+
+.modal-sheet-title {
+    color: rgba(234, 220, 194, 0.88) !important;
+}
+
+.modal-sheet-sub {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.modal-header-row {
+    border-bottom: 1px solid rgba(234, 220, 194, 0.08) !important;
+}
+
+.modal-footer-row {
+    border-top: 1px solid rgba(234, 220, 194, 0.08) !important;
+}
+
+.modal-close-btn {
+    color: rgba(234, 220, 194, 0.4) !important;
+}
+
+.modal-close-btn:hover {
+    color: rgba(234, 220, 194, 0.7) !important;
+    background: rgba(234, 220, 194, 0.06) !important;
+}
+
+.search-input {
+    background: rgba(234, 220, 194, 0.04) !important;
+    border-color: rgba(234, 220, 194, 0.12) !important;
+    color: rgba(234, 220, 194, 0.8) !important;
+}
+
+.search-input::placeholder {
+    color: rgba(234, 220, 194, 0.3) !important;
+}
+
+.search-input:focus {
+    border-color: rgba(200, 164, 93, 0.4) !important;
+    box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1) !important;
+}
+
+.search-icon {
+    color: rgba(234, 220, 194, 0.35) !important;
+}
+
+.add-row {
+    border-color: rgba(234, 220, 194, 0.06) !important;
+}
+
+.add-row:hover {
+    background: rgba(200, 164, 93, 0.04) !important;
+}
+
+.add-row.selected {
+    background: rgba(200, 164, 93, 0.06) !important;
+    border-color: rgba(200, 164, 93, 0.2) !important;
+}
+
+.add-name {
+    color: rgba(234, 220, 194, 0.8) !important;
+}
+
+.add-meta {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.reh-mini-cal {
+    background: rgba(26, 31, 48, 0.95) !important;
+    border-color: rgba(234, 220, 194, 0.1) !important;
+}
+
+.reh-mini-month {
+    background: #7f2432 !important;
+    color: #fff !important;
+}
+
+.reh-mini-day {
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.rehearsal-select-info .text-muted {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.modal-body-scroll .text-muted {
+    color: rgba(234, 220, 194, 0.45) !important;
+}
+
+.attendance-toast {
+    background: #1a1f30 !important;
+    border: 1px solid rgba(234, 220, 194, 0.12) !important;
+    color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.toast-success {
+    border-left: 3px solid #4caf7d !important;
+}
+
+.toast-error {
+    border-left: 3px solid #e05050 !important;
+}
+
+.add-avatar {
+    border-color: rgba(234, 220, 194, 0.1) !important;
+}
+
+.checklist-avatar {
+    border-color: rgba(234, 220, 194, 0.1) !important;
+}
+
 .attendance-eyebrow {
   font-size: 0.75rem;
   font-weight: 700;

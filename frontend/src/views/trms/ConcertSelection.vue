@@ -1,21 +1,21 @@
 <template>
   <div class="fade-in-up">
-    <div class="content-card mb-4">
+    <div class="content-card bg-dark mb-4">
       <div class="row g-4 align-items-center">
         <div class="col-lg-7">
-          <p class="text-uppercase text-primary fw-bold small mb-2">TRMS Concert</p>
-          <h1 class="display-4 fw-bold mb-3">Select Concert</h1>
-          <p class="lead text-muted mb-0">
+          <p class="text-uppercase text-warning fw-bold small mb-2">TRMS Concert</p>
+          <h1 class="display-4 fw-bold mb-3 text-champagne">Select Concert</h1>
+          <p class="lead text-champagne-muted mb-0">
             Choose an upcoming concert before completing the audience registration form.
           </p>
         </div>
         <div class="col-lg-5">
-          <div class="bg-dark text-white rounded p-4 h-100">
+          <div class="bg-dark-card rounded-3 p-4 h-100">
             <div class="d-flex align-items-center gap-3">
               <i class="bi bi-calendar-event display-6 text-warning"></i>
               <div>
-                <div class="fw-bold">Upcoming Concerts</div>
-                <div class="text-white-50 small">
+                <div class="fw-bold text-champagne">Upcoming Concerts</div>
+                <div class="text-champagne-muted small">
                   {{ upcomingConcerts.length }} available schedule{{
                     upcomingConcerts.length === 1 ? "" : "s"
                   }}
@@ -27,7 +27,7 @@
       </div>
     </div>
 
-    <div class="content-card">
+    <div class="content-card bg-dark">
       <div
         v-if="errorMessage"
         class="alert alert-danger d-flex align-items-center gap-2"
@@ -37,9 +37,9 @@
         <span>{{ errorMessage }}</span>
       </div>
 
-      <div v-if="loading" class="py-5 text-center text-muted">
-        <div class="spinner-border text-primary mb-3" role="status"></div>
-        <div>Loading concerts...</div>
+      <div v-if="loading" class="py-5 text-center">
+        <div class="spinner-border text-warning mb-3" role="status"></div>
+        <div class="text-champagne-muted">Loading concerts...</div>
       </div>
 
       <div v-else-if="upcomingConcerts.length" class="row g-3">
@@ -51,25 +51,25 @@
           >
             <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
               <span class="badge bg-warning text-dark">Concert</span>
-              <i class="bi bi-arrow-right-circle text-primary fs-4"></i>
+              <i class="bi bi-arrow-right-circle text-warning fs-4"></i>
             </div>
-            <h2 class="h5 fw-bold mb-2">{{ concert.title }}</h2>
-            <div class="text-muted mb-3">{{ formatDate(concert.date) }}</div>
-            <div class="d-flex align-items-center gap-2 text-muted small">
+            <h2 class="h5 fw-bold mb-2 text-champagne">{{ concert.title }}</h2>
+            <div class="text-champagne-muted mb-3">{{ formatDate(concert.date) }}</div>
+            <div class="d-flex align-items-center gap-2 text-champagne-muted small">
               <i class="bi bi-clock"></i>
               <span>{{ formatTime(concert.start_time) }} - {{ formatTime(concert.end_time) }}</span>
             </div>
-            <p v-if="concert.description" class="small text-muted mt-3 mb-0">
+            <p v-if="concert.description" class="small text-champagne-muted mt-3 mb-0">
               {{ concert.description }}
             </p>
           </button>
         </div>
       </div>
 
-      <div v-else class="py-5 text-center text-muted">
-        <i class="bi bi-calendar-x display-1 d-block mb-3"></i>
-        <h2 class="h4 fw-bold">No upcoming concerts</h2>
-        <p class="mb-0">Concert schedules added from the Schedules page will appear here.</p>
+      <div v-else class="py-5 text-center">
+        <i class="bi bi-calendar-x display-1 d-block mb-3 text-champagne-muted"></i>
+        <h2 class="h4 fw-bold text-champagne">No upcoming concerts</h2>
+        <p class="mb-0 text-champagne-muted">Concert schedules added from the Schedules page will appear here.</p>
       </div>
     </div>
   </div>
@@ -160,20 +160,26 @@ export default {
 <style scoped>
 .concert-option {
   min-height: 100%;
-  border: 1px solid var(--hairline-color);
-  border-radius: var(--radius-md);
-  background: rgba(255, 253, 248, 0.72);
+  border: 1px solid rgba(234, 220, 194, 0.1);
+  border-radius: var(--radius-md, 8px);
+  background:
+    linear-gradient(135deg, rgba(200, 164, 93, 0.06), transparent 50%),
+    linear-gradient(180deg, #1a1f30 0%, #111420 100%);
   padding: 1.25rem;
+  color: rgba(234, 220, 194, 0.85);
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s ease;
+  cursor: pointer;
 }
 
 .concert-option:hover,
 .concert-option:focus-visible {
-  border-color: rgba(200, 164, 93, 0.52);
-  box-shadow: var(--shadow-soft);
+  border-color: rgba(200, 164, 93, 0.4);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 12px 32px rgba(10, 10, 18, 0.25);
   transform: translateY(-3px);
 }
 </style>
