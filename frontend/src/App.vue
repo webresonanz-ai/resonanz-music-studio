@@ -1,6 +1,8 @@
 <template>
   <div id="app">
     <LoadingScreen :visible="showLoading" />
+    <CookieConsent :visible="showCookieConsent" @accept="acceptCookies" @decline="declineCookies" />
+    <NotificationPrompt :visible="showNotificationPrompt" @allow="allowNotifications" @dismiss="dismissNotifications" />
 
     <ArtDirector v-if="navigationStore.standalonePage === 'art-director'" @close="closeStandalone" />
 
@@ -36,6 +38,8 @@ import AppNavbar from './components/AppNavbar.vue'
 import AppFooter from './components/AppFooter.vue'
 import ArtDirector from './views/ArtDirector.vue'
 import LoadingScreen from './components/LoadingScreen.vue'
+import CookieConsent from './components/CookieConsent.vue'
+import NotificationPrompt from './components/NotificationPrompt.vue'
 
 export default {
   name: 'App',
@@ -44,11 +48,15 @@ export default {
     AppNavbar,
     AppFooter,
     ArtDirector,
-    LoadingScreen
+    LoadingScreen,
+    CookieConsent,
+    NotificationPrompt
   },
   setup() {
     const sidebarOpen = ref(false)
     const showLoading = ref(true)
+    const showCookieConsent = ref(false)
+    const showNotificationPrompt = ref(false)
     const route = useRoute()
     const router = useRouter()
     const navigationStore = useNavigationStore()
@@ -67,6 +75,60 @@ export default {
         }, remaining)
       })
     })
+
+    watch(showLoading, (val) => {
+      if (!val) {
+        setTimeout(checkCookieConsent, 600)
+      }
+    })
+
+    const checkCookieConsent = () => {
+      const consent = localStorage.getItem('resonanz_cookie_consent')
+      if (!consent) {
+        showCookieConsent.value = true
+      }
+    }
+
+    const acceptCookies = () => {
+      localStorage.setItem('resonanz_cookie_consent', 'accepted')
+      showCookieConsent.value = false
+      setTimeout(checkNotificationPrompt, 1200)
+    }
+
+    const declineCookies = () => {
+      localStorage.setItem('resonanz_cookie_consent', 'declined')
+      showCookieConsent.value = false
+    }
+
+    const checkNotificationPrompt = () => {
+      if (!('Notification' in window)) return
+      if (Notification.permission === 'granted' || Notification.permission === 'denied') return
+      if (localStorage.getItem('resonanz_notification_prompted')) return
+      showNotificationPrompt.value = true
+    }
+
+    const allowNotifications = async () => {
+      showNotificationPrompt.value = false
+      try {
+        const permission = await Notification.requestPermission()
+        if (permission === 'granted') {
+          localStorage.setItem('resonanz_notification_prompted', 'allowed')
+          new Notification('The Resonanz Music Studio', {
+            body: "Thank you! You'll now receive updates about events and news.",
+            icon: '/logo_resonanz.png'
+          })
+        } else {
+          localStorage.setItem('resonanz_notification_prompted', 'denied')
+        }
+      } catch {
+        localStorage.setItem('resonanz_notification_prompted', 'denied')
+      }
+    }
+
+    const dismissNotifications = () => {
+      localStorage.setItem('resonanz_notification_prompted', 'dismissed')
+      showNotificationPrompt.value = false
+    }
 
     const toggleSidebar = () => {
       sidebarOpen.value = !sidebarOpen.value
@@ -117,11 +179,17 @@ export default {
     return {
       sidebarOpen,
       showLoading,
+      showCookieConsent,
+      showNotificationPrompt,
       hideShellNav,
       navigationStore,
       toggleSidebar,
       closeSidebar,
-      closeStandalone
+      closeStandalone,
+      acceptCookies,
+      declineCookies,
+      allowNotifications,
+      dismissNotifications
     }
   }
 }
