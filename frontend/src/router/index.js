@@ -111,7 +111,6 @@ const routes = [
     component: () => import("../views/trms/SeatedRegistration.vue"),
     meta: { hideShellNav: true },
   },
-
   // ── Auth ──────────────────────────────────────────────────────────────────
   {
     path: "/auth",

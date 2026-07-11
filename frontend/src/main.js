@@ -15,9 +15,9 @@ import { useAuthStore } from "./stores/auth";
 const app = createApp(App);
 const pinia = createPinia();
 
-document.addEventListener("contextmenu", function (e) {
-  e.preventDefault();
-});
+// document.addEventListener("contextmenu", function (e) {
+//   e.preventDefault();
+// });
 
 app.use(pinia);
 app.use(router);

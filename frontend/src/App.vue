@@ -1,40 +1,46 @@
 <template>
   <div id="app">
-    <div v-if="sidebarOpen && !hideShellNav" class="sidebar-backdrop" @click="closeSidebar"></div>
+    <ArtDirector v-if="navigationStore.standalonePage === 'art-director'" @close="closeStandalone" />
 
-    <AppSidebar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @navigate="closeSidebar" />
+    <template v-if="navigationStore.standalonePage !== 'art-director'">
+      <div v-if="sidebarOpen && !hideShellNav" class="sidebar-backdrop" @click="closeSidebar"></div>
 
-    <div class="main-content" :class="{ 'main-content-full': hideShellNav }">
-      <AppNavbar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @toggle-sidebar="toggleSidebar" />
+      <AppSidebar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @navigate="closeSidebar" />
 
-      <div class="content-area mt-4">
-        <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
-          </transition>
-        </router-view>
+      <div class="main-content" :class="{ 'main-content-full': hideShellNav }">
+        <AppNavbar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @toggle-sidebar="toggleSidebar" />
+
+        <div class="content-area mt-4">
+          <router-view v-slot="{ Component }">
+            <transition name="fade" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </div>
+
+        <AppFooter />
       </div>
-
-      <AppFooter />
-    </div>
+    </template>
   </div>
 </template>
 
 <script>
 import { computed, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useNavigationStore } from './stores/navigation'
 import { useBannerStore } from './stores/banner'
 import AppSidebar from './components/AppSidebar.vue'
 import AppNavbar from './components/AppNavbar.vue'
 import AppFooter from './components/AppFooter.vue'
+import ArtDirector from './views/ArtDirector.vue'
 
 export default {
   name: 'App',
   components: {
     AppSidebar,
     AppNavbar,
-    AppFooter
+    AppFooter,
+    ArtDirector
   },
   setup() {
     const sidebarOpen = ref(false)
@@ -83,11 +89,20 @@ export default {
       { immediate: true }
     )
 
+    const router = useRouter()
+    const closeStandalone = () => {
+      navigationStore.standalonePage = null
+      navigationStore.setActiveProgram('trms')
+      router.push('/trms/home')
+    }
+
     return {
       sidebarOpen,
       hideShellNav,
+      navigationStore,
       toggleSidebar,
-      closeSidebar
+      closeSidebar,
+      closeStandalone
     }
   }
 }

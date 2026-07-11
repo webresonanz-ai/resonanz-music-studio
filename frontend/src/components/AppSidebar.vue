@@ -1,7 +1,7 @@
 <template>
   <aside class="sidebar" :class="{ open: sidebarOpen }" aria-label="Program navigation">
     <div class="sidebar-header">
-      <img src="/logo_resonanz_square.png" alt="Resonanz Logo" class="sidebar-logo" />
+      <img src="/logo_resonanz_bgwhite.png" alt="Resonanz Logo" class="sidebar-logo" />
     </div>
 
     <div class="sidebar-menu">
@@ -13,8 +13,26 @@
         type="button"
         @click="changeProgram(item.id)"
       >
-        <img v-if="item.img" :src="item.img" style="width: auto; height: 3rem" alt="" class="sidebar-icon" />
-        <i v-else :class="'bi ' + item.icon + ' sidebar-icon'" style="display: flex; align-items: center; justify-content: center; width: auto; height: 3rem; font-size: 2rem; color: var(--gold-color)"></i>
+        <img
+          v-if="item.img"
+          :src="item.img"
+          style="width: auto; height: 3rem"
+          alt=""
+          class="sidebar-icon"
+        />
+        <i
+          v-else
+          :class="'bi ' + item.icon + ' sidebar-icon'"
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: auto;
+            height: 3rem;
+            font-size: 2rem;
+            color: var(--gold-color);
+          "
+        ></i>
         <span class="sidebar-item-content">
           <span class="sidebar-item-title">{{ item.name }}</span>
           <span class="sidebar-item-desc">{{ item.description }}</span>
@@ -51,6 +69,11 @@ export default {
 
     const changeProgram = (programId) => {
       navigationStore.setActiveProgram(programId);
+      if (programId === "art-director") {
+        navigationStore.setStandalonePage("art-director");
+        emit("navigate");
+        return;
+      }
       router.push(`/${programId}/home`);
       emit("navigate");
     };
@@ -67,7 +90,6 @@ export default {
 .sidebar-logo {
   max-width: 8rem;
   height: auto;
-  margin-bottom: 1rem;
-  border-radius: 50%;
+  border-radius: 10px;
 }
 </style>

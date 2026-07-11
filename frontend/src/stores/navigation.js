@@ -3,7 +3,15 @@ import { defineStore } from "pinia";
 export const useNavigationStore = defineStore("navigation", {
   state: () => ({
     activeProgram: "trms",
+    standalonePage: null,
     sidebarItems: [
+      {
+        id: "art-director",
+        name: "Avip Priatna",
+        icon: "bi-person-badge",
+        img: "",
+        description: "Biography & Achievements",
+      },
       {
         id: "trms",
         name: "TRMS",
@@ -118,13 +126,17 @@ export const useNavigationStore = defineStore("navigation", {
     },
   }),
   getters: {
-    currentNavItems: (state) => state.navItems[state.activeProgram],
+    currentNavItems: (state) => state.navItems[state.activeProgram] || [],
     activeProgramInfo: (state) =>
       state.sidebarItems.find((item) => item.id === state.activeProgram),
   },
   actions: {
     setActiveProgram(program) {
       this.activeProgram = program;
+      this.standalonePage = null;
+    },
+    setStandalonePage(page) {
+      this.standalonePage = page;
     },
   },
 });
