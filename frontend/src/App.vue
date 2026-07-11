@@ -1,5 +1,7 @@
 <template>
   <div id="app">
+    <LoadingScreen :visible="showLoading" />
+
     <ArtDirector v-if="navigationStore.standalonePage === 'art-director'" @close="closeStandalone" />
 
     <template v-if="navigationStore.standalonePage !== 'art-director'">
@@ -25,7 +27,7 @@
 </template>
 
 <script>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useNavigationStore } from './stores/navigation'
 import { useBannerStore } from './stores/banner'
@@ -33,6 +35,7 @@ import AppSidebar from './components/AppSidebar.vue'
 import AppNavbar from './components/AppNavbar.vue'
 import AppFooter from './components/AppFooter.vue'
 import ArtDirector from './views/ArtDirector.vue'
+import LoadingScreen from './components/LoadingScreen.vue'
 
 export default {
   name: 'App',
@@ -40,14 +43,30 @@ export default {
     AppSidebar,
     AppNavbar,
     AppFooter,
-    ArtDirector
+    ArtDirector,
+    LoadingScreen
   },
   setup() {
     const sidebarOpen = ref(false)
+    const showLoading = ref(true)
     const route = useRoute()
+    const router = useRouter()
     const navigationStore = useNavigationStore()
     const bannerStore = useBannerStore()
     const hideShellNav = computed(() => route.meta.hideShellNav === true)
+
+    onMounted(() => {
+      const MIN_DISPLAY = 2800
+      const startTime = Date.now()
+
+      router.isReady().then(() => {
+        const elapsed = Date.now() - startTime
+        const remaining = Math.max(0, MIN_DISPLAY - elapsed)
+        setTimeout(() => {
+          showLoading.value = false
+        }, remaining)
+      })
+    })
 
     const toggleSidebar = () => {
       sidebarOpen.value = !sidebarOpen.value
@@ -89,7 +108,6 @@ export default {
       { immediate: true }
     )
 
-    const router = useRouter()
     const closeStandalone = () => {
       navigationStore.standalonePage = null
       navigationStore.setActiveProgram('trms')
@@ -98,6 +116,7 @@ export default {
 
     return {
       sidebarOpen,
+      showLoading,
       hideShellNav,
       navigationStore,
       toggleSidebar,
