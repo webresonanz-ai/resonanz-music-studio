@@ -181,7 +181,7 @@
 
         <div class="d-flex gap-3 mt-4">
           <button
-            class="btn btn-gold btn-lg"
+            class="btn btn-primary btn-lg"
             type="submit"
             :disabled="loading"
           >

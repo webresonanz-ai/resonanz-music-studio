@@ -166,6 +166,7 @@
           <!-- Photo -->
           <div
             class="member-photo-wrap"
+            v-if="canManage"
             @click="openDetail(member)"
             role="button"
             tabindex="0"
@@ -221,7 +222,7 @@
           </div>
 
           <!-- Actions -->
-          <div class="member-actions">
+          <div v-if="canManage" class="member-actions">
             <button class="action-btn" title="View details" @click="openDetail(member)">
               <i class="bi bi-eye"></i>
             </button>
@@ -258,7 +259,7 @@
           :class="{ 'is-passive': member.status === 'passive' }"
           :style="`animation-delay:${idx * 0.03}s`"
         >
-          <span class="lh-avatar">
+          <span v-if="canManage" class="lh-avatar">
             <img
               :src="member.avatar_url || defaultAvatar"
               :alt="member.name"
@@ -298,7 +299,7 @@
               {{ member.status }}
             </span>
           </span>
-          <span class="lh-actions">
+          <span v-if="canManage" class="lh-actions">
             <button
               class="action-btn"
               title="View"
@@ -528,6 +529,7 @@
 
             <div class="modal-footer-row">
               <button
+                v-if="canManage"
                 class="btn btn-outline-primary btn-sm"
                 @click="
                   openEdit(detailMember);
@@ -837,6 +839,7 @@
 
 <script>
 import { mapState, mapActions } from "pinia";
+import { useAuthStore } from "../../stores/auth";
 import { useBmsStore } from "../../stores/api";
 
 const DEFAULT_AVATAR =
@@ -868,6 +871,11 @@ export default {
 
   computed: {
     ...mapState(useBmsStore, ["members"]),
+
+    canManage() {
+      const role = useAuthStore().user?.role?.toLowerCase();
+      return role === "admin" || role === "singers_manager";
+    },
 
     filteredMembers() {
       const q = this.search.trim().toLowerCase();

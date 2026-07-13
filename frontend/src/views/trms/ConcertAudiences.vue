@@ -39,9 +39,8 @@
               <input
                 v-model="search"
                 type="text"
-                class="form-control form-control-dark ps-4"
+                class="form-control form-control-dark ps-4 tbl-search-input"
                 placeholder="Search by name or email..."
-                style="width: 240px"
               />
               <span
                 v-if="searchPending"
@@ -158,10 +157,10 @@
             </thead>
             <tbody>
               <tr v-for="audience in audiences" :key="audience.id" class="tbl-row">
-                <td>
+                <td data-label="Name">
                   <span class="tbl-name">{{ audience.name }}</span>
                 </td>
-                <td>
+                <td data-label="Email">
                   <div class="tbl-email">{{ audience.email }}</div>
                   <div v-if="audience.send_email_status" class="mt-1">
                     <span
@@ -172,19 +171,19 @@
                     </span>
                   </div>
                 </td>
-                <td class="tbl-phone">{{ audience.phone }}</td>
-                <td class="tbl-cell">{{ audience.concert_title }}</td>
-                <td class="text-center">
+                <td class="tbl-phone" data-label="Phone">{{ audience.phone }}</td>
+                <td class="tbl-cell" data-label="Concert">{{ audience.concert_title }}</td>
+                <td class="text-center" data-label="Qty">
                   <span class="tbl-badge tbl-badge-ticket">{{ audience.ticket_quantity }}</span>
                 </td>
-                <td class="text-center">
+                <td class="text-center" data-label="Seat #">
                   <span v-if="audience.seat_number" class="tbl-seat">{{
                     audience.seat_number
                   }}</span>
                   <span v-else class="tbl-cell text-center" style="opacity: 0.3">—</span>
                 </td>
-                <td class="tbl-cell">{{ formatDate(audience.created_at) }}</td>
-                <td class="text-center">
+                <td class="tbl-cell" data-label="Created At">{{ formatDate(audience.created_at) }}</td>
+                <td class="text-center" data-label="Attended">
                   <span
                     v-if="audience.attended_at"
                     class="tbl-badge tbl-badge-checked"
@@ -196,8 +195,8 @@
                     <i class="bi bi-clock me-1"></i>Pending
                   </span>
                 </td>
-                <td class="tbl-cell">{{ audience.notes || "—" }}</td>
-                <td class="text-center">
+                <td class="tbl-cell" data-label="Notes">{{ audience.notes || "—" }}</td>
+                <td class="text-center" data-label="Actions">
                   <div class="tbl-actions">
                     <button
                       type="button"
@@ -1099,6 +1098,17 @@ export default {
   padding: 0 0.25rem;
 }
 
+/* ── Search input ──────────────────────────────────────────────── */
+.tbl-search-input {
+  width: 240px;
+}
+
+@media (max-width: 768px) {
+  .tbl-search-input {
+    width: 100%;
+  }
+}
+
 /* ── Empty state ───────────────────────────────────────────────── */
 :deep(.tbl-empty) {
   padding: 3.5rem 1.5rem;
@@ -1124,6 +1134,7 @@ export default {
   margin-bottom: 1.5rem;
 }
 
+/* ── Mobile responsive: card layout ──────────────────────────── */
 @media (max-width: 768px) {
   :deep(table.tbl) thead {
     display: none;
@@ -1134,6 +1145,82 @@ export default {
   :deep(table.tbl) tr,
   :deep(table.tbl) td {
     display: block;
+  }
+
+  :deep(table.tbl) tbody tr {
+    position: relative;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(234, 220, 194, 0.1);
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(200, 164, 93, 0.04), transparent 50%),
+                rgba(26, 31, 48, 0.5);
+  }
+
+  :deep(table.tbl) tbody tr td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(234, 220, 194, 0.04);
+  }
+
+  :deep(table.tbl) tbody tr td:last-child {
+    border-bottom: none;
+  }
+
+  :deep(table.tbl) tbody tr td:first-child {
+    padding-left: 0;
+  }
+
+  :deep(table.tbl) tbody tr td:last-child {
+    padding-right: 0;
+  }
+
+  :deep(table.tbl) tbody tr td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #c8a45d;
+    min-width: 80px;
+  }
+
+  :deep(table.tbl) tbody tr td:last-child::before {
+    align-self: flex-start;
+    margin-top: 0.35rem;
+  }
+
+  :deep(.tbl-name) {
+    font-size: 0.92rem;
+  }
+
+  :deep(.tbl-actions) {
+    gap: 0.5rem;
+  }
+
+  :deep(table.tbl) tbody tr td[data-label="Seat #"],
+  :deep(table.tbl) tbody tr td[data-label="Qty"] {
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  :deep(table.tbl) tbody tr td[data-label="Actions"] {
+    flex-wrap: wrap;
+    padding-top: 0.5rem;
+  }
+
+  :deep(.tbl-pagination) {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  :deep(.tbl-email-status) {
+    font-size: 0.65rem;
   }
 }
 

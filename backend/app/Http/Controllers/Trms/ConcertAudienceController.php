@@ -262,7 +262,9 @@ class ConcertAudienceController
             'ticket_quantity' => $qty,
         ]);
         $allIds = array_column($createdRecords, 'id');
-        $this->sendRegistrationEmail($emailData, $ticketPdfs, $allIds);
+        if ($incomingNotes !== 'Invitation') {
+            $this->sendRegistrationEmail($emailData, $ticketPdfs, $allIds);
+        }
     }
 
     /**
