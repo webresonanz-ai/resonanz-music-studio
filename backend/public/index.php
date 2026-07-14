@@ -28,6 +28,15 @@ $router->get('/api/programs', 'App\Http\Controllers\ProgramController@index');
 $router->post('/api/auth/register', 'App\Http\Controllers\AuthController@register');
 $router->post('/api/auth/login', 'App\Http\Controllers\AuthController@login');
 $router->get('/api/auth/me', 'App\Http\Controllers\AuthController@me');
+$router->get('/api/profile/verify-email/{token}', 'App\Http\Controllers\ProfileController@verifyEmail');
+
+// Protected profile routes
+$router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
+    $router->get('/api/profile', 'App\Http\Controllers\ProfileController@show');
+    $router->post('/api/profile/update', 'App\Http\Controllers\ProfileController@update');
+    $router->post('/api/profile/upload-avatar', 'App\Http\Controllers\ProfileController@uploadAvatar');
+    $router->post('/api/profile/send-verification', 'App\Http\Controllers\ProfileController@sendVerification');
+});
 
 // Program-specific public routes
 $router->get('/api/trms/teachers', 'App\Http\Controllers\Trms\TeacherController@index');

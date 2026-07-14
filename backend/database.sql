@@ -394,6 +394,25 @@ CREATE TABLE creator_payouts (
     FOREIGN KEY (paid_by) REFERENCES users(id) ON DELETE CASCADE
 );
 
+ALTER TABLE users
+  ADD COLUMN avatar_url VARCHAR(500) DEFAULT NULL COMMENT 'Profile avatar URL',
+  ADD COLUMN username VARCHAR(100) DEFAULT NULL AFTER name,
+  ADD COLUMN email_verified_at TIMESTAMP NULL DEFAULT NULL COMMENT 'When the email was verified';
+
+CREATE TABLE IF NOT EXISTS email_verifications (
+  id         INT AUTO_INCREMENT PRIMARY KEY,
+  user_id    INT NOT NULL,
+  token      VARCHAR(64) NOT NULL UNIQUE,
+  email      VARCHAR(100) NOT NULL COMMENT 'The email that was sent to (matches user email at time of request)',
+  expires_at TIMESTAMP NOT NULL,
+  used_at    TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_ev_token (token),
+  INDEX idx_ev_user (user_id)
+) COMMENT = 'Email verification tokens for profile email verification';
+
+
 -- Insert initial programs
 INSERT INTO programs (id, name, description, icon) VALUES
 ('trms', 'TRMS', 'The Resonanz Music Studio', 'bi-music-note-beamed'),

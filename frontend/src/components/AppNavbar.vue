@@ -107,7 +107,8 @@
             @click="userMenuOpen = !userMenuOpen"
           >
             <span class="user-avatar">
-              <span v-if="authStore.user" class="user-initials">
+              <img v-if="authStore.user?.avatar_url" :src="authStore.user.avatar_url" :alt="authStore.user.name" class="user-avatar-img" />
+              <span v-else-if="authStore.user" class="user-initials">
                 {{ getUserInitials(authStore.user.name) }}
               </span>
               <i v-else class="bi bi-person"></i>
@@ -117,12 +118,19 @@
           <ul class="nav-dropdown nav-dropdown-end" role="menu">
             <li v-if="authStore.user" class="dropdown-header">
               <span class="dropdown-header-avatar">
-                {{ getUserInitials(authStore.user.name) }}
+                <img v-if="authStore.user?.avatar_url" :src="authStore.user.avatar_url" :alt="authStore.user.name" class="dropdown-header-img" />
+                <span v-else>{{ getUserInitials(authStore.user.name) }}</span>
               </span>
               <div>
                 <div class="dropdown-header-name">{{ authStore.user.name }}</div>
                 <div class="dropdown-header-role">{{ authStore.user.role }}</div>
               </div>
+            </li>
+            <li v-if="authStore.user" role="none">
+              <router-link class="dropdown-link" to="/profile" @click="userMenuOpen = false">
+                <span class="dropdown-link-icon"><i class="bi bi-person-gear"></i></span>
+                <span>Profile</span>
+              </router-link>
             </li>
             <li v-if="authStore.user" role="none">
               <router-link class="dropdown-link" to="/library/my-orders" @click="userMenuOpen = false">
@@ -688,6 +696,14 @@ export default {
   font-size: 0.8rem;
   font-weight: 700;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.dropdown-header-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .dropdown-header-name {
@@ -839,6 +855,14 @@ export default {
   font-size: 0.75rem;
   font-weight: 700;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .user-name {

@@ -44,3 +44,4 @@ __screenshots__/
 /backend/vendor
 /backend/public/uploads/banners
 /backend/public/uploads/scores
+/backend/public/uploads/avatars
