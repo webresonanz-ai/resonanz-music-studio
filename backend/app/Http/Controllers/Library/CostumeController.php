@@ -39,6 +39,8 @@ class CostumeController
 
     public function store(): void
     {
+        $this->requireRole();
+
         $data = $this->input();
 
         if (empty($data['name'])) {
@@ -54,6 +56,8 @@ class CostumeController
 
     public function update(string $id): void
     {
+        $this->requireRole();
+
         $costume = $this->model->find((int) $id);
 
         if (!$costume) {
@@ -71,6 +75,8 @@ class CostumeController
 
     public function destroy(string $id): void
     {
+        $this->requireRole();
+
         $costume = $this->model->find((int) $id);
 
         if (!$costume) {
@@ -81,6 +87,48 @@ class CostumeController
         $this->model->delete((int) $id);
 
         $this->json(['success' => true, 'message' => 'Costume deleted']);
+    }
+
+    private ?array $cachedUser = null;
+
+    private function getAuthUser(): array
+    {
+        if ($this->cachedUser !== null) {
+            return $this->cachedUser;
+        }
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $token = '';
+        if (str_starts_with($authHeader, 'Bearer ')) {
+            $token = substr($authHeader, 7);
+        }
+        if (!$token) {
+            $token = $_GET['token'] ?? '';
+        }
+        if (!$token) {
+            $this->json(['error' => 'Unauthorized'], 401);
+            exit;
+        }
+        $stmt = \App\Core\Database::getInstance()->prepare(
+            'SELECT id, role FROM users WHERE api_token = :token AND (api_token_exp IS NULL OR api_token_exp > NOW())'
+        );
+        $stmt->execute(['token' => $token]);
+        $user = $stmt->fetch();
+        if (!$user) {
+            $this->json(['error' => 'Unauthorized'], 401);
+            exit;
+        }
+        $this->cachedUser = $user;
+        return $user;
+    }
+
+    private function requireRole(): void
+    {
+        $user = $this->getAuthUser();
+        $userRole = strtolower($user['role'] ?? '');
+        if (!in_array($userRole, ['admin', 'manager'], true)) {
+            $this->json(['error' => 'You do not have permission to perform this action'], 403);
+            exit;
+        }
     }
 
     private function input(): array

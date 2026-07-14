@@ -360,31 +360,6 @@ export default {
     0 12px 32px rgba(10, 10, 18, 0.25);
 }
 
-/* ── btn-outline-gold ─────────────────────────────────────────── */
-.btn-outline-gold {
-  border: 1px solid rgba(200, 164, 93, 0.4) !important;
-  color: var(--gold-color, #c8a45d) !important;
-  background: transparent !important;
-  font-weight: 600;
-  transition:
-    background 0.2s,
-    color 0.2s,
-    border-color 0.2s,
-    transform 0.2s;
-}
-
-.btn-outline-gold:hover {
-  border-color: var(--gold-color, #c8a45d) !important;
-  color: #fffdf8 !important;
-  background: rgba(200, 164, 93, 0.12) !important;
-  transform: translateY(-2px);
-}
-
-.btn-outline-gold:active {
-  background: rgba(200, 164, 93, 0.22) !important;
-  transform: translateY(0);
-}
-
 /* ── Slider container ─────────────────────────────────────────── */
 .concert-slider {
   position: relative;

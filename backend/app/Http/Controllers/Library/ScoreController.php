@@ -32,12 +32,17 @@ class ScoreController
 
     public function store(): void
     {
+        $this->requireRole(['admin', 'manager', 'composer', 'arranger']);
+
         $data = $this->input();
 
         if (empty($data['title'])) {
             $this->json(['error' => 'Title is required'], 422);
             return;
         }
+
+        $data['price'] = isset($data['price']) ? (float) $data['price'] : 0;
+        $data['created_by'] = $this->getUserId();
 
         $id = $this->model->create($data);
         $score = $this->model->find($id);
@@ -47,6 +52,8 @@ class ScoreController
 
     public function update(string $id): void
     {
+        $this->requireRole(['admin', 'manager', 'composer', 'arranger']);
+
         $score = $this->model->find((int) $id);
 
         if (!$score) {
@@ -64,6 +71,8 @@ class ScoreController
 
     public function destroy(string $id): void
     {
+        $this->requireRole(['admin', 'manager', 'composer', 'arranger']);
+
         $score = $this->model->find((int) $id);
 
         if (!$score) {
@@ -78,6 +87,8 @@ class ScoreController
 
     public function uploadPdf(string $id): void
     {
+        $this->requireRole(['admin', 'manager', 'composer', 'arranger']);
+
         $score = $this->model->find((int) $id);
 
         if (!$score) {
@@ -145,6 +156,53 @@ class ScoreController
             UPLOAD_ERR_EXTENSION => 'Upload stopped by extension.',
             default => 'Unknown upload error.',
         };
+    }
+
+    private ?array $cachedUser = null;
+
+    private function getAuthUser(): array
+    {
+        if ($this->cachedUser !== null) {
+            return $this->cachedUser;
+        }
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $token = '';
+        if (str_starts_with($authHeader, 'Bearer ')) {
+            $token = substr($authHeader, 7);
+        }
+        if (!$token) {
+            $token = $_GET['token'] ?? '';
+        }
+        if (!$token) {
+            $this->json(['error' => 'Unauthorized'], 401);
+            exit;
+        }
+        $stmt = \App\Core\Database::getInstance()->prepare(
+            'SELECT id, role FROM users WHERE api_token = :token AND (api_token_exp IS NULL OR api_token_exp > NOW())'
+        );
+        $stmt->execute(['token' => $token]);
+        $user = $stmt->fetch();
+        if (!$user) {
+            $this->json(['error' => 'Unauthorized'], 401);
+            exit;
+        }
+        $this->cachedUser = $user;
+        return $user;
+    }
+
+    private function requireRole(array $allowedRoles): void
+    {
+        $user = $this->getAuthUser();
+        $userRole = strtolower($user['role'] ?? '');
+        if (!in_array($userRole, $allowedRoles, true)) {
+            $this->json(['error' => 'You do not have permission to perform this action'], 403);
+            exit;
+        }
+    }
+
+    private function getUserId(): int
+    {
+        return (int) $this->getAuthUser()['id'];
     }
 
     private function input(): array

@@ -71,8 +71,19 @@
         </template>
       </ul>
 
-      <!-- Right: Search + User -->
+      <!-- Right: Cart + Search + User -->
       <div class="navbar-right">
+        <button
+          v-if="isLibraryRoute"
+          class="nav-cart-btn"
+          type="button"
+          aria-label="Shopping cart"
+          @click="goToCart"
+        >
+          <i class="bi bi-cart3"></i>
+          <span v-if="cartStore.count > 0" class="nav-cart-badge">{{ cartStore.count }}</span>
+        </button>
+
         <div class="nav-search-wrap" :class="{ 'is-focused': searchFocused }">
           <i class="bi bi-search search-icon"></i>
           <input
@@ -112,6 +123,18 @@
                 <div class="dropdown-header-name">{{ authStore.user.name }}</div>
                 <div class="dropdown-header-role">{{ authStore.user.role }}</div>
               </div>
+            </li>
+            <li v-if="authStore.user" role="none">
+              <router-link class="dropdown-link" to="/library/my-orders" @click="userMenuOpen = false">
+                <span class="dropdown-link-icon"><i class="bi bi-receipt"></i></span>
+                <span>My Orders</span>
+              </router-link>
+            </li>
+            <li v-if="isComposerOrArranger" role="none">
+              <router-link class="dropdown-link" to="/library/composer-dashboard" @click="userMenuOpen = false">
+                <span class="dropdown-link-icon"><i class="bi bi-pencil-square"></i></span>
+                <span>My Scores</span>
+              </router-link>
             </li>
             <li v-if="authStore.user" class="dropdown-sep" role="separator"></li>
             <li role="none">
@@ -243,7 +266,8 @@
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useNavigationStore } from "../stores/navigation";
 import { useAuthStore } from "../stores/auth";
-import { useRouter } from "vue-router";
+import { useCartStore } from "../stores/cart";
+import { useRouter, useRoute } from "vue-router";
 
 export default {
   name: "AppNavbar",
@@ -254,7 +278,20 @@ export default {
   setup() {
     const navigationStore = useNavigationStore();
     const authStore = useAuthStore();
+    const cartStore = useCartStore();
     const router = useRouter();
+    const route = useRoute();
+
+    const isLibraryRoute = computed(() => route.path.startsWith('/library'))
+    const isComposerOrArranger = computed(() => ['composer', 'arranger'].includes(authStore.user?.role?.toLowerCase()))
+
+    const goToCart = () => {
+      if (!authStore.token) {
+        router.push('/auth')
+        return
+      }
+      router.push('/library/sheet-music?cart=1')
+    }
 
     const canSee = (item) => {
       if (!item.roles) return true;
@@ -344,7 +381,9 @@ export default {
     return {
       navigationStore,
       authStore,
+      cartStore,
       router,
+      route,
       filteredNavItems,
       primaryNavItems,
       overflowNavItems,
@@ -362,6 +401,9 @@ export default {
       closeMobileMenu,
       getUserInitials,
       logout,
+      isLibraryRoute,
+      isComposerOrArranger,
+      goToCart,
     };
   },
 };
@@ -657,6 +699,45 @@ export default {
   height: 1px;
   background: rgba(234, 220, 194, 0.1);
   margin: 0.25rem 0.5rem;
+}
+
+/* ── Cart button ──────────────────────────────────────────── */
+.nav-cart-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(234, 220, 194, 0.18);
+  border-radius: 8px;
+  color: rgba(219, 189, 113, 0.82);
+  background: rgba(234, 220, 194, 0.06);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.nav-cart-btn:hover {
+  color: #fffdf8;
+  background: rgba(200, 164, 93, 0.16);
+  border-color: rgba(200, 164, 93, 0.3);
+}
+.nav-cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--gold-color, #c8a45d);
+  color: #10131f;
+  font-size: 0.6rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0 4px;
 }
 
 /* ── Right: search + user ─────────────────────────────────── */

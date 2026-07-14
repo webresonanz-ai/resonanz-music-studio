@@ -18,7 +18,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     api_token VARCHAR(64) UNIQUE,
     api_token_exp TIMESTAMP NULL,
-    role ENUM('admin', 'manager', 'singers_manager', 'teacher', 'arranger', 'member') DEFAULT 'member',
+    role ENUM('admin', 'manager', 'singers_manager', 'teacher', 'composer', 'arranger', 'member') DEFAULT 'member',
     program_id VARCHAR(10),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -314,10 +314,41 @@ CREATE TABLE library_scores (
     genre VARCHAR(50) NOT NULL,
     difficulty ENUM('Beginner','Intermediate','Advanced') NOT NULL DEFAULT 'Intermediate',
     pages INT UNSIGNED NOT NULL DEFAULT 0,
+    price DECIMAL(10,2) NOT NULL DEFAULT 0.00 COMMENT 'Selling price in IDR',
+    created_by INT NULL COMMENT 'FK to users.id — the composer who created this score',
     file_url VARCHAR(500) DEFAULT '',
     thumbnail VARCHAR(500) DEFAULT '',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Library — Orders (purchases from clients)
+CREATE TABLE orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL COMMENT 'FK to users.id — the buyer',
+    order_number VARCHAR(32) NOT NULL UNIQUE COMMENT 'Readable order ID, e.g. ORD-20260714-XXXX',
+    status ENUM('pending_payment','paid','cancelled') NOT NULL DEFAULT 'pending_payment',
+    total_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    buyer_name VARCHAR(100) DEFAULT '',
+    buyer_email VARCHAR(100) DEFAULT '',
+    notes TEXT DEFAULT NULL,
+    paid_at TIMESTAMP NULL DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Library — Order Items
+CREATE TABLE order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    score_id INT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    composer VARCHAR(150) DEFAULT '',
+    price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (score_id) REFERENCES library_scores(id)
 );
 
 -- Library — Costumes

@@ -97,16 +97,11 @@ $router->get('/api/library/scores/{id}', 'App\Http\Controllers\Library\ScoreCont
 $router->get('/api/library/costumes', 'App\Http\Controllers\Library\CostumeController@index');
 $router->get('/api/library/costumes/{id}', 'App\Http\Controllers\Library\CostumeController@show');
 
-// Protected Library CRUD — admin & manager only
-RoleMiddleware::$roles = ['admin', 'manager'];
-$router->group(['middleware' => [AuthMiddleware::class, RoleMiddleware::class]], function ($router) {
-    $router->post('/api/library/scores', 'App\Http\Controllers\Library\ScoreController@store');
-    $router->post('/api/library/scores/{id}', 'App\Http\Controllers\Library\ScoreController@update');
-    $router->post('/api/library/scores/{id}/delete', 'App\Http\Controllers\Library\ScoreController@destroy');
-    $router->post('/api/library/scores/{id}/upload-pdf', 'App\Http\Controllers\Library\ScoreController@uploadPdf');
-    $router->post('/api/library/costumes', 'App\Http\Controllers\Library\CostumeController@store');
-    $router->post('/api/library/costumes/{id}', 'App\Http\Controllers\Library\CostumeController@update');
-    $router->post('/api/library/costumes/{id}/delete', 'App\Http\Controllers\Library\CostumeController@destroy');
+// Library — Order routes (authenticated users)
+$router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
+    $router->post('/api/library/orders', 'App\Http\Controllers\Library\OrderController@store');
+    $router->get('/api/library/orders', 'App\Http\Controllers\Library\OrderController@index');
+    $router->get('/api/library/orders/{id}', 'App\Http\Controllers\Library\OrderController@show');
 });
 
 // Protected BMS attendance routes — admin, manager, singers_manager only
@@ -116,5 +111,16 @@ $router->group(['middleware' => [AuthMiddleware::class, RoleMiddleware::class]],
     $router->post('/api/bms/attendance/rehearsals', 'App\Http\Controllers\Bms\AttendanceController@updateRehearsals');
     $router->post('/api/bms/attendance/record', 'App\Http\Controllers\Bms\AttendanceController@record');
     $router->post('/api/bms/attendance/record/bulk', 'App\Http\Controllers\Bms\AttendanceController@recordBulk');
+});
+
+// Protected Library CRUD — any authenticated user (role check done in controller)
+$router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
+    $router->post('/api/library/scores', 'App\Http\Controllers\Library\ScoreController@store');
+    $router->post('/api/library/scores/{id}', 'App\Http\Controllers\Library\ScoreController@update');
+    $router->post('/api/library/scores/{id}/delete', 'App\Http\Controllers\Library\ScoreController@destroy');
+    $router->post('/api/library/scores/{id}/upload-pdf', 'App\Http\Controllers\Library\ScoreController@uploadPdf');
+    $router->post('/api/library/costumes', 'App\Http\Controllers\Library\CostumeController@store');
+    $router->post('/api/library/costumes/{id}', 'App\Http\Controllers\Library\CostumeController@update');
+    $router->post('/api/library/costumes/{id}/delete', 'App\Http\Controllers\Library\CostumeController@destroy');
 });// Run the application
 $router->dispatch();
