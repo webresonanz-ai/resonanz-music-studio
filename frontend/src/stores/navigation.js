@@ -87,7 +87,12 @@ export const useNavigationStore = defineStore("navigation", {
         { path: "/bms/home", label: "Home", icon: "bi-house-door" },
         { path: "/bms/events", label: "Events", icon: "bi-calendar-event" },
         { path: "/bms/members", label: "Members", icon: "bi-people" },
-        { path: "/bms/attendance", label: "Attendance", icon: "bi-clipboard-check" },
+        {
+          path: "/bms/attendance",
+          label: "Attendance",
+          icon: "bi-clipboard-check",
+          roles: ["admin", "singer_manager"],
+        },
         { path: "/bms/about-us", label: "About Us", icon: "bi-info-circle" },
       ],
       jco: [
