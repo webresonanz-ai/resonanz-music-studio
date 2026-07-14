@@ -101,6 +101,7 @@
             <span class="dt-th dt-genre">Genre</span>
             <span class="dt-th dt-difficulty">Level</span>
             <span class="dt-th dt-price">Price</span>
+            <span class="dt-th dt-orders">Orders</span>
             <span class="dt-th dt-status">Status</span>
             <span class="dt-th dt-actions"></span>
           </div>
@@ -117,6 +118,7 @@
             <span class="dt-td dt-genre"><span class="dash-pill">{{ score.genre }}</span></span>
             <span class="dt-td dt-difficulty"><span class="dash-diff" :class="diffClass(score.difficulty)">{{ score.difficulty }}</span></span>
             <span class="dt-td dt-price"><span class="dash-price">{{ score.price > 0 ? 'Rp ' + formatPrice(score.price) : 'FREE' }}</span></span>
+            <span class="dt-td dt-orders"><span class="dash-orders">{{ score.order_count }}</span></span>
             <span class="dt-td dt-status">
               <span class="dash-status" :class="score.file_url ? 'dash-status--published' : 'dash-status--draft'">
                 <i class="bi" :class="score.file_url ? 'bi-check-circle-fill' : 'bi-clock-fill'"></i>
@@ -541,9 +543,9 @@ export default {
 
 /* ── Table ── */
 .dash-table-wrap.content-card.bg-dark { overflow:hidden;color:rgba(234,220,194,0.78);border-radius:10px }
-.dt-header { display:grid;grid-template-columns:44px 2.2fr 1.4fr 1.4fr 1fr .85fr .75fr .85fr 50px;gap:.4rem;padding:.65rem 1rem;border-bottom:1px solid rgba(234,220,194,0.08);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(234,220,194,0.45);background:rgba(16,19,31,0.3);align-items:center }
+.dt-header { display:grid;grid-template-columns:44px 2.2fr 1.4fr 1.4fr 1fr .85fr .55fr .75fr .85fr 50px;gap:.4rem;padding:.65rem 1rem;border-bottom:1px solid rgba(234,220,194,0.08);font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(234,220,194,0.45);background:rgba(16,19,31,0.3);align-items:center }
 .dt-th { white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
-.dt-row { display:grid;grid-template-columns:44px 2.2fr 1.4fr 1.4fr 1fr .85fr .75fr .85fr 50px;gap:.4rem;padding:.55rem 1rem;align-items:center;animation:fadeInUp .35s ease-out both;transition:background .15s;border-bottom:1px solid rgba(234,220,194,0.04) }
+.dt-row { display:grid;grid-template-columns:44px 2.2fr 1.4fr 1.4fr 1fr .85fr .55fr .75fr .85fr 50px;gap:.4rem;padding:.55rem 1rem;align-items:center;animation:fadeInUp .35s ease-out both;transition:background .15s;border-bottom:1px solid rgba(234,220,194,0.04) }
 .dt-row:last-child { border-bottom:none }
 @media (hover:hover) { .dt-row:hover { background:rgba(200,164,93,.04) } }
 .dt-td { min-width:0 }
@@ -561,6 +563,7 @@ export default {
 
 /* ── Price ── */
 .dash-price { font-size:.78rem;font-weight:600;color:var(--gold-color);white-space:nowrap }
+.dash-orders { font-size:.78rem;font-weight:700;color:rgba(234,220,194,0.78);text-align:center;display:block }
 
 /* ── Status ── */
 .dash-status { display:inline-flex;align-items:center;gap:.3rem;padding:.1rem .5rem;border-radius:999px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap }
@@ -581,8 +584,8 @@ export default {
 
 /* ── Responsive: tablet ── */
 @media (max-width:991.98px) {
-  .dt-header { grid-template-columns:38px 2fr 1.2fr .8fr .8fr 42px;font-size:.6rem;padding:.55rem .75rem }
-  .dt-row { grid-template-columns:38px 2fr 1.2fr .8fr .8fr 42px;padding:.5rem .75rem }
+  .dt-header { grid-template-columns:38px 2fr 1.2fr .55fr .8fr .8fr 42px;font-size:.6rem;padding:.55rem .75rem }
+  .dt-row { grid-template-columns:38px 2fr 1.2fr .55fr .8fr .8fr 42px;padding:.5rem .75rem }
   .dt-arranger,.dt-genre { display:none }
   .dt-thumb-img { width:28px;height:38px }
 }

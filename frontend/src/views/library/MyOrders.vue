@@ -58,6 +58,9 @@
               <button v-if="order.status === 'pending_payment'" class="btn btn-sm btn-gold" @click="openPay(order)">
                 <i class="bi bi-credit-card me-1"></i>Pay Now
               </button>
+              <button v-if="order.status === 'pending_payment'" class="btn btn-sm btn-outline-danger" @click="openCancel(order)">
+                <i class="bi bi-x-circle me-1"></i>Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -102,11 +105,30 @@
 
     <Teleport to="body">
       <transition name="modal">
+        <div v-if="cancelTarget" class="modal-overlay" @click.self="cancelTarget = null">
+          <div class="modal-sheet modal-sheet-dark modal-sheet--sm text-center" role="dialog" aria-modal="true">
+            <div class="delete-icon-wrap"><i class="bi bi-x-circle" style="font-size:2rem;color:var(--gold-color)"></i></div>
+            <h5 class="mt-3 mb-1 text-champagne">Cancel Order</h5>
+            <p class="text-champagne-muted small mb-3">Cancel <strong style="color:rgba(234,220,194,0.92)">{{ cancelTarget.order_number }}</strong>? This cannot be undone.</p>
+            <div class="d-flex gap-2 justify-content-center">
+              <button class="btn btn-sm btn-outline-gold" @click="cancelTarget = null" :disabled="cancelling">Back</button>
+              <button class="btn btn-sm btn-danger" @click="doCancel" :disabled="cancelling">
+                <span v-if="cancelling" class="spinner-border spinner-border-sm me-1"></span>
+                <i v-else class="bi bi-check2 me-1"></i>Yes, Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </transition>
+    </Teleport>
+
+    <Teleport to="body">
+      <transition name="modal">
         <div v-if="payOrder" class="modal-overlay" @click.self="payOrder = null">
           <div class="modal-sheet modal-sheet-dark modal-sheet--sm text-center" role="dialog" aria-modal="true">
             <div class="pay-icon-wrap"><i class="bi bi-credit-card-2-front"></i></div>
-            <h5 class="mt-3 mb-1 text-champagne">Payment Instructions</h5>
-            <p class="text-champagne-muted small mb-3">Transfer the total amount to the account below</p>
+            <h5 class="mt-3 mb-1 text-champagne">Complete Payment</h5>
+            <p class="text-champagne-muted small mb-3">Pay securely via Midtrans</p>
             <div class="pay-details">
               <div class="pay-detail-row">
                 <span class="pay-label">Order</span>
@@ -116,21 +138,15 @@
                 <span class="pay-label">Amount</span>
                 <span class="pay-value pay-amount">Rp {{ formatPrice(payOrder.total_amount) }}</span>
               </div>
-              <div class="pay-detail-row">
-                <span class="pay-label">Bank</span>
-                <span class="pay-value">Bank Central Asia (BCA)</span>
-              </div>
-              <div class="pay-detail-row">
-                <span class="pay-label">Account</span>
-                <span class="pay-value pay-account">123-456-7890</span>
-              </div>
-              <div class="pay-detail-row">
-                <span class="pay-label">Name</span>
-                <span class="pay-value">Resonanz Music Studio</span>
-              </div>
             </div>
-            <p class="text-champagne-muted small mt-3 mb-4">After payment, please contact us via the contact page with your order number.</p>
-            <button class="btn btn-gold btn-sm" @click="payOrder = null">Done</button>
+            <p class="text-champagne-muted small mt-3 mb-4">You will be redirected to the Midtrans payment page.</p>
+            <div class="d-flex gap-2 justify-content-center">
+              <button class="btn btn-outline-gold btn-sm" @click="payOrder = null">Cancel</button>
+              <button class="btn btn-gold btn-sm" :disabled="paying" @click="doPay">
+                <span v-if="paying" class="spinner-border spinner-border-sm me-1"></span>
+                <i v-else class="bi bi-credit-card me-1"></i>Pay Now
+              </button>
+            </div>
           </div>
         </div>
       </transition>
@@ -139,7 +155,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useCartStore } from '../../stores/cart'
 
 export default {
@@ -150,6 +166,14 @@ export default {
     const loading = ref(true)
     const selectedOrder = ref(null)
     const payOrder = ref(null)
+    const paying = ref(false)
+    const cancelTarget = ref(null)
+    const cancelling = ref(false)
+    const pollTimer = ref(null)
+
+    const hasPending = computed(() =>
+      orders.value.some((o) => o.status === 'pending_payment')
+    )
 
     const fetchOrders = async () => {
       loading.value = true
@@ -163,7 +187,27 @@ export default {
       }
     }
 
-    onMounted(fetchOrders)
+    const startPolling = () => {
+      stopPolling()
+      pollTimer.value = setInterval(async () => {
+        await fetchOrders()
+        if (!hasPending.value) stopPolling()
+      }, 10000)
+    }
+
+    const stopPolling = () => {
+      if (pollTimer.value) {
+        clearInterval(pollTimer.value)
+        pollTimer.value = null
+      }
+    }
+
+    onMounted(async () => {
+      await fetchOrders()
+      if (hasPending.value) startPolling()
+    })
+
+    onUnmounted(stopPolling)
 
     const formatPrice = (val) => Number(val || 0).toLocaleString('id-ID')
 
@@ -181,11 +225,44 @@ export default {
 
     const toggleDetail = (order) => { selectedOrder.value = order }
     const openPay = (order) => { payOrder.value = order }
+    const openCancel = (order) => { cancelTarget.value = order }
+
+    const doCancel = async () => {
+      if (!cancelTarget.value) return
+      cancelling.value = true
+      try {
+        await cartStore.cancelOrder(cancelTarget.value.id)
+        cancelTarget.value = null
+        await fetchOrders()
+      } catch (err) {
+        alert(err.message || 'Cancel failed')
+      } finally {
+        cancelling.value = false
+      }
+    }
+
+    const doPay = async () => {
+      if (!payOrder.value) return
+      paying.value = true
+      try {
+        await cartStore.payWithSnap(payOrder.value.id)
+        payOrder.value = null
+        await fetchOrders()
+        if (hasPending.value) startPolling()
+      } catch (err) {
+        console.error('Payment failed:', err)
+        alert(err.message || 'Payment failed')
+      } finally {
+        paying.value = false
+      }
+    }
 
     return {
-      orders, loading, selectedOrder, payOrder,
-      formatPrice, formatDate, statusLabel,
-      toggleDetail, openPay, fetchOrders,
+      orders, loading, selectedOrder, payOrder, paying,
+      cancelTarget, cancelling,
+      formatPrice, formatDate, statusLabel, hasPending,
+      toggleDetail, openPay, openCancel, doCancel,
+      fetchOrders, doPay,
     }
   },
 }
@@ -266,6 +343,7 @@ export default {
 .modal-close-btn-dark { background:rgba(200,164,93,0.1);color:rgba(234,220,194,0.5) }
 .modal-close-btn-dark:hover { background:var(--gold-color);color:#fff }
 .modal-icon-wrap { display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:rgba(200,164,93,.12);border:1px solid rgba(200,164,93,.2);color:var(--gold-color);font-size:1.2rem;flex-shrink:0 }
+.delete-icon-wrap { display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:rgba(192,57,43,.12);margin:0 auto }
 
 .modal-enter-active,.modal-leave-active { transition:opacity .25s ease }
 .modal-enter-active .modal-sheet,.modal-leave-active .modal-sheet { transition:transform .25s ease,opacity .25s ease }

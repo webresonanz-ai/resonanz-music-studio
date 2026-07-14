@@ -424,8 +424,13 @@
               <span class="order-number-lg">{{ checkoutResult.order_number }}</span>
             </div>
             <p class="text-champagne-muted small">Total: <strong class="price-highlight">Rp {{ formatPrice(checkoutResult.total_amount) }}</strong></p>
-            <p class="text-champagne-muted small mb-4">Status: <span class="order-status order-status--pending_payment">Pending Payment</span></p>
-            <button class="btn btn-gold btn-sm" @click="checkoutResult = null; showCart = false">Done</button>
+            <p class="text-champagne-muted small mb-3">Status: <span class="order-status order-status--pending_payment">Pending Payment</span></p>
+            <div class="d-flex gap-2 justify-content-center">
+              <button class="btn btn-outline-gold btn-sm" @click="checkoutResult = null; showCart = false">Later</button>
+              <button class="btn btn-gold btn-sm" @click="checkoutResult = null; showSnapPayment(checkoutResult.id)">
+                <i class="bi bi-credit-card me-1"></i>Pay Now
+              </button>
+            </div>
           </div>
         </div>
       </transition>
@@ -600,11 +605,29 @@ export default {
         const result = await cartStore.checkout({ notes: checkoutNotes.value })
         if (result?.data) {
           checkoutResult.value = result.data
+          showSnapPayment(result.data.id)
         }
       } catch (err) {
         alert(err.message || 'Checkout failed')
       } finally {
         checkingOut.value = false
+      }
+    }
+
+    const showSnapPayment = async (orderId) => {
+      try {
+        await cartStore.payWithSnap(orderId)
+        await fetchOrdersData()
+      } catch (err) {
+        console.error('Snap payment error:', err)
+      }
+    }
+
+    const fetchOrdersData = async () => {
+      try {
+        orders.value = await cartStore.fetchOrders()
+      } catch {
+        orders.value = []
       }
     }
 

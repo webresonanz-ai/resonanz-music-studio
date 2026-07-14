@@ -136,6 +136,12 @@
                 <span>My Scores</span>
               </router-link>
             </li>
+            <li v-if="isScoresManager" role="none">
+              <router-link class="dropdown-link" to="/library/orders-dashboard" @click="userMenuOpen = false">
+                <span class="dropdown-link-icon"><i class="bi bi-bar-chart-steps"></i></span>
+                <span>Orders Dashboard</span>
+              </router-link>
+            </li>
             <li v-if="authStore.user" class="dropdown-sep" role="separator"></li>
             <li role="none">
               <button
@@ -284,6 +290,7 @@ export default {
 
     const isLibraryRoute = computed(() => route.path.startsWith('/library'))
     const isComposerOrArranger = computed(() => ['composer', 'arranger'].includes(authStore.user?.role?.toLowerCase()))
+    const isScoresManager = computed(() => ['admin', 'manager', 'manager_scores'].includes(authStore.user?.role?.toLowerCase()))
 
     const goToCart = () => {
       if (!authStore.token) {
@@ -402,7 +409,7 @@ export default {
       getUserInitials,
       logout,
       isLibraryRoute,
-      isComposerOrArranger,
+      isComposerOrArranger, isScoresManager,
       goToCart,
     };
   },

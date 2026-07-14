@@ -102,6 +102,21 @@ $router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
     $router->post('/api/library/orders', 'App\Http\Controllers\Library\OrderController@store');
     $router->get('/api/library/orders', 'App\Http\Controllers\Library\OrderController@index');
     $router->get('/api/library/orders/{id}', 'App\Http\Controllers\Library\OrderController@show');
+    $router->post('/api/library/orders/{id}/snap-token', 'App\Http\Controllers\Library\OrderController@snapToken');
+    $router->post('/api/library/orders/{id}/cancel', 'App\Http\Controllers\Library\OrderController@cancel');
+});
+
+// Midtrans payment notification webhook (public, no auth)
+$router->post('/api/library/orders/notification', 'App\Http\Controllers\Library\OrderController@notification');
+
+// Library — Admin routes (manager_scores / admin / manager)
+$router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
+    $router->get('/api/library/admin/orders', 'App\Http\Controllers\Library\AdminController@orders');
+    $router->get('/api/library/admin/profit-shares', 'App\Http\Controllers\Library\AdminController@profitShares');
+    $router->post('/api/library/admin/profit-shares', 'App\Http\Controllers\Library\AdminController@profitShares');
+    $router->get('/api/library/admin/creator-profit/{userId}', 'App\Http\Controllers\Library\AdminController@creatorProfit');
+    $router->post('/api/library/admin/creator-payout', 'App\Http\Controllers\Library\AdminController@recordPayout');
+    $router->get('/api/library/admin/creator-payouts/{userId}', 'App\Http\Controllers\Library\AdminController@payoutHistory');
 });
 
 // Protected BMS attendance routes — admin, manager, singers_manager only

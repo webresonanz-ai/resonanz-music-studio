@@ -18,7 +18,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     api_token VARCHAR(64) UNIQUE,
     api_token_exp TIMESTAMP NULL,
-    role ENUM('admin', 'manager', 'singers_manager', 'teacher', 'composer', 'arranger', 'member') DEFAULT 'member',
+    role ENUM('admin', 'manager', 'manager_scores', 'singers_manager', 'teacher', 'composer', 'arranger', 'member') DEFAULT 'member',
     program_id VARCHAR(10),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -332,11 +332,16 @@ CREATE TABLE orders (
     buyer_name VARCHAR(100) DEFAULT '',
     buyer_email VARCHAR(100) DEFAULT '',
     notes TEXT DEFAULT NULL,
+    snap_token VARCHAR(255) DEFAULT NULL COMMENT 'Midtrans Snap token for payment popup',
+    transaction_id VARCHAR(100) DEFAULT NULL COMMENT 'Midtrans transaction ID',
+    payment_type VARCHAR(50) DEFAULT NULL COMMENT 'e.g. bank_transfer, gopay, credit_card',
     paid_at TIMESTAMP NULL DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+-- Migration for existing installations: ALTER TABLE orders ADD COLUMN snap_token VARCHAR(255) DEFAULT NULL COMMENT 'Midtrans Snap token for payment popup' AFTER notes; ALTER TABLE orders ADD COLUMN transaction_id VARCHAR(100) DEFAULT NULL COMMENT 'Midtrans transaction ID' AFTER snap_token; ALTER TABLE orders ADD COLUMN payment_type VARCHAR(50) DEFAULT NULL COMMENT 'e.g. bank_transfer, gopay, credit_card' AFTER transaction_id;
 
 -- Library — Order Items
 CREATE TABLE order_items (
@@ -364,6 +369,29 @@ CREATE TABLE library_costumes (
     description TEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Profit shares — percentage split per composer/arranger
+CREATE TABLE profit_shares (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    creator_share DECIMAL(5,2) NOT NULL DEFAULT 40.00 COMMENT 'Percentage for the creator (composer/arranger)',
+    company_share DECIMAL(5,2) NOT NULL DEFAULT 60.00 COMMENT 'Percentage for the company',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Creator payouts — manual payment record by manager_scores
+CREATE TABLE creator_payouts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+    notes TEXT,
+    paid_by INT NOT NULL COMMENT 'User ID of the manager_scores who processed the payout',
+    paid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (paid_by) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- Insert initial programs

@@ -40,4 +40,25 @@ class Order extends Model
     {
         return 'ORD-' . date('Ymd') . '-' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 6));
     }
+
+    public function saveSnapToken(int $orderId, string $snapToken): bool
+    {
+        $stmt = $this->db->prepare("UPDATE {$this->table} SET snap_token = :snap_token WHERE id = :id");
+        return $stmt->execute(['snap_token' => $snapToken, 'id' => $orderId]);
+    }
+
+    public function updatePayment(int $orderId, array $data): bool
+    {
+        $fields = [];
+        $params = ['id' => $orderId];
+        foreach (['transaction_id', 'payment_type', 'snap_token'] as $key) {
+            if (array_key_exists($key, $data)) {
+                $fields[] = "{$key} = :{$key}";
+                $params[$key] = $data[$key];
+            }
+        }
+        if (empty($fields)) return true;
+        $sql = "UPDATE {$this->table} SET " . implode(', ', $fields) . " WHERE id = :id";
+        return $this->db->prepare($sql)->execute($params);
+    }
 }

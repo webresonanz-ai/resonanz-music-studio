@@ -98,6 +98,11 @@ const routes = [
       { path: "sheet-music",         component: () => import("../views/library/SheetMusic.vue") },
       { path: "composer-dashboard",  component: () => import("../views/library/ComposerDashboard.vue"), meta: { roles: ["composer", "arranger"] } },
       { path: "my-orders",           component: () => import("../views/library/MyOrders.vue") },
+      {
+        path: "orders-dashboard",
+        component: () => import("../views/library/OrdersDashboard.vue"),
+        meta: { roles: ["admin", "manager", "manager_scores"] },
+      },
       { path: "costumes",    component: () => import("../views/library/Costumes.vue") },
     ],
   },

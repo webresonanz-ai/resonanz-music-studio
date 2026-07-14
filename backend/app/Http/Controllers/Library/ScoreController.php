@@ -15,7 +15,8 @@ class ScoreController
 
     public function index(): void
     {
-        $this->json($this->model->all());
+        $scores = $this->model->allWithOrderCount();
+        $this->json($scores);
     }
 
     public function show(string $id): void

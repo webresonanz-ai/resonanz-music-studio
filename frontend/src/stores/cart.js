@@ -80,5 +80,61 @@ export const useCartStore = defineStore('cart', {
       const result = await api.get('/library/orders')
       return result?.data || []
     },
+
+    async getSnapToken(orderId) {
+      const api = useApiStore()
+      const result = await api.post(`/library/orders/${orderId}/snap-token`, {})
+      return result?.data || null
+    },
+
+    async cancelOrder(orderId) {
+      const api = useApiStore()
+      return api.post(`/library/orders/${orderId}/cancel`, {})
+    },
+
+    async payWithSnap(orderId) {
+      const data = await this.getSnapToken(orderId)
+      if (!data?.snap_token) throw new Error('Failed to get payment token')
+
+      return new Promise((resolve, reject) => {
+        const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY
+        const isSandbox = import.meta.env.VITE_MIDTRANS_IS_SANDBOX === 'true'
+        if (!clientKey) {
+          reject(new Error('Midtrans client key not configured'))
+          return
+        }
+
+        const snapSrc = isSandbox
+          ? 'https://app.sandbox.midtrans.com/snap/snap.js'
+          : 'https://app.midtrans.com/snap/snap.js'
+
+        const loadSnap = () => {
+          if (window.snap) {
+            window.snap.pay(data.snap_token, {
+              onSuccess: (result) => resolve(result),
+              onPending: (result) => resolve(result),
+              onError: (err) => reject(err),
+              onClose: () => resolve({ closed: true }),
+            })
+          } else {
+            const script = document.createElement('script')
+            script.src = snapSrc
+            script.setAttribute('data-client-key', clientKey)
+            script.onload = () => {
+              window.snap.pay(data.snap_token, {
+                onSuccess: (result) => resolve(result),
+                onPending: (result) => resolve(result),
+                onError: (err) => reject(err),
+                onClose: () => resolve({ closed: true }),
+              })
+            }
+            script.onerror = () => reject(new Error('Failed to load Midtrans Snap'))
+            document.head.appendChild(script)
+          }
+        }
+
+        loadSnap()
+      })
+    },
   },
 })
