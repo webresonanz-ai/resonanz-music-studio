@@ -7,7 +7,11 @@
           <p class="members-eyebrow mb-1">Batavia Madrigal Singers</p>
           <h1 class="members-title mb-0">Members</h1>
         </div>
-        <button class="btn btn-gold d-flex align-items-center gap-2" @click="openCreate">
+        <button
+          v-if="canManage"
+          class="btn btn-gold d-flex align-items-center gap-2"
+          @click="openCreate"
+        >
           <i class="bi bi-person-plus-fill"></i>
           <span>Add Member</span>
         </button>
@@ -146,7 +150,7 @@
           }}
         </p>
         <button
-          v-if="!search && !filterRole && !filterStatus"
+          v-if="canManage && !search && !filterRole && !filterStatus"
           class="btn btn-primary btn-sm"
           @click="openCreate"
         >
@@ -166,12 +170,11 @@
           <!-- Photo -->
           <div
             class="member-photo-wrap"
-            v-if="canManage"
-            @click="openDetail(member)"
+            @click="canManage ? openDetail(member) : null"
             role="button"
             tabindex="0"
             :aria-label="`View details for ${member.name}`"
-            @keydown.enter="openDetail(member)"
+            @keydown.enter="canManage ? openDetail(member) : null"
           >
             <img
               :src="member.avatar_url || defaultAvatar"
@@ -241,16 +244,20 @@
       </div>
 
       <!-- ══ LIST VIEW ══════════════════════════════════════════════ -->
-      <div v-if="viewMode === 'list'" class="members-list">
+      <div v-if="viewMode === 'list'" class="members-list" :class="{ 'no-actions': !canManage }">
         <div class="list-header">
           <span class="lh-avatar"></span>
-          <span class="lh-name">Member</span>
-          <span class="lh-role">Role</span>
-          <span class="lh-section">Section</span>
-          <span class="lh-year d-none d-md-table-cell">Year</span>
-          <span class="lh-shows d-none d-lg-table-cell">Shows</span>
-          <span class="lh-status">Status</span>
-          <span class="lh-actions"></span>
+          <span class="lh-name"> <i class="bi bi-person-fill lh-icon"></i> Member </span>
+          <span class="lh-role"> <i class="bi bi-mic-fill lh-icon"></i> Role </span>
+          <span class="lh-section"> <i class="bi bi-layers-fill lh-icon"></i> Section </span>
+          <span class="lh-year d-none d-md-table-cell">
+            <i class="bi bi-calendar3 lh-icon"></i> Year
+          </span>
+          <span class="lh-shows d-none d-lg-table-cell">
+            <i class="bi bi-star-fill lh-icon"></i> Shows
+          </span>
+          <span class="lh-status"> <i class="bi bi-activity lh-icon"></i> Status </span>
+          <span v-if="canManage" class="lh-actions"></span>
         </div>
         <div
           v-for="(member, idx) in pagedMembers"
@@ -259,50 +266,65 @@
           :class="{ 'is-passive': member.status === 'passive' }"
           :style="`animation-delay:${idx * 0.03}s`"
         >
-          <span v-if="canManage" class="lh-avatar">
-            <img
-              :src="member.avatar_url || defaultAvatar"
-              :alt="member.name"
-              class="list-avatar"
-              loading="lazy"
-              @error="onImgError"
-            />
+          <span class="lh-avatar">
+            <span class="list-avatar-wrap">
+              <img
+                :src="member.avatar_url || defaultAvatar"
+                :alt="member.name"
+                class="list-avatar"
+                loading="lazy"
+                @error="onImgError"
+              />
+              <span
+                class="list-avatar-dot"
+                :class="member.status === 'active' ? 'dot-active' : 'dot-passive'"
+              ></span>
+            </span>
           </span>
           <span class="lh-name">
-            <span class="list-name" :title="member.nickname">{{ member.nickname }}</span>
-            <span class="list-sub">{{ member.stage_name || member.nickname || "–" }}</span>
+            <span class="list-name" :title="member.name">{{ member.nickname || member.name }}</span>
+            <span class="list-sub">{{ member.stage_name || member.name || "–" }}</span>
           </span>
           <span class="lh-role">
             <span
               v-if="member.role"
-              class="list-role-dot"
-              :style="`background:${roleColor(member.role)}`"
-            ></span>
-            <span class="list-role-text">{{ member.role || "–" }}</span>
+              class="list-role-pill"
+              :style="`background:${roleColor(member.role)}18;color:${roleColor(member.role)};border-color:${roleColor(member.role)}44`"
+            >
+              {{ member.role }}
+            </span>
+            <span v-else class="list-muted">–</span>
           </span>
-          <span class="lh-section list-muted">{{ member.section || "–" }}</span>
-          <span class="lh-year list-muted d-none d-md-table-cell">{{
-            member.year_join || "–"
-          }}</span>
-          <span class="lh-shows list-muted d-none d-lg-table-cell">
-            <i
-              class="bi bi-star-fill"
-              style="color: var(--gold-color); font-size: 0.7rem; margin-right: 2px"
-            ></i>
-            {{ member.performances ?? "0" }}
+          <span class="lh-section">
+            <span class="list-section-text">{{ member.section || "–" }}</span>
+          </span>
+          <span class="lh-year d-none d-md-table-cell">
+            <span class="list-muted">{{ member.year_join || "–" }}</span>
+          </span>
+          <span class="lh-shows d-none d-lg-table-cell">
+            <span class="list-perf-count">
+              <i class="bi bi-star-fill perf-star"></i>
+              {{ member.performances ?? "0" }}
+            </span>
           </span>
           <span class="lh-status">
             <span
               class="list-status-badge"
               :class="member.status === 'active' ? 'badge-active' : 'badge-passive'"
             >
+              <i
+                class="bi"
+                :class="
+                  member.status === 'active' ? 'bi-check-circle-fill' : 'bi-pause-circle-fill'
+                "
+              ></i>
               {{ member.status }}
             </span>
           </span>
           <span v-if="canManage" class="lh-actions">
             <button
               class="action-btn"
-              title="View"
+              title="View details"
               @click="openDetail(member)"
               aria-label="View details"
             >
@@ -310,7 +332,7 @@
             </button>
             <button
               class="action-btn action-edit"
-              title="Edit"
+              title="Edit member"
               @click="openEdit(member)"
               aria-label="Edit member"
             >
@@ -318,7 +340,7 @@
             </button>
             <button
               class="action-btn action-delete"
-              title="Delete"
+              title="Delete member"
               @click="confirmDelete(member)"
               aria-label="Delete member"
             >
@@ -1129,444 +1151,504 @@ export default {
 <style scoped>
 /* ══ Dark theme overrides ════════════════════════════════════════ */
 .content-card.bg-dark {
-    --surface-color: rgba(234, 220, 194, 0.04);
-    --hairline-color: rgba(234, 220, 194, 0.08);
-    --text-color: rgba(234, 220, 194, 0.85);
-    --muted-color: rgba(234, 220, 194, 0.45);
-    --ink-color: rgba(234, 220, 194, 0.92);
-    color: rgba(234, 220, 194, 0.78);
+  --surface-color: rgba(234, 220, 194, 0.04);
+  --hairline-color: rgba(234, 220, 194, 0.08);
+  --text-color: rgba(234, 220, 194, 0.85);
+  --muted-color: rgba(234, 220, 194, 0.45);
+  --ink-color: rgba(234, 220, 194, 0.92);
+  color: rgba(234, 220, 194, 0.78);
 }
 
 .members-title {
-    color: rgba(234, 220, 194, 0.92) !important;
+  color: rgba(234, 220, 194, 0.92) !important;
 }
 
 .stats-row {
-    border-top-color: rgba(234, 220, 194, 0.08) !important;
+  border-top-color: rgba(234, 220, 194, 0.08) !important;
 }
 
 .stat-value {
-    color: rgba(234, 220, 194, 0.85) !important;
+  color: rgba(234, 220, 194, 0.85) !important;
 }
 
 .stat-label {
-    color: rgba(234, 220, 194, 0.4) !important;
+  color: rgba(234, 220, 194, 0.4) !important;
 }
 
 .stat-divider {
-    background: rgba(234, 220, 194, 0.12) !important;
+  background: rgba(234, 220, 194, 0.12) !important;
 }
 
 .text-success-custom {
-    color: #4caf7d !important;
+  color: #4caf7d !important;
 }
 
 .filters-bar .search-input {
-    background: rgba(234, 220, 194, 0.04) !important;
-    border-color: rgba(234, 220, 194, 0.12) !important;
-    color: rgba(234, 220, 194, 0.8) !important;
+  background: rgba(234, 220, 194, 0.04) !important;
+  border-color: rgba(234, 220, 194, 0.12) !important;
+  color: rgba(234, 220, 194, 0.8) !important;
 }
 
 .filters-bar .search-input::placeholder {
-    color: rgba(234, 220, 194, 0.3) !important;
+  color: rgba(234, 220, 194, 0.3) !important;
 }
 
 .filters-bar .search-input:focus {
-    border-color: rgba(200, 164, 93, 0.4) !important;
-    box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1) !important;
+  border-color: rgba(200, 164, 93, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1) !important;
 }
 
 .filters-bar .search-icon {
-    color: rgba(234, 220, 194, 0.35) !important;
+  color: rgba(234, 220, 194, 0.35) !important;
 }
 
 .filters-bar .search-clear {
-    color: rgba(234, 220, 194, 0.35) !important;
+  color: rgba(234, 220, 194, 0.35) !important;
 }
 
 .filters-bar .search-clear:hover {
-    color: rgba(200, 164, 93, 0.7) !important;
+  color: rgba(200, 164, 93, 0.7) !important;
 }
 
 .filter-chip {
-    border-color: rgba(234, 220, 194, 0.12) !important;
-    background: rgba(234, 220, 194, 0.03) !important;
-    color: rgba(234, 220, 194, 0.55) !important;
+  border-color: rgba(234, 220, 194, 0.12) !important;
+  background: rgba(234, 220, 194, 0.03) !important;
+  color: rgba(234, 220, 194, 0.55) !important;
 }
 
 .filter-chip:hover {
-    border-color: rgba(200, 164, 93, 0.35) !important;
-    color: rgba(234, 220, 194, 0.8) !important;
-    background: rgba(200, 164, 93, 0.08) !important;
+  border-color: rgba(200, 164, 93, 0.35) !important;
+  color: rgba(234, 220, 194, 0.8) !important;
+  background: rgba(200, 164, 93, 0.08) !important;
 }
 
 .filter-chip.active {
-    border-color: rgba(200, 164, 93, 0.4) !important;
-    background: rgba(200, 164, 93, 0.12) !important;
-    color: #c8a45d !important;
+  border-color: rgba(200, 164, 93, 0.4) !important;
+  background: rgba(200, 164, 93, 0.12) !important;
+  color: #c8a45d !important;
 }
 
 .view-btn {
-    border-color: rgba(234, 220, 194, 0.12) !important;
-    color: rgba(234, 220, 194, 0.4) !important;
-    background: rgba(234, 220, 194, 0.03) !important;
+  border-color: rgba(234, 220, 194, 0.12) !important;
+  color: rgba(234, 220, 194, 0.4) !important;
+  background: rgba(234, 220, 194, 0.03) !important;
 }
 
 .view-btn.active,
 .view-btn:hover {
-    border-color: rgba(200, 164, 93, 0.35) !important;
-    color: #c8a45d !important;
-    background: rgba(200, 164, 93, 0.08) !important;
+  border-color: rgba(200, 164, 93, 0.35) !important;
+  color: #c8a45d !important;
+  background: rgba(200, 164, 93, 0.08) !important;
 }
 
 .perpage-select {
-    background: rgba(234, 220, 194, 0.04) !important;
-    border-color: rgba(234, 220, 194, 0.12) !important;
-    color: rgba(234, 220, 194, 0.7) !important;
+  background: rgba(234, 220, 194, 0.04) !important;
+  border-color: rgba(234, 220, 194, 0.12) !important;
+  color: rgba(234, 220, 194, 0.7) !important;
 }
 
 .perpage-label {
-    color: rgba(234, 220, 194, 0.4) !important;
+  color: rgba(234, 220, 194, 0.4) !important;
 }
 
 .member-card {
-    background: rgba(26, 31, 48, 0.95) !important;
-    border-color: rgba(234, 220, 194, 0.08) !important;
-    box-shadow: 0 2px 12px rgba(8, 8, 14, 0.2) !important;
+  background: rgba(26, 31, 48, 0.95) !important;
+  border-color: rgba(234, 220, 194, 0.08) !important;
+  box-shadow: 0 2px 12px rgba(8, 8, 14, 0.2) !important;
 }
 
 .member-card:hover {
-    border-color: rgba(200, 164, 93, 0.35) !important;
-    box-shadow: 0 12px 32px rgba(8, 8, 14, 0.3) !important;
+  border-color: rgba(200, 164, 93, 0.35) !important;
+  box-shadow: 0 12px 32px rgba(8, 8, 14, 0.3) !important;
 }
 
 .member-name {
-    color: rgba(234, 220, 194, 0.88) !important;
+  color: rgba(234, 220, 194, 0.88) !important;
 }
 
 .member-sub {
-    color: rgba(234, 220, 194, 0.45) !important;
+  color: rgba(234, 220, 194, 0.45) !important;
 }
 
 .meta-item {
-    color: rgba(234, 220, 194, 0.45) !important;
+  color: rgba(234, 220, 194, 0.45) !important;
 }
 
 .member-actions {
-    border-top-color: rgba(234, 220, 194, 0.06) !important;
+  border-top-color: rgba(234, 220, 194, 0.06) !important;
 }
 
 .action-btn {
-    border-color: rgba(234, 220, 194, 0.1) !important;
-    color: rgba(234, 220, 194, 0.4) !important;
+  border-color: rgba(234, 220, 194, 0.1) !important;
+  color: rgba(234, 220, 194, 0.4) !important;
+  background: transparent !important;
+  transition: all 0.2s ease !important;
 }
 
 .action-btn:hover {
-    border-color: rgba(234, 220, 194, 0.25) !important;
-    color: rgba(234, 220, 194, 0.7) !important;
-    background: rgba(234, 220, 194, 0.06) !important;
+  border-color: rgba(234, 220, 194, 0.25) !important;
+  color: rgba(234, 220, 194, 0.7) !important;
+  background: rgba(234, 220, 194, 0.06) !important;
+  transform: translateY(-1px) !important;
 }
 
 .action-btn.action-edit:hover {
-    border-color: rgba(200, 164, 93, 0.4) !important;
-    color: #c8a45d !important;
-    background: rgba(200, 164, 93, 0.08) !important;
+  border-color: rgba(200, 164, 93, 0.4) !important;
+  color: #c8a45d !important;
+  background: rgba(200, 164, 93, 0.08) !important;
 }
 
 .action-btn.action-delete:hover {
-    border-color: rgba(220, 53, 69, 0.4) !important;
-    color: #e05050 !important;
-    background: rgba(220, 53, 69, 0.08) !important;
+  border-color: rgba(220, 53, 69, 0.4) !important;
+  color: #e05050 !important;
+  background: rgba(220, 53, 69, 0.08) !important;
+}
+
+.action-btn:active {
+  transform: translateY(0) scale(0.95) !important;
+}
+
+.members-list {
+  background: rgba(26, 31, 48, 0.95) !important;
+  border-color: rgba(234, 220, 194, 0.08) !important;
 }
 
 .list-header {
-    border-bottom-color: rgba(234, 220, 194, 0.08) !important;
-    color: rgba(234, 220, 194, 0.45) !important;
+  border-bottom-color: rgba(234, 220, 194, 0.08) !important;
+  background: linear-gradient(135deg, rgba(200, 164, 93, 0.12), rgba(127, 36, 50, 0.06)) !important;
+  color: rgba(234, 220, 194, 0.45) !important;
 }
 
 .list-row {
-    border-bottom-color: rgba(234, 220, 194, 0.04) !important;
+  border-bottom-color: rgba(234, 220, 194, 0.04) !important;
+  background: transparent !important;
+}
+
+.list-row::after {
+  background: rgba(234, 220, 194, 0.04) !important;
 }
 
 .list-row:hover {
-    background: rgba(200, 164, 93, 0.04) !important;
+  background: rgba(200, 164, 93, 0.06) !important;
+  box-shadow: inset 2px 0 0 rgba(200, 164, 93, 0.3) !important;
+}
+
+.list-row:nth-child(even) {
+  background: rgba(234, 220, 194, 0.02) !important;
+}
+
+.list-row:nth-child(even):hover {
+  background: rgba(200, 164, 93, 0.06) !important;
 }
 
 .list-name {
-    color: rgba(234, 220, 194, 0.85) !important;
+  color: rgba(234, 220, 194, 0.85) !important;
+}
+
+.list-row:hover .list-name {
+  color: #c8a45d !important;
 }
 
 .list-sub {
-    color: rgba(234, 220, 194, 0.45) !important;
+  color: rgba(234, 220, 194, 0.45) !important;
 }
 
 .list-muted {
-    color: rgba(234, 220, 194, 0.45) !important;
+  color: rgba(234, 220, 194, 0.45) !important;
 }
 
-.list-role-text {
-    color: rgba(234, 220, 194, 0.7) !important;
+.list-section-text {
+  color: rgba(234, 220, 194, 0.7) !important;
+}
+
+.list-perf-count {
+  color: rgba(234, 220, 194, 0.7) !important;
+}
+
+.list-avatar {
+  border-color: rgba(234, 220, 194, 0.1) !important;
+}
+
+.list-row:hover .list-avatar {
+  border-color: #c8a45d !important;
+}
+
+.list-avatar-dot {
+  border-color: rgba(26, 31, 48, 0.95) !important;
+}
+
+.list-role-pill {
+  background: rgba(234, 220, 194, 0.06) !important;
+  color: rgba(234, 220, 194, 0.6) !important;
+  border-color: rgba(234, 220, 194, 0.12) !important;
+}
+
+.list-status-badge.badge-passive {
+  background: rgba(234, 220, 194, 0.06) !important;
+  color: rgba(234, 220, 194, 0.45) !important;
+  border-color: rgba(234, 220, 194, 0.12) !important;
 }
 
 .pagination-bar {
-    border-top-color: rgba(234, 220, 194, 0.06) !important;
+  border-top-color: rgba(234, 220, 194, 0.06) !important;
 }
 
 .pagination-info,
 .result-count {
-    color: rgba(234, 220, 194, 0.4) !important;
+  color: rgba(234, 220, 194, 0.4) !important;
 }
 
 .page-btn {
-    border-color: rgba(234, 220, 194, 0.1) !important;
-    color: rgba(234, 220, 194, 0.4) !important;
-    background: rgba(234, 220, 194, 0.03) !important;
+  border-color: rgba(234, 220, 194, 0.1) !important;
+  color: rgba(234, 220, 194, 0.4) !important;
+  background: rgba(234, 220, 194, 0.03) !important;
 }
 
 .page-btn:hover:not(:disabled):not(.ellipsis) {
-    border-color: rgba(200, 164, 93, 0.3) !important;
-    color: #c8a45d !important;
-    background: rgba(200, 164, 93, 0.08) !important;
+  border-color: rgba(200, 164, 93, 0.3) !important;
+  color: #c8a45d !important;
+  background: rgba(200, 164, 93, 0.08) !important;
 }
 
 .page-btn.active {
-    border-color: #c8a45d !important;
-    background: rgba(200, 164, 93, 0.12) !important;
-    color: #c8a45d !important;
+  border-color: #c8a45d !important;
+  background: rgba(200, 164, 93, 0.12) !important;
+  color: #c8a45d !important;
 }
 
 .page-btn:disabled {
-    opacity: 0.2 !important;
+  opacity: 0.2 !important;
 }
 
 .result-count {
-    color: rgba(234, 220, 194, 0.4) !important;
+  color: rgba(234, 220, 194, 0.4) !important;
 }
 
 .loading-state {
-    color: rgba(234, 220, 194, 0.45) !important;
+  color: rgba(234, 220, 194, 0.45) !important;
 }
 
 .member-photo-wrap {
-    background: rgba(26, 31, 48, 0.9) !important;
+  background: rgba(26, 31, 48, 0.9) !important;
 }
 
 .member-photo-overlay {
-    background: rgba(8, 8, 14, 0.5) !important;
+  background: rgba(8, 8, 14, 0.5) !important;
 }
 
 .status-dot.is-active {
-    background: #4caf7d !important;
-    box-shadow: 0 0 0 3px rgba(76, 175, 125, 0.18) !important;
+  background: #4caf7d !important;
+  box-shadow: 0 0 0 3px rgba(76, 175, 125, 0.18) !important;
 }
 
 /* Modal dark theme */
 .modal-overlay {
-    background: rgba(8, 8, 14, 0.7) !important;
-    backdrop-filter: blur(6px) !important;
+  background: rgba(8, 8, 14, 0.7) !important;
+  backdrop-filter: blur(6px) !important;
 }
 
 .modal-sheet {
-    background: linear-gradient(135deg, rgba(200, 164, 93, 0.04), transparent),
-                linear-gradient(180deg, #1a1f30, #111420) !important;
-    border: 1px solid rgba(234, 220, 194, 0.12) !important;
-    color: rgba(234, 220, 194, 0.8) !important;
+  background:
+    linear-gradient(135deg, rgba(200, 164, 93, 0.04), transparent),
+    linear-gradient(180deg, #1a1f30, #111420) !important;
+  border: 1px solid rgba(234, 220, 194, 0.12) !important;
+  color: rgba(234, 220, 194, 0.8) !important;
 }
 
 .modal-sheet-title {
-    color: rgba(234, 220, 194, 0.88) !important;
+  color: rgba(234, 220, 194, 0.88) !important;
 }
 
 .modal-sheet-sub {
-    color: rgba(234, 220, 194, 0.45) !important;
+  color: rgba(234, 220, 194, 0.45) !important;
 }
 
 .modal-header-row {
-    border-bottom: 1px solid rgba(234, 220, 194, 0.08) !important;
+  border-bottom: 1px solid rgba(234, 220, 194, 0.08) !important;
 }
 
 .modal-footer-row {
-    border-top: 1px solid rgba(234, 220, 194, 0.08) !important;
+  border-top: 1px solid rgba(234, 220, 194, 0.08) !important;
 }
 
 .modal-close-btn {
-    color: rgba(234, 220, 194, 0.4) !important;
+  color: rgba(234, 220, 194, 0.4) !important;
 }
 
 .modal-close-btn:hover {
-    color: rgba(234, 220, 194, 0.7) !important;
-    background: rgba(234, 220, 194, 0.06) !important;
+  color: rgba(234, 220, 194, 0.7) !important;
+  background: rgba(234, 220, 194, 0.06) !important;
 }
 
 .modal-icon-wrap {
-    background: rgba(200, 164, 93, 0.1) !important;
-    color: #c8a45d !important;
+  background: rgba(200, 164, 93, 0.1) !important;
+  color: #c8a45d !important;
 }
 
 .form-error-banner {
-    background: rgba(220, 53, 69, 0.1) !important;
-    border: 1px solid rgba(220, 53, 69, 0.2) !important;
-    color: #e05050 !important;
+  background: rgba(220, 53, 69, 0.1) !important;
+  border: 1px solid rgba(220, 53, 69, 0.2) !important;
+  color: #e05050 !important;
 }
 
 .form-section-label {
-    color: rgba(234, 220, 194, 0.5) !important;
+  color: rgba(234, 220, 194, 0.5) !important;
 }
 
 .form-lbl {
-    color: rgba(234, 220, 194, 0.7) !important;
+  color: rgba(234, 220, 194, 0.7) !important;
 }
 
 .form-inp {
-    background: rgba(234, 220, 194, 0.05) !important;
-    border: 1px solid rgba(234, 220, 194, 0.12) !important;
-    color: rgba(234, 220, 194, 0.8) !important;
+  background: rgba(234, 220, 194, 0.05) !important;
+  border: 1px solid rgba(234, 220, 194, 0.12) !important;
+  color: rgba(234, 220, 194, 0.8) !important;
 }
 
 .form-inp:focus {
-    border-color: rgba(200, 164, 93, 0.4) !important;
-    box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1) !important;
-    background: rgba(234, 220, 194, 0.08) !important;
+  border-color: rgba(200, 164, 93, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.1) !important;
+  background: rgba(234, 220, 194, 0.08) !important;
 }
 
 .form-inp::placeholder {
-    color: rgba(234, 220, 194, 0.25) !important;
+  color: rgba(234, 220, 194, 0.25) !important;
 }
 
 .form-hint {
-    color: rgba(234, 220, 194, 0.35) !important;
+  color: rgba(234, 220, 194, 0.35) !important;
 }
 
 .form-hint.error {
-    color: #e05050 !important;
+  color: #e05050 !important;
 }
 
 .role-option {
-    border-color: rgba(234, 220, 194, 0.12) !important;
-    background: rgba(234, 220, 194, 0.03) !important;
-    color: rgba(234, 220, 194, 0.6) !important;
+  border-color: rgba(234, 220, 194, 0.12) !important;
+  background: rgba(234, 220, 194, 0.03) !important;
+  color: rgba(234, 220, 194, 0.6) !important;
 }
 
 .role-option:hover {
-    border-color: rgba(200, 164, 93, 0.3) !important;
-    color: #c8a45d !important;
+  border-color: rgba(200, 164, 93, 0.3) !important;
+  color: #c8a45d !important;
 }
 
 .status-option {
-    border-color: rgba(234, 220, 194, 0.12) !important;
-    background: rgba(234, 220, 194, 0.03) !important;
-    color: rgba(234, 220, 194, 0.6) !important;
+  border-color: rgba(234, 220, 194, 0.12) !important;
+  background: rgba(234, 220, 194, 0.03) !important;
+  color: rgba(234, 220, 194, 0.6) !important;
 }
 
 .status-option.active {
-    border-color: rgba(200, 164, 93, 0.35) !important;
-    background: rgba(200, 164, 93, 0.08) !important;
-    color: #c8a45d !important;
+  border-color: rgba(200, 164, 93, 0.35) !important;
+  background: rgba(200, 164, 93, 0.08) !important;
+  color: #c8a45d !important;
 }
 
 .delete-icon-wrap {
-    background: rgba(220, 53, 69, 0.1) !important;
-    color: #e05050 !important;
+  background: rgba(220, 53, 69, 0.1) !important;
+  color: #e05050 !important;
 }
 
 .detail-banner {
-    background: linear-gradient(135deg, rgba(127, 36, 50, 0.15), rgba(200, 164, 93, 0.05)) !important;
+  background: linear-gradient(135deg, rgba(127, 36, 50, 0.15), rgba(200, 164, 93, 0.05)) !important;
 }
 
 .detail-name {
-    color: rgba(234, 220, 194, 0.92) !important;
+  color: rgba(234, 220, 194, 0.92) !important;
 }
 
 .detail-stagename {
-    color: rgba(234, 220, 194, 0.55) !important;
+  color: rgba(234, 220, 194, 0.55) !important;
 }
 
 .detail-section-title {
-    color: rgba(234, 220, 194, 0.5) !important;
+  color: rgba(234, 220, 194, 0.5) !important;
 }
 
 .df-label {
-    color: rgba(234, 220, 194, 0.4) !important;
+  color: rgba(234, 220, 194, 0.4) !important;
 }
 
 .df-value {
-    color: rgba(234, 220, 194, 0.75) !important;
+  color: rgba(234, 220, 194, 0.75) !important;
 }
 
 .df-link {
-    color: #c8a45d !important;
+  color: #c8a45d !important;
 }
 
 .df-link:hover {
-    color: rgba(200, 164, 93, 0.8) !important;
+  color: rgba(200, 164, 93, 0.8) !important;
 }
 
 .empty-state {
-    text-align: center;
+  text-align: center;
 }
 
 .modal-body-scroll .text-muted {
-    color: rgba(234, 220, 194, 0.45) !important;
+  color: rgba(234, 220, 194, 0.45) !important;
 }
 
 .add-name {
-    color: rgba(234, 220, 194, 0.8) !important;
+  color: rgba(234, 220, 194, 0.8) !important;
 }
 
 .add-meta {
-    color: rgba(234, 220, 194, 0.45) !important;
+  color: rgba(234, 220, 194, 0.45) !important;
 }
 
 .add-row {
-    border-color: rgba(234, 220, 194, 0.06) !important;
+  border-color: rgba(234, 220, 194, 0.06) !important;
 }
 
 .add-row:hover {
-    background: rgba(200, 164, 93, 0.04) !important;
+  background: rgba(200, 164, 93, 0.04) !important;
 }
 
 .add-row.selected {
-    background: rgba(200, 164, 93, 0.06) !important;
-    border-color: rgba(200, 164, 93, 0.2) !important;
+  background: rgba(200, 164, 93, 0.06) !important;
+  border-color: rgba(200, 164, 93, 0.2) !important;
 }
 
 .list-status-badge {
-    background: rgba(234, 220, 194, 0.06) !important;
-    color: rgba(234, 220, 194, 0.6) !important;
+  background: rgba(234, 220, 194, 0.06) !important;
+  color: rgba(234, 220, 194, 0.6) !important;
 }
 
 .badge-active {
-    background: rgba(76, 175, 125, 0.12) !important;
-    color: #4caf7d !important;
+  background: rgba(76, 175, 125, 0.12) !important;
+  color: #4caf7d !important;
 }
 
 .badge-passive {
-    background: rgba(234, 220, 194, 0.06) !important;
-    color: rgba(234, 220, 194, 0.45) !important;
+  background: rgba(234, 220, 194, 0.06) !important;
+  color: rgba(234, 220, 194, 0.45) !important;
 }
 
 .detail-badge {
-    background: rgba(234, 220, 194, 0.06) !important;
-    color: rgba(234, 220, 194, 0.6) !important;
-    border-color: rgba(234, 220, 194, 0.1) !important;
+  background: rgba(234, 220, 194, 0.06) !important;
+  color: rgba(234, 220, 194, 0.6) !important;
+  border-color: rgba(234, 220, 194, 0.1) !important;
 }
 
 .badge-role {
-    background: transparent !important;
+  background: transparent !important;
 }
 
 .badge-gold {
-    background: rgba(200, 164, 93, 0.1) !important;
-    color: #c8a45d !important;
-    border-color: rgba(200, 164, 93, 0.15) !important;
+  background: rgba(200, 164, 93, 0.1) !important;
+  color: #c8a45d !important;
+  border-color: rgba(200, 164, 93, 0.15) !important;
 }
 
 .btn-link {
-    color: #c8a45d !important;
+  color: #c8a45d !important;
 }
 
 .btn-link:hover {
-    color: rgba(200, 164, 93, 0.8) !important;
+  color: rgba(200, 164, 93, 0.8) !important;
 }
 
 /* ── Page header ─────────────────────────────────────────────────── */
@@ -1957,7 +2039,7 @@ export default {
 .action-btn {
   flex: 1;
   border: 1px solid var(--hairline-color, rgba(34, 29, 20, 0.12));
-  border-radius: 6px;
+  border-radius: 7px;
   background: transparent;
   color: var(--muted-color, #6f6a61);
   font-size: 0.82rem;
@@ -1971,6 +2053,11 @@ export default {
   border-color: var(--ink-color, #191b24);
   color: var(--ink-color, #191b24);
   background: rgba(25, 27, 36, 0.06);
+  transform: translateY(-1px);
+}
+
+.action-btn:active {
+  transform: translateY(0) scale(0.95);
 }
 
 .action-btn.action-edit:hover {
@@ -2557,81 +2644,141 @@ export default {
 /* ── List view ───────────────────────────────────────────────────── */
 .members-list {
   border: 1px solid var(--hairline-color);
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   overflow: hidden;
-  background: var(--surface-color);
-  box-shadow: 0 2px 12px rgba(19, 18, 16, 0.05);
+  background: rgba(255, 253, 248, 0.96);
+  box-shadow:
+    0 1px 3px rgba(19, 18, 16, 0.04),
+    0 4px 16px rgba(19, 18, 16, 0.06);
 }
+
 .list-header {
   display: grid;
-  grid-template-columns: 48px 1fr 100px 120px 80px 70px 100px 120px;
+  grid-template-columns: 52px 1fr 100px 120px 80px 72px 100px 120px;
   align-items: center;
   padding: 0 1.25rem;
-  height: 40px;
-  background: linear-gradient(135deg, rgba(200, 164, 93, 0.1), rgba(127, 36, 50, 0.05));
+  height: 42px;
+  background: linear-gradient(135deg, rgba(200, 164, 93, 0.12), rgba(127, 36, 50, 0.06));
   border-bottom: 1px solid var(--hairline-color);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--muted-color);
+  letter-spacing: 0.08em;
+  color: rgba(111, 106, 97, 0.7);
   gap: 0.75rem;
   position: sticky;
   top: 0;
   z-index: 2;
+  user-select: none;
 }
+
+.lh-icon {
+  font-size: 0.6rem;
+  margin-right: 4px;
+  opacity: 0.6;
+  vertical-align: middle;
+}
+
 .list-row {
   display: grid;
-  grid-template-columns: 48px 1fr 100px 120px 80px 70px 100px 120px;
+  grid-template-columns: 52px 1fr 100px 120px 80px 72px 100px 120px;
   align-items: center;
-  padding: 0.7rem 1.25rem;
+  padding: 0.75rem 1.25rem;
   gap: 0.75rem;
-  border-bottom: 1px solid var(--hairline-color);
+  border-bottom: 1px solid rgba(34, 29, 20, 0.05);
   transition:
     background 0.2s ease,
-    transform 0.15s ease;
+    box-shadow 0.2s ease;
   animation: fadeInUp 0.35s ease-out both;
+  position: relative;
 }
+
+.list-row::after {
+  content: "";
+  position: absolute;
+  left: 1.25rem;
+  right: 1.25rem;
+  bottom: -0.5px;
+  height: 1px;
+  background: rgba(34, 29, 20, 0.04);
+}
+
 .list-row:last-child {
   border-bottom: 0;
 }
+
+.list-row:last-child::after {
+  display: none;
+}
+
 .list-row:hover {
-  background: rgba(200, 164, 93, 0.06);
+  background: rgba(200, 164, 93, 0.05);
+  box-shadow: inset 2px 0 0 rgba(200, 164, 93, 0.3);
+  z-index: 1;
 }
+
 .list-row.is-passive {
-  opacity: 0.5;
-  filter: grayscale(0.4);
+  opacity: 0.55;
 }
+
 .list-row.is-passive:hover {
-  opacity: 0.8;
-  filter: none;
+  opacity: 0.85;
 }
 
 .list-row:nth-child(even) {
-  background: rgba(34, 29, 20, 0.015);
+  background: rgba(34, 29, 20, 0.012);
 }
+
 .list-row:nth-child(even):hover {
-  background: rgba(200, 164, 93, 0.06);
+  background: rgba(200, 164, 93, 0.05);
 }
 
 .lh-avatar {
   display: flex;
   align-items: center;
 }
+
+.list-avatar-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
 .list-avatar {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
   object-position: top;
-  border: 2px solid var(--hairline-color);
+  border: 2px solid rgba(34, 29, 20, 0.08);
   transition:
-    border-color 0.2s ease,
-    transform 0.2s ease;
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
+
 .list-row:hover .list-avatar {
   border-color: var(--gold-color);
-  transform: scale(1.05);
+  transform: scale(1.06);
+  box-shadow: 0 4px 12px rgba(200, 164, 93, 0.25);
+}
+
+.list-avatar-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 253, 248, 0.96);
+  z-index: 1;
+}
+
+.list-avatar-dot.dot-active {
+  background: #4a7c59;
+}
+
+.list-avatar-dot.dot-passive {
+  background: #aaa;
 }
 
 .lh-name {
@@ -2639,17 +2786,24 @@ export default {
   flex-direction: column;
   min-width: 0;
 }
+
 .list-name {
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--ink-color);
+  color: var(--ink-color, #191b24);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.2s ease;
 }
+
+.list-row:hover .list-name {
+  color: var(--gold-color, #c8a45d);
+}
+
 .list-sub {
   font-size: 0.75rem;
-  color: var(--muted-color);
+  color: var(--muted-color, #6f6a61);
   font-style: italic;
   white-space: nowrap;
   overflow: hidden;
@@ -2662,49 +2816,84 @@ export default {
   align-items: center;
   gap: 0.4rem;
 }
-.list-role-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 0 0 2px rgba(200, 164, 93, 0.15);
+
+.list-role-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1px solid;
+  transition: transform 0.2s ease;
 }
-.list-role-text {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--ink-color);
+
+.list-row:hover .list-role-pill {
+  transform: translateY(-1px);
 }
 
 .list-muted {
   font-size: 0.82rem;
-  color: var(--muted-color);
+  color: var(--muted-color, #6f6a61);
+}
+
+.list-section-text {
+  font-size: 0.82rem;
+  color: var(--ink-color, #191b24);
+  font-weight: 500;
+}
+
+.list-perf-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink-color, #191b24);
+  font-variant-numeric: tabular-nums;
+}
+
+.perf-star {
+  color: var(--gold-color, #c8a45d);
+  font-size: 0.6rem;
 }
 
 .lh-status {
   display: flex;
   align-items: center;
 }
+
 .list-status-badge {
   display: inline-flex;
   align-items: center;
+  gap: 0.35rem;
   padding: 0.22rem 0.7rem;
   border-radius: 999px;
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   border: 1px solid transparent;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
+
+.list-status-badge i {
+  font-size: 0.65rem;
+}
+
 .list-status-badge.badge-active {
   background: rgba(74, 124, 89, 0.1);
   color: #4a7c59;
-  border-color: rgba(74, 124, 89, 0.25);
+  border-color: rgba(74, 124, 89, 0.22);
 }
+
 .list-status-badge.badge-passive {
-  background: rgba(180, 180, 180, 0.12);
+  background: rgba(180, 180, 180, 0.1);
   color: #888;
-  border-color: rgba(180, 180, 180, 0.25);
+  border-color: rgba(180, 180, 180, 0.2);
 }
+
 .list-row:hover .list-status-badge {
   transform: translateY(-1px);
 }
@@ -2712,17 +2901,34 @@ export default {
 .lh-actions {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
   justify-content: flex-end;
+  opacity: 0.5;
+  transition: opacity 0.25s ease;
+}
+
+.list-row:hover .lh-actions {
+  opacity: 1;
+}
+
+/* No actions variant — remove actions column from grid */
+.members-list.no-actions .list-header,
+.members-list.no-actions .list-row {
+  grid-template-columns: 52px 1fr 100px 120px 80px 72px 100px;
 }
 
 /* Tablet */
 @media (max-width: 991.98px) {
   .list-header,
   .list-row {
-    grid-template-columns: 44px 1fr 90px 110px 70px 90px;
+    grid-template-columns: 48px 1fr 90px 110px 0 0 90px 100px;
   }
-  .lh-year {
+  .members-list.no-actions .list-header,
+  .members-list.no-actions .list-row {
+    grid-template-columns: 48px 1fr 90px 110px 0 0 90px;
+  }
+  .lh-year,
+  .lh-shows {
     display: none;
   }
 }
@@ -2733,27 +2939,41 @@ export default {
     display: none;
   }
 
+  .members-list {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
   .list-row {
-    grid-template-columns: 44px 1fr auto;
+    grid-template-columns: 48px 1fr auto;
     grid-template-rows: auto auto auto;
-    gap: 0.35rem 0.75rem;
+    gap: 0.3rem 0.75rem;
     padding: 0.85rem 1rem;
     align-items: center;
-    border-radius: var(--radius-md);
+    border-radius: 10px;
     margin-bottom: 0.5rem;
     border: 1px solid var(--hairline-color);
-    background: var(--surface-color);
+    background: rgba(255, 253, 248, 0.96);
     box-shadow: 0 1px 4px rgba(19, 18, 16, 0.04);
   }
 
   .list-row:last-child {
     margin-bottom: 0;
-    border-bottom: 1px solid var(--hairline-color);
+  }
+
+  .list-row::after {
+    display: none;
   }
 
   .lh-avatar {
     grid-column: 1;
     grid-row: 1;
+  }
+  .list-avatar {
+    width: 36px;
+    height: 36px;
   }
   .lh-name {
     grid-column: 2;
@@ -2762,7 +2982,6 @@ export default {
   .lh-role {
     grid-column: 2;
     grid-row: 2;
-    font-size: 0.75rem;
   }
   .lh-section {
     display: none;
@@ -2783,6 +3002,7 @@ export default {
     padding-top: 0.5rem;
     border-top: 1px solid var(--hairline-color);
     margin-top: 0.25rem;
+    opacity: 1;
   }
 
   .action-btn {
