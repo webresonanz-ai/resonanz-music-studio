@@ -6,9 +6,14 @@
           <h2 class="fw-bold mb-1">Concert Ticket Preview</h2>
           <p class="text-muted mb-0">Registration ID: {{ id }}</p>
         </div>
-        <button class="btn btn-outline-secondary" @click="router.back()">
-          <i class="bi bi-arrow-left me-2"></i>Back
-        </button>
+        <div>
+          <button class="btn btn-outline-primary me-2" @click="downloadTicket" :disabled="!pdfUrl">
+            <i class="bi bi-download me-2"></i>Download PDF
+          </button>
+          <button class="btn btn-outline-secondary" @click="router.back()">
+            <i class="bi bi-arrow-left me-2"></i>Back
+          </button>
+        </div>
       </div>
 
       <!-- Loading / waiting for auth -->
@@ -50,9 +55,10 @@ const authStore = useAuthStore()
 
 const id = route.params.id
 const pdfUrl = ref(null)
-const loading = ref(true)   // start as true — we're either waiting for auth or fetching
+const loading = ref(true)
 const errorMessage = ref('')
-const loaded = ref(false)   // guard against calling loadTicket more than once
+const loaded = ref(false)
+const audienceName = ref('')
 
 async function loadTicket() {
   if (loaded.value) return
@@ -69,13 +75,27 @@ async function loadTicket() {
   errorMessage.value = ''
 
   try {
-    const blob = await apiStore.fetchBlob(`/trms/concert/ticket/${id}`)
-    pdfUrl.value = URL.createObjectURL(blob)
+    const [pdfBlob, audienceData] = await Promise.all([
+      apiStore.fetchBlob(`/trms/concert/ticket/${id}`),
+      apiStore.get(`/trms/concert/audiences/${id}`)
+    ])
+    pdfUrl.value = URL.createObjectURL(pdfBlob)
+    audienceName.value = audienceData?.data?.name || ''
   } catch (error) {
     errorMessage.value = error.message || 'Failed to load ticket PDF'
   } finally {
     loading.value = false
   }
+}
+
+function downloadTicket() {
+  if (!pdfUrl.value) return
+  const link = document.createElement('a')
+  link.href = pdfUrl.value
+  link.download = `${audienceName.value || 'ticket'}.pdf`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 
 // Watch authStore.user — handles both:

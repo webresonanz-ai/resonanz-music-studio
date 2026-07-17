@@ -693,7 +693,7 @@ export default {
     },
 
     downloadTicketPdf(id) {
-      this.$router.push(`/trms/concert/ticket/${id}`);
+      window.open(`/trms/concert/ticket/${id}`, '_blank');
     },
 
     openEditModal(audience) {
