@@ -143,46 +143,41 @@
           <table class="table tbl align-middle mb-0">
             <thead>
               <tr>
+                <th scope="col" class="text-center" style="width: 40px"></th>
                 <th scope="col">Name</th>
-                <th scope="col">Email</th>
-                <th scope="col">Phone</th>
                 <th scope="col">Concert Title</th>
-                <th scope="col" class="text-center">Qty</th>
-                <th scope="col" class="text-center">Seat #</th>
-                <th scope="col">Created At</th>
-                <th scope="col" class="text-center">Attended At</th>
+                <th scope="col" class="text-center">Seat</th>
+                <th scope="col" class="text-center">Attended</th>
                 <th scope="col">Notes</th>
                 <th scope="col" class="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="audience in audiences" :key="audience.id" class="tbl-row">
+                <td class="text-center" data-label="">
+                  <button
+                    v-if="!audience.attended_at"
+                    type="button"
+                    class="tbl-action-btn tbl-action-btn--check"
+                    title="Mark as attended"
+                    @click="openAttendModal(audience)"
+                  >
+                    <i class="bi bi-check-circle"></i>
+                  </button>
+                  <span v-else class="tbl-checked-icon">
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                  </span>
+                </td>
                 <td data-label="Name">
                   <span class="tbl-name">{{ audience.name }}</span>
                 </td>
-                <td data-label="Email">
-                  <div class="tbl-email">{{ audience.email }}</div>
-                  <div v-if="audience.send_email_status" class="mt-1">
-                    <span
-                      class="tbl-email-status"
-                      :class="'tbl-email-status--' + audience.send_email_status"
-                    >
-                      {{ audience.send_email_status }}
-                    </span>
-                  </div>
-                </td>
-                <td class="tbl-phone" data-label="Phone">{{ audience.phone }}</td>
                 <td class="tbl-cell" data-label="Concert">{{ audience.concert_title }}</td>
-                <td class="text-center" data-label="Qty">
-                  <span class="tbl-badge tbl-badge-ticket">{{ audience.ticket_quantity }}</span>
-                </td>
-                <td class="text-center" data-label="Seat #">
+                <td class="text-center" data-label="Seat">
                   <span v-if="audience.seat_number" class="tbl-seat">{{
                     audience.seat_number
                   }}</span>
                   <span v-else class="tbl-cell text-center" style="opacity: 0.3">—</span>
                 </td>
-                <td class="tbl-cell" data-label="Created At">{{ formatDate(audience.created_at) }}</td>
                 <td class="text-center" data-label="Attended">
                   <span
                     v-if="audience.attended_at"
@@ -549,6 +544,69 @@
       </Transition>
       <div v-if="emailModal.visible" class="modal-backdrop fade show"></div>
     </Teleport>
+
+    <!-- ── Mark Attended Confirm Modal ──────────────────────────────────── -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div
+          v-if="attendModal.visible"
+          class="modal fade show d-block"
+          tabindex="-1"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="attendModalLabel"
+          @click.self="closeAttendModal"
+        >
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content modal-content-dark">
+              <div class="modal-header modal-header-dark border-0">
+                <h5 class="modal-title fw-bold text-success" id="attendModalLabel">
+                  <i class="bi bi-check-circle-fill me-2"></i>
+                  Mark as Attended
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close btn-close-white"
+                  aria-label="Close"
+                  @click="closeAttendModal"
+                ></button>
+              </div>
+              <div class="modal-body pt-0">
+                <p class="mb-1 text-champagne-muted">
+                  Confirm that this guest has attended the concert?
+                </p>
+                <p class="fw-semibold mb-0 text-champagne">
+                  {{ attendModal.audience?.name }} &mdash; {{ attendModal.audience?.concert_title }}
+                </p>
+              </div>
+              <div class="modal-footer modal-footer-dark border-0 flex-column flex-sm-row gap-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-gold w-100 w-sm-auto"
+                  @click="closeAttendModal"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-success w-100 w-sm-auto"
+                  :disabled="attendModal.loading"
+                  @click="executeAttend"
+                >
+                  <span
+                    v-if="attendModal.loading"
+                    class="spinner-border spinner-border-sm me-2"
+                    aria-hidden="true"
+                  ></span>
+                  Mark Attended
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+      <div v-if="attendModal.visible" class="modal-backdrop fade show"></div>
+    </Teleport>
   </div>
 </template>
 
@@ -595,6 +653,11 @@ export default {
         audience: null,
       },
       emailModal: {
+        visible: false,
+        loading: false,
+        audience: null,
+      },
+      attendModal: {
         visible: false,
         loading: false,
         audience: null,
@@ -694,6 +757,40 @@ export default {
 
     downloadTicketPdf(id) {
       window.open(`/trms/concert/ticket/${id}`, '_blank');
+    },
+
+    openAttendModal(audience) {
+      this.attendModal.audience = audience;
+      this.attendModal.loading = false;
+      this.attendModal.visible = true;
+    },
+
+    closeAttendModal() {
+      this.attendModal.visible = false;
+      this.attendModal.audience = null;
+    },
+
+    async executeAttend() {
+      this.attendModal.loading = true;
+      try {
+        const now = new Date();
+        const localTimestamp = now.getFullYear() + '-' +
+          String(now.getMonth() + 1).padStart(2, '0') + '-' +
+          String(now.getDate()).padStart(2, '0') + ' ' +
+          String(now.getHours()).padStart(2, '0') + ':' +
+          String(now.getMinutes()).padStart(2, '0') + ':' +
+          String(now.getSeconds()).padStart(2, '0');
+        await this.trmsStore.scanConcertRegistration({
+          reg_number: this.attendModal.audience.id,
+          attended_at: localTimestamp
+        });
+        this.showSuccess(`${this.attendModal.audience.name} marked as attended.`);
+        this.closeAttendModal();
+        this.fetchAudiences();
+      } catch (error) {
+        this.attendModal.loading = false;
+        this.errorMessage = error.message || "Failed to mark as attended.";
+      }
     },
 
     openEditModal(audience) {
@@ -1040,6 +1137,20 @@ export default {
   color: #c8a45d;
   border-color: rgba(200, 164, 93, 0.35);
   background: rgba(200, 164, 93, 0.1);
+}
+
+:deep(.tbl-action-btn--check:hover) {
+  color: #4caf7d;
+  border-color: rgba(76, 175, 125, 0.35);
+  background: rgba(76, 175, 125, 0.1);
+}
+
+.tbl-checked-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
 }
 
 /* ── Pagination ────────────────────────────────────────────────── */
