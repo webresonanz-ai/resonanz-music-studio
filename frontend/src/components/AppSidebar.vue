@@ -1,7 +1,7 @@
 <template>
   <aside class="sidebar" :class="{ open: sidebarOpen }" aria-label="Program navigation">
     <div class="sidebar-header">
-      <img src="/logo_resonanz_bgwhite.png" alt="Resonanz Logo" class="sidebar-logo" />
+      <img src="/logo_resonanz_bgwhite.webp" alt="Resonanz Logo" class="sidebar-logo" width="128" height="128" />
     </div>
 
     <div class="sidebar-menu">

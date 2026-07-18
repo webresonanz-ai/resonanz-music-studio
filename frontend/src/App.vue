@@ -1,13 +1,5 @@
 <template>
   <div id="app">
-    <div class="ambient-particles" aria-hidden="true">
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-    </div>
     <LoadingScreen :visible="showLoading" />
     <CookieConsent :visible="showCookieConsent" @accept="acceptCookies" @decline="declineCookies" />
     <NotificationPrompt :visible="showNotificationPrompt" @allow="allowNotifications" @dismiss="dismissNotifications" />
@@ -72,15 +64,14 @@ export default {
     const hideShellNav = computed(() => route.meta.hideShellNav === true)
 
     onMounted(() => {
-      const MIN_DISPLAY = 2800
-      const startTime = Date.now()
-
       router.isReady().then(() => {
+        const MIN_DISPLAY = 800
+        const startTime = Date.now()
         const elapsed = Date.now() - startTime
         const remaining = Math.max(0, MIN_DISPLAY - elapsed)
         setTimeout(() => {
           showLoading.value = false
-        }, remaining)
+        }, 50)
       })
     })
 
@@ -123,7 +114,7 @@ export default {
           localStorage.setItem('resonanz_notification_prompted', 'allowed')
           new Notification('The Resonanz Music Studio', {
             body: "Thank you! You'll now receive updates about events and news.",
-            icon: '/logo_resonanz.png'
+            icon: '/logo_resonanz.webp'
           })
         } else {
           localStorage.setItem('resonanz_notification_prompted', 'denied')
@@ -146,7 +137,6 @@ export default {
       sidebarOpen.value = false
     }
 
-    // Apply / remove the silhouette background on <body> whenever the banner URL changes
     watch(
       () => bannerStore.url,
       (url) => {
@@ -161,7 +151,6 @@ export default {
       { immediate: true }
     )
 
-    // Clear banner whenever navigating away from concert registration pages
     watch(
       () => route.fullPath,
       (fullPath) => {
@@ -219,14 +208,8 @@ export default {
   margin-left: 0;
 }
 
-/* ── Concert banner silhouette — applied to <body> ─────────────────
-   The banner store sets --concert-banner-url and adds .has-concert-banner.
-   Using a ::before pseudo-element means the real body background
-   (gradient + grid texture defined in custom.css) is fully replaced
-   while this class is active.
-──────────────────────────────────────────────────────────────────── */
+/* Concert banner silhouette */
 body.has-concert-banner {
-  /* Override the default warm-gradient body background */
   background: #0a0a12 !important;
   transition: background 0.8s ease;
 }
@@ -237,19 +220,12 @@ body.has-concert-banner::after {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-
   background-image: var(--concert-banner-url);
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
-
-  /* Silhouette filter stack */
   filter: grayscale(100%) brightness(15%) blur(4px) sepia(35%);
-
-  /* Slightly upscaled to hide blur fringe at edges */
   transform: scale(1.05);
-
-  /* Smooth fade-in */
   animation: bannerFadeIn 0.9s ease forwards;
 }
 

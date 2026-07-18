@@ -4,7 +4,7 @@
             <div class="auth-card-glow"></div>
             <div class="text-center mb-4">
                 <div class="auth-logo mb-3">
-                    <img src="/logo_resonanz_bgwhite.png" alt="Resonanz Logo" class="auth-logo-img" />
+                    <img src="/logo_resonanz_bgwhite.webp" alt="Resonanz Logo" class="auth-logo-img" width="120" height="120" />
                 </div>
                 <h2 class="fw-bold auth-heading">{{ isLogin ? 'Welcome back' : 'Create your account' }}</h2>
                 <p class="auth-subtitle mb-0">

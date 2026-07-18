@@ -6,7 +6,7 @@ const routes = [
     redirect: "/trms/home",
   },
 
-  // ── TRMS ──────────────────────────────────────────────────────────────────
+  // TRMS
   {
     path: "/trms",
     children: [
@@ -43,7 +43,7 @@ const routes = [
     ],
   },
 
-  // ── BMS ───────────────────────────────────────────────────────────────────
+  // BMS
   {
     path: "/bms",
     children: [
@@ -60,7 +60,7 @@ const routes = [
     ],
   },
 
-  // ── JCO ───────────────────────────────────────────────────────────────────
+  // JCO
   {
     path: "/jco",
     children: [
@@ -76,7 +76,7 @@ const routes = [
     ],
   },
 
-  // ── TRCC ──────────────────────────────────────────────────────────────────
+  // TRCC
   {
     path: "/trcc",
     children: [
@@ -89,7 +89,7 @@ const routes = [
     ],
   },
 
-  // ── Library ───────────────────────────────────────────────────────────────
+  // Library
   {
     path: "/library",
     children: [
@@ -107,7 +107,7 @@ const routes = [
     ],
   },
 
-  // ── Concert Registration (public, standalone) ─────────────────────────────
+  // Concert Registration (public, standalone)
   {
     path: "/concert-reg/:concertCode",
     component: () => import("../views/trms/ConcertRegistration.vue"),
@@ -118,14 +118,15 @@ const routes = [
     component: () => import("../views/trms/SeatedRegistration.vue"),
     meta: { hideShellNav: true },
   },
-  // ── Auth ──────────────────────────────────────────────────────────────────
+
+  // Auth
   {
     path: "/auth",
     name: "Auth",
     component: () => import("../views/Auth.vue"),
   },
 
-  // ── Profile ────────────────────────────────────────────────────────────────
+  // Profile
   {
     path: "/profile",
     name: "Profile",
@@ -138,7 +139,7 @@ const router = createRouter({
   routes,
 });
 
-// Route guard — redirect unauthorized users away from role-restricted pages
+// Route guard
 router.beforeEach((to, _from) => {
   const requiredRoles = to.meta?.roles;
   if (!requiredRoles) return true;

@@ -29,7 +29,9 @@
     "globals": "^17.6.0",
     "npm-run-all2": "^9.0.2",
     "oxlint": "~1.69.0",
+    "sharp": "^0.33.5",
     "vite": "^8.0.16",
+    "vite-plugin-compression": "^0.5.1",
     "vite-plugin-vue-devtools": "^8.1.2",
     "vue-eslint-parser": "^10.4.1"
   },

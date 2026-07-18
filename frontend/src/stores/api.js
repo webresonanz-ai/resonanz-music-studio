@@ -16,13 +16,14 @@ export const useApiStore = defineStore('api', {
 
       try {
         const token = localStorage.getItem('resonanz-token') || ''
+        const method = options.method || 'GET'
         const response = await fetch(`${API_BASE}${endpoint}`, {
           headers: {
             'Content-Type': 'application/json',
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...options.headers
           },
-          cache: 'no-store',
+          cache: method === 'GET' ? 'default' : 'no-store',
           ...options
         })
 
@@ -99,7 +100,7 @@ export const useApiStore = defineStore('api', {
       const response = await fetch(`${base}${endpoint}`, {
         method: 'GET',
         headers: (token ? { Authorization: `Bearer ${token}` } : {}),
-        cache: 'no-store'
+        cache: 'default'
       })
 
       if (!response.ok) {

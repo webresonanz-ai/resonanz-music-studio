@@ -32,9 +32,11 @@
               <div class="portrait-frame">
                 <div class="portrait-placeholder">
                   <img
-                    src="/Avip_Priatna_(1).JPG"
+                    src="/avip-priatna-1.webp"
                     alt="Avip Priatna Portrait"
                     class="portrait-img"
+                    width="600" height="800"
+                    loading="lazy"
                   />
                 </div>
                 <div class="portrait-glow"></div>
@@ -277,7 +279,7 @@ export default {
   position: absolute;
   inset: -20px;
   z-index: 0;
-  background: url("/Avip_Priatna_3.JPG") no-repeat center center / cover;
+  background: url("/avip-priatna-3.webp") no-repeat center center / cover;
   filter: grayscale(100%) brightness(40%) contrast(1.2);
   transition: transform 0.15s ease-out;
   will-change: transform;

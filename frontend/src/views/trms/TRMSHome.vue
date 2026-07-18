@@ -115,7 +115,7 @@
                   :key="p"
                 >
                   <img
-                    :src="'/' + p + '_white.png'"
+                    :src="'/' + p + '_white.webp'"
                     :alt="programLabel(p)"
                     class="program-logo-img"
                   />
