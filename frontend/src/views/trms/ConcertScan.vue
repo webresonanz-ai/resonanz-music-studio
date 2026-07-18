@@ -149,151 +149,12 @@
                 </div>
             </div>
 
-            <!-- ── Right: Result panel ────────────────────────────────── -->
+            <!-- ── Right: Result panel (replaced by modal popup) ────── -->
             <div class="col-lg-7">
-                <div class="content-card bg-dark h-100">
-                    <h2 class="h5 fw-bold mb-4 text-champagne">Result</h2>
-
-                    <!-- Idle state -->
-                    <div v-if="state === 'idle'" class="py-5 text-center">
-                        <i class="bi bi-qr-code display-1 d-block mb-3 opacity-25 text-champagne-muted"></i>
-                        <p class="mb-0 text-champagne-muted">Scan or enter a registration to see the details here.</p>
-                    </div>
-
-                    <!-- Loading -->
-                    <div v-else-if="state === 'loading'" class="py-5 text-center">
-                        <div class="spinner-border text-warning mb-3" role="status"></div>
-                        <div class="text-champagne-muted">Looking up registration…</div>
-                    </div>
-
-                    <!-- Error -->
-                    <div v-else-if="state === 'error'" class="py-5 text-center">
-                        <i class="bi bi-x-circle-fill display-1 d-block mb-3 text-danger"></i>
-                        <h3 class="h5 fw-bold text-danger mb-2">Not Found</h3>
-                        <p class="text-champagne-muted mb-4">{{ errorMessage }}</p>
-                        <button type="button" class="btn btn-outline-gold" @click="reset">
-                            <i class="bi bi-arrow-counterclockwise me-2"></i>Try Again
-                        </button>
-                    </div>
-
-                    <!-- Success -->
-                    <div v-else-if="state === 'found' && result">
-                        <!-- Duplicate scan warning -->
-                        <div v-if="alreadyAttended" class="alert alert-warning d-flex align-items-start gap-2 mb-4" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1 fs-5 text-warning"></i>
-                            <div>
-                                <div class="fw-bold text-warning">Already Checked In</div>
-                                <div class="small text-champagne-muted">This ticket was scanned at {{ formatDate(result.attended_at) }}.</div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center gap-3 mb-4">
-                            <div class="rounded-circle bg-success bg-opacity-10 p-3 flex-shrink-0">
-                                <i class="bi bi-check-circle-fill text-success fs-3"></i>
-                            </div>
-                            <div>
-                                <div class="fw-bold text-success">{{ alreadyAttended ? 'Registration Valid' : 'Check-In Successful' }}</div>
-                                <div class="text-champagne-muted small">{{ alreadyAttended ? 'Duplicate scan detected' : 'Attendance recorded' }}</div>
-                            </div>
-                        </div>
-
-                        <div class="result-card p-4 rounded-3 border mb-4">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-person-fill text-warning"></i>
-                                        <span class="text-champagne-muted small">Name</span>
-                                    </div>
-                                    <div class="fw-bold fs-5 text-champagne">{{ result.name }}</div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-envelope-fill text-warning"></i>
-                                        <span class="text-champagne-muted small">Email</span>
-                                    </div>
-                                    <div class="fw-semibold text-champagne text-break">{{ result.email }}</div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-telephone-fill text-warning"></i>
-                                        <span class="text-champagne-muted small">Phone</span>
-                                    </div>
-                                    <div class="fw-semibold text-champagne">{{ result.phone }}</div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-music-note-beamed text-warning"></i>
-                                        <span class="text-champagne-muted small">Concert</span>
-                                    </div>
-                                    <div class="fw-semibold text-champagne">{{ result.concert_title }}</div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-ticket-fill text-warning"></i>
-                                        <span class="text-champagne-muted small">Tickets</span>
-                                    </div>
-                                    <div>
-                                        <span class="badge rounded-pill text-bg-warning fs-6">{{ result.ticket_quantity }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-hash text-warning"></i>
-                                        <span class="text-champagne-muted small">Registration ID</span>
-                                    </div>
-                                    <div class="fw-semibold text-champagne">#{{ result.id }}</div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-calendar-check-fill text-warning"></i>
-                                        <span class="text-champagne-muted small">Registered</span>
-                                    </div>
-                                    <div class="fw-semibold text-champagne">{{ formatDate(result.created_at) }}</div>
-                                </div>
-
-                                <div class="col-sm-6">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-door-open-fill text-warning"></i>
-                                        <span class="text-champagne-muted small">Checked In</span>
-                                    </div>
-                                    <div v-if="result.attended_at" class="fw-semibold text-success">
-                                        {{ formatDate(result.attended_at) }}
-                                    </div>
-                                    <div v-else class="text-champagne-muted">—</div>
-                                </div>
-
-                                <div v-if="result.notes" class="col-12">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-chat-left-text-fill text-warning"></i>
-                                        <span class="text-champagne-muted small">Notes</span>
-                                    </div>
-                                    <div class="fw-semibold text-champagne">{{ result.notes }}</div>
-                                </div>
-
-                                <div v-if="result.qr_code" class="col-12">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                        <i class="bi bi-qr-code text-warning"></i>
-                                        <span class="text-champagne-muted small">QR Code</span>
-                                    </div>
-                                    <code class="small text-champagne-muted">{{ result.qr_code }}</code>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex flex-wrap gap-2">
-                            <button type="button" class="btn btn-outline-gold" @click="reset">
-                                <i class="bi bi-arrow-counterclockwise me-2"></i>Scan Another
-                            </button>
-                            <button type="button" class="btn btn-outline-success" @click="downloadTicket(result.id)">
-                                <i class="bi bi-file-earmark-pdf me-2"></i>Download Ticket
-                            </button>
-                        </div>
+                <div class="content-card bg-dark h-100 d-flex align-items-center justify-content-center">
+                    <div class="py-5 text-center">
+                        <i class="bi bi-qr-code-scan display-1 d-block mb-3 opacity-25 text-champagne-muted"></i>
+                        <p class="mb-0 text-champagne-muted">Point your camera at a ticket's QR code or switch to manual entry.</p>
                     </div>
                 </div>
             </div>
@@ -340,6 +201,146 @@
             </div>
         </div>
     </div>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- ── Scan Result Modal  (camera flow) ───────────────────── -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <Teleport to="body">
+        <transition name="scan-modal">
+            <div
+                v-if="showScanResultModal && result"
+                class="scan-modal-overlay"
+                @click.self="closeScanResultModal"
+            >
+                <div class="scan-modal-sheet" role="dialog" aria-modal="true" aria-label="Scan result">
+
+                    <!-- ── Close ─────────────────────────────────────────── -->
+                    <button
+                        type="button"
+                        class="scan-modal-close"
+                        aria-label="Close"
+                        @click="closeScanResultModal"
+                    >
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+
+                    <!-- ── Duplicate banner ─────────────────────────────── -->
+                    <div v-if="alreadyAttended" class="scan-modal-duplicate">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <div>
+                            <div class="fw-bold">Already Checked In</div>
+                            <div class="small opacity-75">This ticket was scanned at {{ formatDate(result.attended_at) }}.</div>
+                        </div>
+                    </div>
+
+                    <!-- ── Status icon ──────────────────────────────────── -->
+                    <div class="scan-modal-status">
+                        <div
+                            class="scan-status-icon"
+                            :class="alreadyAttended ? 'scan-status-icon--warning' : 'scan-status-icon--success'"
+                        >
+                            <i
+                                class="bi"
+                                :class="alreadyAttended ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'"
+                            ></i>
+                        </div>
+                        <div class="scan-status-text">
+                            <div class="scan-status-title">
+                                {{ alreadyAttended ? 'Registration Valid' : 'Check-In Successful' }}
+                            </div>
+                            <div class="scan-status-sub">
+                                {{ alreadyAttended ? 'Duplicate scan detected' : 'Attendance recorded' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Details ──────────────────────────────────────── -->
+                    <div class="scan-modal-details">
+                        <div class="scan-detail-row">
+                            <div class="scan-detail-label">
+                                <i class="bi bi-person-fill"></i>
+                                <span>Name</span>
+                            </div>
+                            <div class="scan-detail-value">{{ result.name }}</div>
+                        </div>
+
+                        <div class="scan-detail-row">
+                            <div class="scan-detail-label">
+                                <i class="bi bi-music-note-beamed"></i>
+                                <span>Concert</span>
+                            </div>
+                            <div class="scan-detail-value">{{ result.concert_title }}</div>
+                        </div>
+
+                        <div class="scan-detail-row scan-detail-row--split">
+                            <div class="scan-detail-col">
+                                <div class="scan-detail-label">
+                                    <i class="bi bi-ticket-fill"></i>
+                                    <span>Tickets</span>
+                                </div>
+                                <div class="scan-detail-value">
+                                    <span class="badge rounded-pill text-bg-warning">{{ result.ticket_quantity }}</span>
+                                </div>
+                            </div>
+                            <div class="scan-detail-col">
+                                <div class="scan-detail-label">
+                                    <i class="bi bi-hash"></i>
+                                    <span>Reg. ID</span>
+                                </div>
+                                <div class="scan-detail-value">#{{ result.id }}</div>
+                            </div>
+                        </div>
+
+                        <div class="scan-detail-row scan-detail-row--split">
+                            <div class="scan-detail-col">
+                                <div class="scan-detail-label">
+                                    <i class="bi bi-calendar-check-fill"></i>
+                                    <span>Registered</span>
+                                </div>
+                                <div class="scan-detail-value">{{ formatDate(result.created_at) }}</div>
+                            </div>
+                            <div class="scan-detail-col">
+                                <div class="scan-detail-label">
+                                    <i class="bi bi-door-open-fill"></i>
+                                    <span>Checked In</span>
+                                </div>
+                                <div class="scan-detail-value" :class="result.attended_at ? 'text-success' : ''">
+                                    {{ result.attended_at ? formatDate(result.attended_at) : '\u2014' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="result.notes" class="scan-detail-row">
+                            <div class="scan-detail-label">
+                                <i class="bi bi-chat-left-text-fill"></i>
+                                <span>Notes</span>
+                            </div>
+                            <div class="scan-detail-value">{{ result.notes }}</div>
+                        </div>
+                    </div>
+
+                    <!-- ── Actions ───────────────────────────────────────── -->
+                    <div class="scan-modal-actions">
+                        <button
+                            type="button"
+                            class="btn btn-outline-gold flex-fill"
+                            @click="scanAnother"
+                        >
+                            <i class="bi bi-camera me-2"></i>Scan Another
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-outline-success flex-fill"
+                            @click="downloadTicket(result.id)"
+                        >
+                            <i class="bi bi-file-earmark-pdf me-2"></i>Download Ticket
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </transition>
+    </Teleport>
 </template>
 
 <script>
@@ -362,6 +363,7 @@ export default {
             errorMessage: '',
             manualValue: '',
             scanning: false,
+            showScanResultModal: false,
 
             // Camera
             cameraActive: false,
@@ -428,6 +430,9 @@ export default {
                 this.alreadyAttended = response.already_attended === true
                 this.state = 'found'
                 this.pushHistory(response.data, this.alreadyAttended)
+                if (this.mode === 'camera') {
+                    this.showScanResultModal = true
+                }
             } catch (err) {
                 this.state = 'error'
                 this.errorMessage = err.message || 'Registration not found.'
@@ -521,6 +526,20 @@ export default {
             }
 
             this.scanLoopId = requestAnimationFrame(() => this.scanLoop())
+        },
+
+        // ── Result modal ──────────────────────────────────────────────
+        closeScanResultModal() {
+            this.showScanResultModal = false
+            this.state = 'idle'
+        },
+
+        scanAnother() {
+            this.showScanResultModal = false
+            this.state = 'idle'
+            this.result = null
+            this.alreadyAttended = false
+            this.$nextTick(() => this.startCamera())
         },
 
         // ── Helpers ─────────────────────────────────────────────────────
@@ -684,5 +703,299 @@ export default {
 
 :deep(.table-dark-custom td) {
     border-color: rgba(234, 220, 194, 0.06);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* ── Scan Result Modal ───────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* ── Overlay ─────────────────────────────────────────────────── */
+.scan-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1060;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    overflow-y: auto;
+    background: rgba(10, 10, 18, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* ── Sheet ───────────────────────────────────────────────────── */
+.scan-modal-sheet {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    margin: auto;
+    padding: 2rem 1.75rem 1.75rem;
+    border-radius: 16px;
+    border: 1px solid rgba(234, 220, 194, 0.1);
+    background:
+        linear-gradient(145deg, rgba(26, 31, 48, 0.98), rgba(17, 20, 32, 0.98));
+    box-shadow:
+        0 32px 72px rgba(10, 10, 18, 0.5),
+        0 0 0 1px rgba(234, 220, 194, 0.05);
+}
+
+/* ── Close button ────────────────────────────────────────────── */
+.scan-modal-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 8px;
+    background: rgba(234, 220, 194, 0.06);
+    color: rgba(234, 220, 194, 0.5);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    font-size: 0.85rem;
+}
+
+.scan-modal-close:hover {
+    background: rgba(234, 220, 194, 0.12);
+    color: rgba(234, 220, 194, 0.85);
+}
+
+/* ── Duplicate banner ────────────────────────────────────────── */
+.scan-modal-duplicate {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    border-radius: 10px;
+    background: rgba(255, 193, 7, 0.08);
+    border: 1px solid rgba(255, 193, 7, 0.15);
+    color: rgba(255, 193, 7, 0.9);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.scan-modal-duplicate i {
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* ── Status header ───────────────────────────────────────────── */
+.scan-modal-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.scan-status-icon {
+    width: 60px;
+    height: 60px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 1.75rem;
+    transition: all 0.3s;
+}
+
+.scan-status-icon--success {
+    background: rgba(40, 167, 69, 0.12);
+    color: #28a745;
+    box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.08);
+}
+
+.scan-status-icon--warning {
+    background: rgba(255, 193, 7, 0.12);
+    color: #ffc107;
+    box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.08);
+}
+
+.scan-status-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.scan-status-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: rgba(234, 220, 194, 0.92);
+}
+
+.scan-status-sub {
+    font-size: 0.85rem;
+    color: rgba(234, 220, 194, 0.5);
+}
+
+/* ── Details card ────────────────────────────────────────────── */
+.scan-modal-details {
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: 12px;
+    background: rgba(10, 10, 18, 0.35);
+    border: 1px solid rgba(234, 220, 194, 0.06);
+}
+
+.scan-detail-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(234, 220, 194, 0.04);
+}
+
+.scan-detail-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.scan-detail-row:first-child {
+    padding-top: 0;
+}
+
+.scan-detail-row--split {
+    padding: 0;
+    border-bottom: 1px solid rgba(234, 220, 194, 0.04);
+    gap: 0;
+}
+
+.scan-detail-col {
+    flex: 1;
+    padding: 0.6rem 0;
+}
+
+.scan-detail-col:first-child {
+    border-right: 1px solid rgba(234, 220, 194, 0.04);
+    padding-right: 1rem;
+}
+
+.scan-detail-col:last-child {
+    padding-left: 1rem;
+}
+
+.scan-detail-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: rgba(200, 164, 93, 0.7);
+    margin-bottom: 0.2rem;
+}
+
+.scan-detail-label i {
+    font-size: 0.65rem;
+}
+
+.scan-detail-value {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: rgba(234, 220, 194, 0.88);
+    line-height: 1.4;
+}
+
+.scan-detail-value.text-success {
+    color: #28a745 !important;
+}
+
+/* ── Actions ─────────────────────────────────────────────────── */
+.scan-modal-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.scan-modal-actions .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.88rem;
+    border-radius: 10px;
+}
+
+/* ── Transition ──────────────────────────────────────────────── */
+.scan-modal-enter-active {
+    transition: opacity 0.25s ease;
+}
+
+.scan-modal-leave-active {
+    transition: opacity 0.2s ease;
+}
+
+.scan-modal-enter-active .scan-modal-sheet {
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+}
+
+.scan-modal-leave-active .scan-modal-sheet {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.scan-modal-enter-from,
+.scan-modal-leave-to {
+    opacity: 0;
+}
+
+.scan-modal-enter-from .scan-modal-sheet {
+    transform: scale(0.92) translateY(16px);
+    opacity: 0;
+}
+
+.scan-modal-leave-to .scan-modal-sheet {
+    transform: scale(0.96) translateY(8px);
+    opacity: 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    .scan-modal-sheet {
+        padding: 1.5rem 1.25rem 1.25rem;
+        border-radius: 14px;
+    }
+
+    .scan-modal-overlay {
+        padding: 0.75rem;
+    }
+
+    .scan-status-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.4rem;
+    }
+
+    .scan-modal-actions {
+        flex-direction: column;
+    }
+
+    .scan-modal-actions .btn {
+        padding: 0.65rem 1rem;
+    }
+
+    .scan-detail-row {
+        flex-direction: column;
+        gap: 0.15rem;
+        padding: 0.5rem 0;
+    }
+
+    .scan-detail-row--split {
+        flex-direction: row;
+        gap: 0;
+    }
+
+    .scan-detail-value {
+        font-size: 0.88rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .scan-modal-sheet {
+        max-width: 500px;
+        padding: 2.25rem 2rem 2rem;
+    }
 }
 </style>
