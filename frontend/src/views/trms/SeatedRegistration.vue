@@ -105,7 +105,7 @@
       <div ref="confirmationCard" class="confirmation-card p-4 rounded">
         <div class="confirmation-header text-center mb-4">
           <div class="confirmation-logo mb-2">
-            <img src="/logo_resonanz.webp" alt="Resonanz Logo" class="logo-resonanz" />
+            <img src="/logo_resonanz.webp" alt="Resonanz Logo" class="logo-resonanz" width="48" height="48" />
           </div>
           <div class="fw-bold text-uppercase small text-muted letter-spacing-2 mb-1">The Resonanz Music Studio</div>
           <h2 class="h4 fw-bold mb-0">Konfirmasi Registrasi</h2>
@@ -1242,6 +1242,7 @@ export default {
 .logo-resonanz {
   height: 48px;
   width: auto;
+  aspect-ratio: 1;
   object-fit: contain;
 }
 

@@ -16,6 +16,24 @@ export default defineConfig({
             ext: '.gz',
             threshold: 1024,
         }),
+        // Non-blocking CSS — swap rel=stylesheet for rel=preload + onload
+        {
+            name: 'async-css',
+            enforce: 'post',
+            apply: 'build',
+            transformIndexHtml: {
+                order: 'post',
+                handler(html) {
+                    return html.replace(
+                        /<link rel="stylesheet"([^>]*)>/g,
+                        (_match, attrs) => {
+                            if (attrs.includes('media=')) return _match;
+                            return `<link rel="preload"${attrs} as="style" onload="this.onload=null;this.rel='stylesheet'"><noscript>${_match}</noscript>`;
+                        },
+                    );
+                },
+            },
+        },
     ],
     resolve: {
         alias: {

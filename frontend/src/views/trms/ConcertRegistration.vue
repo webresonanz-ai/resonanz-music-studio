@@ -89,7 +89,7 @@
         <div ref="confirmationCard" class="confirmation-card p-4 rounded">
           <div class="confirmation-header text-center mb-4">
             <div class="confirmation-logo mb-2">
-              <img src="/logo_resonanz.webp" alt="Resonanz Logo" class="logo-resonanz" />
+              <img src="/logo_resonanz.webp" alt="Resonanz Logo" class="logo-resonanz" width="100" height="100" />
             </div>
             <div class="fw-bold text-uppercase small text-muted letter-spacing-2 mb-1">
               The Resonanz Music Studio
@@ -537,8 +537,10 @@ export default {
 }
 
 .logo-resonanz {
-  width: auto;
-  height: 100%;
+  width: 100px;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
 }
 
 /* ── Alert overrides ───────────────────────────────────────────────── */

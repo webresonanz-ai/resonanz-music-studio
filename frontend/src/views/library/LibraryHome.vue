@@ -2,7 +2,7 @@
   <div class="fade-in-up">
     <div class="content-card bg-dark mb-4">
       <p class="eyebrow mb-1">Library</p>
-      <h1 class="page-title mb-0" style="color: rgba(234, 220, 194, 0.92) !important;">Welcome to the Music Library</h1>
+      <h1 class="page-title mb-0" style="color: rgba(234, 220, 194, 0.92) !important;">Welcome to The Resonanz Library</h1>
     </div>
 
     <div class="content-card bg-dark mb-4" v-if="concerts.length > 0">

@@ -32,12 +32,12 @@
     <meta property="og:url" content="https://trms.resonanz.id/" />
     <meta property="og:image" content="https://trms.resonanz.id/logo_resonanz.webp" />
 
-    <!-- Google Fonts with font-display: swap for CLS prevention -->
+    <!-- Google Fonts — preload + swap for CLS prevention & early discovery -->
     <link
+      rel="preload"
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-      media="print"
-      onload="this.media='all'"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
     <noscript>
       <link

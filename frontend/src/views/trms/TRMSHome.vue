@@ -118,6 +118,8 @@
                     :src="'/' + p + '_white.webp'"
                     :alt="programLabel(p)"
                     class="program-logo-img"
+                    width="48" height="14"
+                    loading="lazy"
                   />
                 </span>
               </div>
@@ -366,6 +368,7 @@ export default {
   border-radius: 12px;
   overflow: hidden;
   min-height: 320px;
+  max-height: 520px;
   border: 1px solid rgba(234, 220, 194, 0.1);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.04) inset,
@@ -523,29 +526,60 @@ export default {
 }
 
 /* ── Responsive ──────────────────────────────────────────────── */
-@media (max-width: 575.98px) {
+@media (max-width: 767.98px) {
   .concert-slider {
-    min-height: 240px;
+    min-height: 200px;
+    max-height: 360px;
   }
 
   .concert-slide {
-    min-height: 240px;
+    min-height: 200px;
   }
 
   .concert-slide__inner {
-    padding: 1.25rem 1rem;
+    padding: 1rem 1.25rem;
   }
 
   .concert-slide__title {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
   }
 
   .concert-slide__meta {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 
   .concert-slide__desc {
     display: none;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .concert-slider {
+    min-height: 180px;
+    max-height: 280px;
+  }
+
+  .concert-slide {
+    min-height: 180px;
+  }
+
+  .concert-slide__inner {
+    padding: 0.85rem 0.9rem;
+  }
+
+  .concert-slide__title {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .concert-slide__meta {
+    font-size: 0.7rem;
+  }
+
+  .concert-slider .badge {
+    font-size: 0.65rem !important;
+    padding: 0.15rem 0.5rem !important;
+    margin-bottom: 0.25rem !important;
   }
 }
 
