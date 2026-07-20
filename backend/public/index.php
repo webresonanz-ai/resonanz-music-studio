@@ -146,5 +146,19 @@ $router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
     $router->post('/api/library/costumes', 'App\Http\Controllers\Library\CostumeController@store');
     $router->post('/api/library/costumes/{id}', 'App\Http\Controllers\Library\CostumeController@update');
     $router->post('/api/library/costumes/{id}/delete', 'App\Http\Controllers\Library\CostumeController@destroy');
-});// Run the application
+});
+
+// Concert History routes (public)
+$router->get('/api/concert-history', 'App\Http\Controllers\ConcertHistoryController@index');
+$router->get('/api/concert-history/{id}', 'App\Http\Controllers\ConcertHistoryController@show');
+
+// Concert History CRUD (authenticated)
+$router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
+    $router->post('/api/concert-history', 'App\Http\Controllers\ConcertHistoryController@store');
+    $router->post('/api/concert-history/{id}', 'App\Http\Controllers\ConcertHistoryController@update');
+    $router->post('/api/concert-history/{id}/delete', 'App\Http\Controllers\ConcertHistoryController@destroy');
+    $router->post('/api/concert-history/upload/banner', 'App\Http\Controllers\ConcertHistoryController@uploadBanner');
+});
+
+// Run the application
 $router->dispatch();

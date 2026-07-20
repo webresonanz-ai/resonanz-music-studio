@@ -547,6 +547,75 @@ export const useLibraryStore = defineStore('library', {
   },
 })
 
+export const useConcertHistoryStore = defineStore('concertHistory', {
+  state: () => ({
+    concerts: [],
+    currentConcert: null,
+    loading: false,
+    error: null,
+  }),
+
+  actions: {
+    async fetchConcerts() {
+      this.loading = true
+      this.error = null
+      try {
+        this.concerts = await useApiStore().get('/concert-history')
+      } catch (err) {
+        this.error = err.message
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async fetchConcert(id) {
+      this.loading = true
+      this.error = null
+      try {
+        this.currentConcert = await useApiStore().get(`/concert-history/${id}`)
+        return this.currentConcert
+      } catch (err) {
+        this.error = err.message
+        throw err
+      } finally {
+        this.loading = false
+      }
+    },
+
+    async createConcert(data) {
+      const result = await useApiStore().post('/concert-history', data)
+      if (result?.data) {
+        this.concerts.unshift(result.data)
+      }
+      return result
+    },
+
+    async updateConcert(id, data) {
+      const result = await useApiStore().post(`/concert-history/${id}`, data)
+      if (result?.data) {
+        const idx = this.concerts.findIndex(c => c.id === id)
+        if (idx !== -1) this.concerts.splice(idx, 1, result.data)
+        if (this.currentConcert?.id === id) this.currentConcert = result.data
+      }
+      return result
+    },
+
+    async deleteConcert(id) {
+      const result = await useApiStore().post(`/concert-history/${id}/delete`, {})
+      if (result?.success) {
+        this.concerts = this.concerts.filter(c => c.id !== id)
+      }
+      return result
+    },
+
+    async uploadBanner(file) {
+      const formData = new FormData()
+      formData.append('banner', file)
+      return useApiStore().postFormData('/concert-history/upload/banner', formData)
+    },
+  },
+})
+
 export const useTrccStore = defineStore('trcc', {
   state: () => ({
     achievements: [],

@@ -394,6 +394,20 @@ CREATE TABLE creator_payouts (
     FOREIGN KEY (paid_by) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Concert History — archive of past performances
+CREATE TABLE concert_histories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    concert_date DATE NOT NULL,
+    banner VARCHAR(500) DEFAULT '',
+    youtube_link VARCHAR(500) DEFAULT '',
+    spotify_link VARCHAR(500) DEFAULT '',
+    apple_music_link VARCHAR(500) DEFAULT '',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 ALTER TABLE users
   ADD COLUMN avatar_url VARCHAR(500) DEFAULT NULL COMMENT 'Profile avatar URL',
   ADD COLUMN username VARCHAR(100) DEFAULT NULL AFTER name,

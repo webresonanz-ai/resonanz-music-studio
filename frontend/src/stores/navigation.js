@@ -45,7 +45,7 @@ export const useNavigationStore = defineStore("navigation", {
         name: "Library",
         icon: "bi-collection",
         img: "",
-        description: "Sheet Music & Costumes",
+        description: "Concert, Sheet Music and Costumes",
       },
     ],
     navItems: {
@@ -123,6 +123,7 @@ export const useNavigationStore = defineStore("navigation", {
           label: "Library",
           icon: "bi-collection",
           children: [
+            { path: "/library/concert-history", label: "Concert History", icon: "bi-calendar-check" },
             { path: "/library/sheet-music", label: "Sheet Music", icon: "bi-music-note" },
             { path: "/library/costumes", label: "Costumes", icon: "bi-person-badge" },
           ],

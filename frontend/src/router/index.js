@@ -95,7 +95,9 @@ const routes = [
     children: [
       { path: "", redirect: "/library/home" },
       { path: "home",        component: () => import("../views/library/LibraryHome.vue") },
-      { path: "sheet-music",         component: () => import("../views/library/SheetMusic.vue") },
+      { path: "concert-history",           component: () => import("../views/library/ConcertHistory.vue") },
+      { path: "concert-history/:id",       component: () => import("../views/library/ConcertHistoryDetail.vue") },
+      { path: "sheet-music",               component: () => import("../views/library/SheetMusic.vue") },
       { path: "composer-dashboard",  component: () => import("../views/library/ComposerDashboard.vue"), meta: { roles: ["composer", "arranger"] } },
       { path: "my-orders",           component: () => import("../views/library/MyOrders.vue") },
       {
