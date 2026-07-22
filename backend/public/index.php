@@ -90,6 +90,7 @@ $router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
 });
 
 $router->get('/api/jco/orchestra/members', 'App\Http\Controllers\Jco\OrchestraMemberController@index');
+$router->get('/api/jco/schedules', 'App\Http\Controllers\Jco\ScheduleController@index');
 $router->get('/api/jco/concerts', 'App\Http\Controllers\Jco\ConcertController@index');
 $router->get('/api/jco/gallery', 'App\Http\Controllers\Jco\GalleryController@index');
 $router->get('/api/jco/about-us', 'App\Http\Controllers\Jco\AboutController@index');

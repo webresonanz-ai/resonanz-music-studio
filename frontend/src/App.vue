@@ -63,7 +63,11 @@ export default {
     const bannerStore = useBannerStore()
     const hideShellNav = computed(() => route.meta.hideShellNav === true)
     const mainContentBgClass = computed(() => {
-      return route.path === '/bms/home' ? 'main-content-bms-home' : ''
+      const path = route.path
+      if (path === '/bms/home') return 'main-content-bms-home'
+      if (path === '/jco/home') return 'main-content-jco-home'
+      if (path === '/trcc/home') return 'main-content-trcc-home'
+      return ''
     })
 
     onMounted(() => {
@@ -243,5 +247,19 @@ body.has-concert-banner::after {
   background:
     linear-gradient(180deg, rgba(10, 12, 20, 0.78) 0%, rgba(10, 12, 20, 0.25) 35%, rgba(10, 12, 20, 0.35) 65%, rgba(10, 12, 20, 0.82) 100%),
     url('/bms_bg.jpg') no-repeat center center / cover fixed;
+}
+
+/* JCO Home — full main-content background */
+.main-content-jco-home {
+  background:
+    linear-gradient(180deg, rgba(10, 12, 20, 0.78) 0%, rgba(10, 12, 20, 0.25) 35%, rgba(10, 12, 20, 0.35) 65%, rgba(10, 12, 20, 0.82) 100%),
+    url('/jco_bg.webp') no-repeat center center / cover fixed;
+}
+
+/* TRCC Home — full main-content background */
+.main-content-trcc-home {
+  background:
+    linear-gradient(180deg, rgba(10, 12, 20, 0.82) 0%, rgba(10, 12, 20, 0.30) 30%, rgba(10, 12, 20, 0.40) 65%, rgba(10, 12, 20, 0.85) 100%),
+    url('/trcc_bg.webp') no-repeat center center / cover fixed;
 }
 </style>

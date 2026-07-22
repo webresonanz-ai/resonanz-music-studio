@@ -415,6 +415,7 @@ export const useBmsStore = defineStore('bms', {
 export const useJcoStore = defineStore('jco', {
   state: () => ({
     orchestraMembers: [],
+    schedules: [],
     concerts: [],
     gallery: []
   }),
@@ -422,6 +423,10 @@ export const useJcoStore = defineStore('jco', {
   actions: {
     async fetchOrchestraMembers() {
       this.orchestraMembers = await useApiStore().get('/jco/orchestra/members')
+    },
+
+    async fetchSchedules() {
+      this.schedules = await useApiStore().get('/jco/schedules')
     },
 
     async fetchConcerts() {
