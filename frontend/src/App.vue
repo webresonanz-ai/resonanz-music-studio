@@ -11,7 +11,7 @@
 
       <AppSidebar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @navigate="closeSidebar" />
 
-      <div class="main-content" :class="{ 'main-content-full': hideShellNav }">
+      <div class="main-content" :class="[{ 'main-content-full': hideShellNav }, mainContentBgClass]">
         <AppNavbar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @toggle-sidebar="toggleSidebar" />
 
         <div class="content-area mt-4">
@@ -62,6 +62,9 @@ export default {
     const navigationStore = useNavigationStore()
     const bannerStore = useBannerStore()
     const hideShellNav = computed(() => route.meta.hideShellNav === true)
+    const mainContentBgClass = computed(() => {
+      return route.path === '/bms/home' ? 'main-content-bms-home' : ''
+    })
 
     onMounted(() => {
       router.isReady().then(() => {
@@ -179,6 +182,7 @@ export default {
       showCookieConsent,
       showNotificationPrompt,
       hideShellNav,
+      mainContentBgClass,
       navigationStore,
       toggleSidebar,
       closeSidebar,
@@ -232,5 +236,12 @@ body.has-concert-banner::after {
 @keyframes bannerFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+/* BMS Home — full main-content background */
+.main-content-bms-home {
+  background:
+    linear-gradient(180deg, rgba(10, 12, 20, 0.78) 0%, rgba(10, 12, 20, 0.25) 35%, rgba(10, 12, 20, 0.35) 65%, rgba(10, 12, 20, 0.82) 100%),
+    url('/bms_bg.jpg') no-repeat center center / cover fixed;
 }
 </style>

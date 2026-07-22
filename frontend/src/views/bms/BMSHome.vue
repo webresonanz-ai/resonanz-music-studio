@@ -1,45 +1,54 @@
 <template>
     <div class="fade-in-up">
 
-        <!-- ══ HERO ══════════════════════════════════════════════════════ -->
-        <div class="bms-hero content-card bg-dark mb-4">
-            <div class="bms-hero-inner">
-                <p class="text-uppercase fw-bold small mb-2" style="color: var(--gold-color); letter-spacing: 0.12em;">
-                    <i class="bi bi-music-note-beamed me-1"></i> Batavia Madrigal Singers
+        <!-- ══ FULL-SCREEN HERO ════════════════════════════════════════ -->
+        <section class="bms-hero-section" ref="heroSection">
+            <div class="bms-hero-bg" aria-hidden="true">
+                <div class="bms-hero-bg-gradient"></div>
+                <div class="bms-hero-bg-radial"></div>
+            </div>
+
+            <div class="bms-hero-content" ref="heroContent" :style="heroContentStyle">
+                <div class="bms-hero-badge">
+                    <i class="bi bi-music-note-beamed me-2"></i>
+                    Batavia Madrigal Singers
+                </div>
+                <h1 class="bms-hero-title">Where Voices Unite</h1>
+                <p class="bms-hero-sub">
+                    A premier professional choir dedicated to the art of choral singing — from classical masterworks to contemporary masterpieces.
                 </p>
-                <h1 class="display-4 fw-bold mb-3 text-champagne">Where Voices Unite</h1>
-                <p class="lead mb-4 text-champagne-muted" style="max-width: 560px;">
-                    A premier professional choir dedicated to the art of choral singing — from classical masterworks to contemporary compositions.
-                </p>
-                <div class="d-flex flex-wrap gap-3">
-                    <router-link to="/bms/events" class="btn btn-primary btn-lg">
+                <div class="bms-hero-actions">
+                    <router-link to="/bms/events" class="bms-hero-btn bms-hero-btn--primary">
                         <i class="bi bi-calendar-event me-2"></i>View All Events
                     </router-link>
-                    <router-link to="/bms/members" class="btn btn-outline-gold btn-lg">
+                    <router-link to="/bms/members" class="bms-hero-btn bms-hero-btn--outline">
                         <i class="bi bi-people me-2"></i>Our Singers
                     </router-link>
                 </div>
             </div>
-            <!-- decorative accent -->
-            <div class="bms-hero-accent" aria-hidden="true">
-                <i class="bi bi-music-note-list"></i>
+
+            <div class="bms-hero-scroll" aria-hidden="true" :style="heroScrollStyle">
+                <div class="bms-hero-scroll-mouse">
+                    <div class="bms-hero-scroll-dot"></div>
+                </div>
+                <span>Scroll</span>
             </div>
-        </div>
+        </section>
 
         <!-- ══ STATS STRIP ═══════════════════════════════════════════════ -->
-        <div class="stats-strip mb-4">
+        <div class="stats-strip mb-4 reveal" ref="statsStrip">
             <div class="stat-block">
-                <span class="stat-num">{{ activeMembers }}</span>
+                <span class="stat-num">{{ countActive }}</span>
                 <span class="stat-desc">Active Singers</span>
             </div>
             <div class="stat-sep"></div>
             <div class="stat-block">
-                <span class="stat-num">{{ publicEvents.length }}</span>
+                <span class="stat-num">{{ countEvents }}</span>
                 <span class="stat-desc">Upcoming Events</span>
             </div>
             <div class="stat-sep"></div>
             <div class="stat-block">
-                <span class="stat-num">{{ voiceParts.length }}</span>
+                <span class="stat-num">{{ countParts }}</span>
                 <span class="stat-desc">Voice Parts</span>
             </div>
             <div class="stat-sep"></div>
@@ -53,7 +62,7 @@
         <div class="row g-4">
 
             <!-- ── Upcoming Events ───────────────────────────────────────── -->
-            <div class="col-12 col-lg-7">
+            <div class="col-12 col-lg-7 reveal reveal-delay-1">
                 <div class="content-card bg-dark h-100">
                     <div class="section-header mb-4">
                         <div>
@@ -128,7 +137,7 @@
             </div>
 
             <!-- ── Our Singers ────────────────────────────────────────────── -->
-            <div class="col-12 col-lg-5">
+            <div class="col-12 col-lg-5 reveal reveal-delay-2">
                 <div class="content-card bg-dark h-100">
                     <div class="section-header mb-4">
                         <div>
@@ -228,11 +237,35 @@ export default {
     data() {
         return {
             loadingEvents: false,
+            heroProgress: 0,
+            countActive: 0,
+            countEvents: 0,
+            countParts: 0,
+            _rafId: null,
+            _counterRafId: null,
+            _scrollHandler: null,
+            _observers: [],
         }
     },
 
     computed: {
         ...mapState(useBmsStore, ['events', 'members']),
+
+        heroContentStyle() {
+            const p = this.heroProgress
+            const translateY = p * 60
+            const scale = 1 - p * 0.04
+            const opacity = 1 - p * 0.5
+            return {
+                transform: `translateY(${translateY}px) scale(${scale})`,
+                opacity,
+            }
+        },
+
+        heroScrollStyle() {
+            const opacity = Math.max(0, 1 - this.heroProgress * 2)
+            return { opacity }
+        },
 
         publicEvents() {
             if (!this.events || !Array.isArray(this.events)) return []
@@ -288,10 +321,87 @@ export default {
         } finally {
             this.loadingEvents = false
         }
+
+        this.$nextTick(() => {
+            this.initScrollAnimations()
+            this.initRevealObservers()
+        })
+    },
+
+    beforeUnmount() {
+        if (this._rafId) cancelAnimationFrame(this._rafId)
+        if (this._counterRafId) cancelAnimationFrame(this._counterRafId)
+        if (this._scrollHandler) {
+            window.removeEventListener('scroll', this._scrollHandler, { passive: true })
+        }
+        this._observers.forEach(o => o.disconnect())
     },
 
     methods: {
         ...mapActions(useBmsStore, ['fetchEvents', 'fetchMembers']),
+
+        initScrollAnimations() {
+            const hero = this.$refs.heroSection
+            if (!hero) return
+
+            this._scrollHandler = () => {
+                if (this._rafId) cancelAnimationFrame(this._rafId)
+                this._rafId = requestAnimationFrame(() => {
+                    const rect = hero.getBoundingClientRect()
+                    const offset = -rect.top
+                    const maxScroll = rect.height * 0.6
+                    this.heroProgress = Math.min(Math.max(offset / maxScroll, 0), 1)
+                })
+            }
+
+            this._scrollHandler()
+
+            window.addEventListener('scroll', this._scrollHandler, { passive: true })
+        },
+
+        initRevealObservers() {
+            const els = this.$el.querySelectorAll('.reveal')
+            if (!els.length) return
+
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('revealed')
+                            observer.unobserve(entry.target)
+                            if (entry.target === this.$refs.statsStrip) {
+                                this.startCounterAnimation()
+                            }
+                        }
+                    })
+                },
+                { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+            )
+
+            els.forEach(el => observer.observe(el))
+            this._observers.push(observer)
+        },
+
+        startCounterAnimation() {
+            if (this._counterRafId) return
+            const targets = [this.activeMembers, this.publicEvents.length, this.voiceParts.length]
+            const duration = 1200
+            const start = performance.now()
+
+            const step = (now) => {
+                const elapsed = now - start
+                const progress = Math.min(elapsed / duration, 1)
+                const eased = 1 - Math.pow(1 - progress, 3)
+                this.countActive = Math.round(eased * targets[0])
+                this.countEvents = Math.round(eased * targets[1])
+                this.countParts = Math.round(eased * targets[2])
+                if (progress < 1) {
+                    this._counterRafId = requestAnimationFrame(step)
+                }
+            }
+
+            this._counterRafId = requestAnimationFrame(step)
+        },
 
         formatTime(val) {
             return String(val || '').slice(0, 5)
@@ -430,35 +540,175 @@ export default {
     background: rgba(234, 220, 194, 0.12) !important;
 }
 
-/* ══ HERO ════════════════════════════════════════════════════════ */
-.bms-hero {
+/* ══ FULL-SCREEN HERO ══════════════════════════════════════════════ */
+.bms-hero-section {
     position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
-    background: linear-gradient(
-        135deg,
-        rgba(127, 36, 50, 0.10) 0%,
-        rgba(200, 164, 93, 0.06) 60%,
-        transparent 100%
-    );
+    margin: -1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 2rem;
 }
 
-.bms-hero-inner {
-    position: relative;
-    z-index: 1;
-    padding: 0.5rem 0;
-}
-
-.bms-hero-accent {
+.bms-hero-bg {
     position: absolute;
-    right: -1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 9rem;
-    opacity: 0.04;
-    line-height: 1;
-    pointer-events: none;
-    user-select: none;
-    color: var(--gold-color, #c8a45d);
+    inset: 0;
+    z-index: 0;
+}
+
+.bms-hero-bg-gradient {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+}
+
+.bms-hero-bg-radial {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+}
+
+.bms-hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.bms-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1.25rem;
+    border: 1px solid rgba(200, 164, 93, 0.3);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    color: var(--gold-color);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+}
+
+.bms-hero-title {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 800;
+    color: var(--champagne-color);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.25rem;
+    text-shadow: 0 2px 40px rgba(0,0,0,0.4);
+}
+
+.bms-hero-sub {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: rgba(234, 220, 194, 0.65);
+    max-width: 560px;
+    margin: 0 auto 2rem;
+    line-height: 1.7;
+}
+
+.bms-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.bms-hero-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 2rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.bms-hero-btn--primary {
+    background: linear-gradient(135deg, #d6b66c, #c8a45d);
+    color: #17130a;
+    border: none;
+    box-shadow: 0 8px 28px rgba(200, 164, 93, 0.3);
+}
+
+.bms-hero-btn--primary:hover {
+    background: linear-gradient(135deg, #e1c47f, #b99245);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px rgba(200, 164, 93, 0.4);
+    color: #17130a;
+}
+
+.bms-hero-btn--outline {
+    border: 1px solid rgba(200, 164, 93, 0.4);
+    color: var(--gold-color);
+    background: rgba(255,255,255, 0.8);
+    backdrop-filter: blur(8px);
+}
+
+.bms-hero-btn--outline:hover {
+    border-color: var(--gold-color);
+    color: #fffdf8;
+    background: rgba(200, 164, 93, 0.15);
+    transform: translateY(-3px);
+}
+
+/* Scroll indicator */
+.bms-hero-scroll {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(234, 220, 194, 0.3);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    z-index: 2;
+}
+
+.bms-hero-scroll-mouse {
+    width: 22px;
+    height: 34px;
+    border: 2px solid rgba(234, 220, 194, 0.25);
+    border-radius: 999px;
+    position: relative;
+}
+
+.bms-hero-scroll-dot {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--gold-color);
+    animation: scrollDot 2s ease-in-out infinite;
+}
+
+@keyframes scrollDot {
+    0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+    50% { transform: translateX(-50%) translateY(10px); opacity: 0.3; }
+}
+
+.bms-hero-scroll span {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.4;
 }
 
 /* ══ STATS STRIP ══════════════════════════════════════════════════ */
@@ -775,11 +1025,82 @@ export default {
     flex-shrink: 0;
 }
 
+/* ══ SCROLL REVEAL ANIMATIONS ════════════════════════════════════ */
+.reveal {
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+
+/* Staggered stat number entrance */
+.stats-strip .stat-num {
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.5s ease;
+    transform: scale(0.5);
+    opacity: 0;
+}
+
+.stats-strip.revealed .stat-num {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.stats-strip.revealed .stat-block:nth-child(1) .stat-num { transition-delay: 0.1s; }
+.stats-strip.revealed .stat-block:nth-child(3) .stat-num { transition-delay: 0.2s; }
+.stats-strip.revealed .stat-block:nth-child(5) .stat-num { transition-delay: 0.3s; }
+
+/* ══ HERO CONTENT TRANSITION ═════════════════════════════════════ */
+.bms-hero-content {
+    will-change: transform, opacity;
+}
+
+.bms-hero-scroll {
+    will-change: opacity;
+    transition: opacity 0.3s ease;
+}
+
 /* ══ RESPONSIVE ══════════════════════════════════════════════════ */
+@media (max-width: 991.98px) {
+    .bms-hero-section {
+        min-height: 90vh;
+        margin: -1rem;
+        margin-bottom: 1.5rem;
+        padding: 1.5rem;
+    }
+
+}
+
 @media (max-width: 767.98px) {
-    .bms-hero-accent {
-        font-size: 6rem;
-        right: -0.5rem;
+    .bms-hero-section {
+        min-height: 85vh;
+        margin: -1rem;
+        margin-bottom: 1.5rem;
+        padding: 1.5rem 1rem;
+    }
+
+    .bms-hero-badge {
+        font-size: 0.7rem;
+        padding: 0.4rem 1rem;
+    }
+
+    .bms-hero-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .bms-hero-btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
     }
 
     .stats-strip {
@@ -796,6 +1117,33 @@ export default {
 }
 
 @media (max-width: 479.98px) {
+    .bms-hero-section {
+        min-height: 90vh;
+        margin: -1rem;
+        margin-bottom: 1.5rem;
+        padding: 1.5rem 1rem;
+    }
+
+    .bms-hero-badge {
+        font-size: 0.7rem;
+        padding: 0.4rem 1rem;
+    }
+
+    .bms-hero-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .bms-hero-btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+
+    .bms-hero-scroll {
+        display: none;
+    }
+
     .voice-parts-grid {
         grid-template-columns: 1fr 1fr;
     }
