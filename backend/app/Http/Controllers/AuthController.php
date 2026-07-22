@@ -7,7 +7,7 @@ use PDO;
 
 class AuthController
 {
-    private const ALLOWED_ROLES = ['admin', 'manager', 'teacher', 'composer', 'arranger', 'member', 'guest'];
+    private const ALLOWED_ROLES = ['admin', 'manager', 'manager_concert', 'teacher', 'composer', 'arranger', 'member', 'guest'];
     private const DEFAULT_ROLE = 'member';
 
     public function register(): void

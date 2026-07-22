@@ -9,12 +9,6 @@
             Manage your music studio classes, lessons, and events in one place.
           </p>
         </div>
-        <div class="schedules-header-actions" v-if="canManageSchedule">
-          <button class="schedules-add-btn" @click="openAddModal">
-            <i class="bi bi-plus-lg"></i>
-            <span class="schedules-add-label">Add Schedule</span>
-          </button>
-        </div>
       </div>
     </div>
 
@@ -62,7 +56,6 @@
                   'other-month': !day.isCurrentMonth,
                   today: day.isToday,
                   'has-schedules': getSchedulesForDate(day.dateKey).length > 0,
-                  'read-only': !canManageSchedule,
                 }"
                 @click="handleDayClick(day)"
               >
@@ -87,7 +80,6 @@
                     class="schedule-chip"
                     v-for="schedule in getSchedulesForDate(day.dateKey).slice(0, 3)"
                     :key="schedule.id"
-                    :class="{ 'schedule-chip-readonly': !canManageSchedule }"
                     @click.stop="handleScheduleClick(schedule)"
                   >
                     {{ schedule.title }}
@@ -102,15 +94,6 @@
         </div>
       </div>
     </div>
-
-    <ScheduleFormModal
-      ref="scheduleFormModal"
-      :loading="loading"
-      :success-message="successMessage"
-      :error-message="errorMessage"
-      @submit="submitSchedule"
-      @delete="deleteSchedule"
-    />
 
     <Teleport to="body">
       <div class="modal fade" id="scheduleDetailModal" tabindex="-1" ref="scheduleDetailModal">
@@ -172,20 +155,6 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button
-                v-if="canManageSchedule"
-                class="btn btn-outline-gold"
-                @click="openEditFromDetail"
-              >
-                <i class="bi bi-pencil me-2"></i> Edit
-              </button>
-              <button
-                v-if="canManageSchedule"
-                class="btn btn-outline-danger"
-                @click="deleteFromDetail"
-              >
-                <i class="bi bi-trash me-2"></i> Delete
-              </button>
               <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Close</button>
             </div>
           </div>
@@ -199,21 +168,12 @@
 import { Modal } from "bootstrap";
 import { mapState, mapActions } from "pinia";
 import { useTrmsStore } from "../../stores/api";
-import { useAuthStore } from "../../stores/auth";
-import ScheduleFormModal from "../../components/trms/ScheduleFormModal.vue";
 
 export default {
   name: "Schedules",
-  components: {
-    ScheduleFormModal,
-  },
+
   computed: {
     ...mapState(useTrmsStore, ["schedules"]),
-    canManageSchedule() {
-      const authStore = useAuthStore();
-      const role = authStore.user?.role?.toLowerCase();
-      return role === "admin" || role === "manager";
-    },
     monthYearLabel() {
       return this.currentMonth.toLocaleDateString("en-US", {
         year: "numeric",
@@ -292,8 +252,6 @@ export default {
     return {
       currentMonth: new Date(),
       loading: false,
-      successMessage: "",
-      errorMessage: "",
       selectedSchedule: null,
       scheduleDetailModalInstance: null,
     };
@@ -307,12 +265,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(useTrmsStore, {
-      storeDeleteSchedule: "deleteSchedule",
-      fetchSchedules: "fetchSchedules",
-      createSchedule: "createSchedule",
-      updateSchedule: "updateSchedule",
-    }),
+    ...mapActions(useTrmsStore, ["fetchSchedules"]),
     prevMonth() {
       this.currentMonth = new Date(
         this.currentMonth.getFullYear(),
@@ -384,18 +337,8 @@ export default {
       };
       return map[type] || "schedule-dot-other";
     },
-    openAddModal() {
-      if (!this.canManageSchedule) return;
-      this.clearFormMessages();
-      this.$refs.scheduleFormModal.openAdd();
-    },
     handleDayClick(day) {
       if (!day.isCurrentMonth) return;
-
-      if (this.canManageSchedule) {
-        this.openDayModal(day.dateKey);
-        return;
-      }
 
       const schedules = this.getSchedulesForDate(day.dateKey);
       if (schedules.length > 0) {
@@ -403,93 +346,11 @@ export default {
       }
     },
     handleScheduleClick(schedule) {
-      if (this.canManageSchedule) {
-        this.openEditModal(schedule);
-        return;
-      }
       this.openDetailModal(schedule);
-    },
-    openDayModal(dateKey) {
-      if (!this.canManageSchedule) return;
-      this.clearFormMessages();
-      this.$refs.scheduleFormModal.openDay(dateKey);
-    },
-    openEditModal(schedule) {
-      if (!this.canManageSchedule) return;
-      this.clearFormMessages();
-      this.$refs.scheduleFormModal.openEdit(schedule);
     },
     openDetailModal(schedule) {
       this.selectedSchedule = schedule;
       this.showDetailModal();
-    },
-    openEditFromDetail() {
-      if (!this.canManageSchedule) return;
-      this.hideDetailModal();
-      setTimeout(() => {
-        this.openEditModal(this.selectedSchedule);
-      }, 300);
-    },
-    async submitSchedule(payload) {
-      if (!this.canManageSchedule) return;
-      this.loading = true;
-      this.clearFormMessages();
-      try {
-        if (payload.mode === "edit") {
-          await this.updateSchedule(payload.scheduleId, payload.data);
-          this.successMessage = "Schedule updated successfully.";
-        } else {
-          await this.createSchedule(payload.data);
-          this.successMessage = "Schedule added successfully.";
-        }
-        await this.fetchSchedules();
-        if (payload.mode === "add") {
-          setTimeout(() => this.$refs.scheduleFormModal.hide(), 800);
-        }
-      } catch (error) {
-        this.errorMessage = error.message || "Unable to save schedule.";
-      } finally {
-        this.loading = false;
-      }
-    },
-    async deleteSchedule(scheduleId) {
-      if (!this.canManageSchedule) return;
-      if (!confirm("Are you sure you want to delete this schedule?")) return;
-
-      this.loading = true;
-      this.clearFormMessages();
-      try {
-        await this.storeDeleteSchedule(scheduleId);
-        this.successMessage = "Schedule deleted successfully.";
-        await this.fetchSchedules();
-        setTimeout(() => this.$refs.scheduleFormModal.hide(), 800);
-      } catch (error) {
-        this.errorMessage = error.message || "Unable to delete schedule.";
-      } finally {
-        this.loading = false;
-      }
-    },
-    async deleteFromDetail() {
-      if (!this.canManageSchedule) return;
-      if (!this.selectedSchedule) return;
-      if (!confirm("Are you sure you want to delete this schedule?")) return;
-
-      this.loading = true;
-      this.clearFormMessages();
-      try {
-        await this.storeDeleteSchedule(this.selectedSchedule.id);
-        this.successMessage = "Schedule deleted successfully.";
-        await this.fetchSchedules();
-        this.hideDetailModal();
-      } catch (error) {
-        this.errorMessage = error.message || "Unable to delete schedule.";
-      } finally {
-        this.loading = false;
-      }
-    },
-    clearFormMessages() {
-      this.successMessage = "";
-      this.errorMessage = "";
     },
     showDetailModal() {
       const el = this.$refs.scheduleDetailModal;
@@ -576,76 +437,6 @@ export default {
   color: rgba(234, 220, 194, 0.55);
   margin-bottom: 0;
   max-width: 540px;
-}
-
-.schedules-header-actions {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-}
-
-.schedules-add-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.6rem 1.35rem;
-  border: 1px solid #9d7d3b;
-  border-radius: 10px;
-  color: #17130a;
-  background: linear-gradient(180deg, #d6b66c 0%, var(--gold-color, #c8a45d) 100%);
-  box-shadow:
-    0 8px 24px rgba(122, 94, 39, 0.3),
-    0 0 0 1px rgba(200, 164, 93, 0.2) inset;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-  position: relative;
-  z-index: 1;
-}
-
-.schedules-add-btn::after {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 12px;
-  background: radial-gradient(ellipse at center, rgba(200, 164, 93, 0.35), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: -1;
-}
-
-.schedules-add-btn:hover::after {
-  opacity: 1;
-}
-
-.schedules-add-btn:hover {
-  border-color: #8f6e2f;
-  color: #111;
-  background: linear-gradient(180deg, #e1c47f 0%, #b99245 100%);
-  transform: translateY(-2px);
-  box-shadow:
-    0 14px 32px rgba(122, 94, 39, 0.4),
-    0 0 0 1px rgba(200, 164, 93, 0.3) inset;
-}
-
-.schedules-add-btn:active {
-  transform: translateY(0);
-  box-shadow:
-    0 4px 12px rgba(122, 94, 39, 0.25),
-    0 0 0 1px rgba(200, 164, 93, 0.2) inset;
-}
-
-.schedules-add-btn i {
-  font-size: 1.1rem;
-}
-
-/* ── Floating action button (mobile) ──────────────────────── */
-.schedules-fab {
-  display: none;
 }
 
 /* ── Calendar toolbar ──────────────────────────────────────────── */
@@ -744,7 +535,7 @@ export default {
   border: 1px solid rgba(234, 220, 194, 0.06);
   border-top: none;
   padding: 0.45rem 0.35rem 0.5rem;
-  cursor: pointer;
+  cursor: default;
   transition:
     background 0.2s ease,
     box-shadow 0.2s ease;
@@ -753,12 +544,6 @@ export default {
   flex-direction: column;
   align-items: center;
   color: rgba(234, 220, 194, 0.85);
-}
-
-.calendar-day-cell:hover {
-  background: rgba(200, 164, 93, 0.08);
-  z-index: 1;
-  box-shadow: inset 0 0 0 1px rgba(200, 164, 93, 0.25);
 }
 
 .calendar-day-cell.other-month {
@@ -772,26 +557,14 @@ export default {
   box-shadow: none;
 }
 
-.calendar-day-cell.read-only {
-  cursor: default;
-}
-
-.calendar-day-cell.read-only:hover {
-  background: rgba(234, 220, 194, 0.03);
-  box-shadow: none;
-}
-
-.calendar-day-cell.read-only.has-schedules {
+.calendar-day-cell.has-schedules {
   cursor: pointer;
+  background: rgba(200, 164, 93, 0.06);
 }
 
-.calendar-day-cell.read-only.has-schedules:hover {
+.calendar-day-cell.has-schedules:hover {
   background: rgba(200, 164, 93, 0.08);
   box-shadow: inset 0 0 0 1px rgba(200, 164, 93, 0.2);
-}
-
-.calendar-day-cell.has-schedules {
-  background: rgba(200, 164, 93, 0.06);
 }
 
 /* ── Day number ────────────────────────────────────────────────── */
@@ -881,18 +654,11 @@ export default {
   transition: background 0.2s ease;
   text-align: left;
   border: 1px solid rgba(200, 164, 93, 0.08);
+  cursor: pointer;
 }
 
 .schedule-chip:hover {
   background: rgba(200, 164, 93, 0.22);
-}
-
-.schedule-chip-readonly {
-  cursor: pointer;
-}
-
-.schedule-chip-readonly:hover {
-  background: rgba(200, 164, 93, 0.18);
 }
 
 .more-schedules {
@@ -921,17 +687,6 @@ export default {
   .schedules-header-top {
     flex-direction: column;
     gap: 1rem;
-  }
-
-  .schedules-header-actions {
-    width: 100%;
-  }
-
-  .schedules-add-btn {
-    width: 100%;
-    justify-content: center;
-    padding: 0.65rem 1.15rem;
-    font-size: 0.85rem;
   }
 
   .schedules-title {
