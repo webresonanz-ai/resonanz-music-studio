@@ -298,6 +298,18 @@ export const useBmsStore = defineStore('bms', {
       this.events = await useApiStore().get('/bms/events')
     },
 
+    async createBmsSchedule(data) {
+      return useApiStore().post('/bms/schedule', data)
+    },
+
+    async updateBmsSchedule(id, data) {
+      return useApiStore().post(`/bms/schedule/${id}`, data)
+    },
+
+    async deleteBmsSchedule(id) {
+      return useApiStore().post(`/bms/schedule/${id}/delete`, {})
+    },
+
     async fetchMembers() {
       this.members = await useApiStore().get('/bms/members')
     },

@@ -128,13 +128,16 @@ $router->group(['middleware' => [AuthMiddleware::class]], function ($router) {
     $router->get('/api/library/admin/creator-payouts/{userId}', 'App\Http\Controllers\Library\AdminController@payoutHistory');
 });
 
-// Protected BMS attendance routes — admin, manager, singers_manager only
+// Protected BMS attendance & schedule routes — admin, manager, singers_manager only
 RoleMiddleware::$roles = ['admin', 'manager', 'singers_manager'];
 $router->group(['middleware' => [AuthMiddleware::class, RoleMiddleware::class]], function ($router) {
     $router->post('/api/bms/attendance/roster', 'App\Http\Controllers\Bms\AttendanceController@updateRoster');
     $router->post('/api/bms/attendance/rehearsals', 'App\Http\Controllers\Bms\AttendanceController@updateRehearsals');
     $router->post('/api/bms/attendance/record', 'App\Http\Controllers\Bms\AttendanceController@record');
     $router->post('/api/bms/attendance/record/bulk', 'App\Http\Controllers\Bms\AttendanceController@recordBulk');
+    $router->post('/api/bms/schedule', 'App\Http\Controllers\Bms\ScheduleController@store');
+    $router->post('/api/bms/schedule/{id}', 'App\Http\Controllers\Bms\ScheduleController@update');
+    $router->post('/api/bms/schedule/{id}/delete', 'App\Http\Controllers\Bms\ScheduleController@destroy');
 });
 
 // Protected Library CRUD — any authenticated user (role check done in controller)

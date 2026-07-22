@@ -61,6 +61,11 @@ const routes = [
         component: () => import("../views/bms/Attendance.vue"),
         meta: { roles: ["admin", "manager", "singers_manager"] },
       },
+      {
+        path: "manager",
+        component: () => import("../views/bms/SingersManagerDashboard.vue"),
+        meta: { roles: ["admin", "singers_manager"] },
+      },
       { path: "about-us", component: () => import("../views/bms/AboutUs.vue") },
     ],
   },

@@ -39,11 +39,7 @@
                                         class="form-select sched-select"
                                         required
                                     >
-                                        <option value="lesson">Lesson</option>
-                                        <option value="practice">Practice</option>
-                                        <option value="concert">Concert</option>
-                                        <option value="exam">Exam</option>
-                                        <option value="other">Other</option>
+                                        <option v-for="opt in typeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
@@ -322,6 +318,21 @@ import { Modal } from 'bootstrap'
 import { useTrmsStore } from '../../stores/api'
 import ConcertLayoutPicker from './ConcertLayoutPicker.vue'
 
+const ALL_TYPE_OPTIONS = [
+    { value: 'lesson', label: 'Lesson' },
+    { value: 'practice', label: 'Practice' },
+    { value: 'concert', label: 'Concert' },
+    { value: 'exam', label: 'Exam' },
+    { value: 'other', label: 'Other' },
+]
+
+const ALL_PROGRAMS = [
+    { id: 'trms', name: 'TRMS' },
+    { id: 'bms', name: 'BMS' },
+    { id: 'jco', name: 'JCO' },
+    { id: 'trcc', name: 'TRCC' },
+]
+
 const emptyForm = () => ({
     title: '',
     type: 'lesson',
@@ -347,7 +358,9 @@ export default {
     props: {
         loading: Boolean,
         successMessage: String,
-        errorMessage: String
+        errorMessage: String,
+        allowedTypes: { type: Array, default: null },
+        allowedPrograms: { type: Array, default: null }
     },
     emits: ['submit', 'delete'],
     data() {
@@ -355,12 +368,6 @@ export default {
             form: emptyForm(),
             editingSchedule: null,
             modalInstance: null,
-            availablePrograms: [
-                { id: 'trms', name: 'TRMS' },
-                { id: 'bms', name: 'BMS' },
-                { id: 'jco', name: 'JCO' },
-                { id: 'trcc', name: 'TRCC' }
-            ],
             bannerTab: 'upload',
             bannerUploading: false,
             bannerUploadError: '',
@@ -369,6 +376,18 @@ export default {
         }
     },
     computed: {
+        typeOptions() {
+            if (this.allowedTypes && this.allowedTypes.length) {
+                return ALL_TYPE_OPTIONS.filter(t => this.allowedTypes.includes(t.value))
+            }
+            return ALL_TYPE_OPTIONS
+        },
+        availablePrograms() {
+            if (this.allowedPrograms && this.allowedPrograms.length) {
+                return ALL_PROGRAMS.filter(p => this.allowedPrograms.includes(p.id))
+            }
+            return ALL_PROGRAMS
+        },
         hasConcertCode() {
             return this.form.type === 'concert' && String(this.form.concert_code || '').trim() !== ''
         }
@@ -395,6 +414,9 @@ export default {
         openAdd(defaultProgram = 'trms') {
             this.editingSchedule = null
             this.form = emptyForm()
+            if (this.allowedTypes && this.allowedTypes.length) {
+                this.form.type = this.allowedTypes[0]
+            }
             this.form.program_ids = [defaultProgram]
             this.form.date = new Date().toISOString().split('T')[0]
             this.bannerTab = 'upload'
@@ -420,6 +442,9 @@ export default {
         openDay(dateKey, defaultProgram = 'trms') {
             this.editingSchedule = null
             this.form = emptyForm()
+            if (this.allowedTypes && this.allowedTypes.length) {
+                this.form.type = this.allowedTypes[0]
+            }
             this.form.program_ids = [defaultProgram]
             this.form.date = dateKey
             this.bannerTab = 'upload'

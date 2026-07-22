@@ -18,57 +18,17 @@
                                     <i class="bi bi-calendar2-week display-6 text-warning"></i>
                                 </div>
                                 <div class="flex-grow-1 min-width-0">
-                                    <div class="fw-bold fs-5">BMS Schedule</div>
-                                    <div class="text-white-50 small">{{ filteredEvents.length }} upcoming schedule{{ filteredEvents.length === 1 ? '' : 's' }}</div>
+                                    <div class="fw-bold fs-5">BMS Concerts</div>
+                                    <div class="text-white-50 small">{{ filteredEvents.length }} upcoming concert{{ filteredEvents.length === 1 ? '' : 's' }}</div>
                                 </div>
                             </div>
-                            <button class="btn btn-gold btn-lg mt-3 mt-lg-0 w-100 w-lg-auto" @click="openAddModal" v-if="canManageSchedule">
-                                <i class="bi bi-plus-lg me-2"></i> Add Schedule
-                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ══ FILTERS BAR ══════════════════════════════════════════════ -->
-        <div class="content-card bg-dark mb-4">
-            <div class="row g-3 align-items-center">
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="input-group search-group">
-                        <span class="input-group-text bg-transparent border-end-0 border-secondary border-opacity-25 text-muted">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input
-                            type="text"
-                            v-model="searchQuery"
-                            class="form-control border-start-0 border-secondary border-opacity-25 bg-transparent"
-                            placeholder="Search by title, description..."
-                        >
-                    </div>
-                </div>
-                <div class="col-12 col-md-6 col-lg-8">
-                    <div class="filter-pills-scroll d-flex flex-wrap gap-2">
-                        <button
-                            class="btn btn-sm filter-pill-btn"
-                            :class="{ 'btn-primary': activeTypeFilter === '', 'btn-outline-secondary': activeTypeFilter !== '' }"
-                            @click="activeTypeFilter = ''"
-                        >
-                            All Types
-                        </button>
-                        <button
-                            v-for="type in eventTypes"
-                            :key="type"
-                            class="btn btn-sm filter-pill-btn"
-                            :class="{ 'btn-primary': activeTypeFilter === type, 'btn-outline-secondary': activeTypeFilter !== type }"
-                            @click="activeTypeFilter = type"
-                        >
-                            {{ typeLabel(type) }}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- ══ EVENTS LIST / CARD GRID ══════════════════════════════════ -->
         <div v-if="loading" class="text-center py-5">
@@ -127,15 +87,6 @@
                                         </span>
                                     </div>
 
-                                    <!-- Actions (If manager/admin) -->
-                                    <div class="d-flex gap-1" v-if="canManageSchedule" @click.stop>
-                                        <button class="btn btn-outline-primary btn-xs" @click="openEditModal(event)" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-xs" @click="deleteSchedule(event.id)" title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -143,16 +94,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- ══ MODALS ═══════════════════════════════════════════════════ -->
-        <ScheduleFormModal
-            ref="scheduleFormModal"
-            :loading="loading"
-            :success-message="successMessage"
-            :error-message="errorMessage"
-            @submit="submitSchedule"
-            @delete="deleteSchedule"
-        />
 
         <Teleport to="body">
             <div class="modal fade" id="scheduleDetailModal" tabindex="-1" ref="scheduleDetailModal">
@@ -183,12 +124,6 @@
                             </div>
                         </div>
                         <div class="modal-footer flex-wrap gap-2">
-                            <button v-if="canManageSchedule" class="btn btn-outline-primary" @click="openEditFromDetail">
-                                <i class="bi bi-pencil me-2"></i> Edit
-                            </button>
-                            <button v-if="canManageSchedule" class="btn btn-outline-danger" @click="deleteFromDetail">
-                                <i class="bi bi-trash me-2"></i> Delete
-                            </button>
                             <button class="btn btn-secondary ms-auto" type="button" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
@@ -201,55 +136,24 @@
 <script>
 import { Modal } from 'bootstrap'
 import { mapState, mapActions } from 'pinia'
-import { useBmsStore, useTrmsStore } from '../../stores/api'
-import { useAuthStore } from '../../stores/auth'
-import ScheduleFormModal from '../../components/trms/ScheduleFormModal.vue'
+import { useBmsStore } from '../../stores/api'
 
 export default {
     name: 'Events',
-    components: {
-        ScheduleFormModal
-    },
     data() {
         return {
             loading: false,
-            successMessage: '',
-            errorMessage: '',
-            searchQuery: '',
-            activeTypeFilter: '',
             selectedEvent: null,
             scheduleDetailModalInstance: null,
-            eventTypes: ['concert', 'practice', 'lesson', 'exam', 'other']
         }
     },
     computed: {
         ...mapState(useBmsStore, ['events']),
-        canManageSchedule() {
-            const authStore = useAuthStore()
-            const role = authStore.user?.role?.toLowerCase()
-            return role === 'admin' || role === 'manager'
-        },
         filteredEvents() {
             if (!this.events || !Array.isArray(this.events)) return []
 
-            const today = new Date().toISOString().split('T')[0]
-            const internalTypes = ['practice', 'rehearsal']
-
             return this.events
-                .filter(event => {
-                    if (event.date < today) return false
-                    // Hide BMS-only practice/rehearsal schedules — those belong in Attendance only
-                    const isBms = Array.isArray(event.program_ids) && event.program_ids.includes('bms')
-                    if (isBms && internalTypes.includes(event.type)) return false
-                    if (this.activeTypeFilter && event.type !== this.activeTypeFilter) return false
-                    if (this.searchQuery) {
-                        const q = this.searchQuery.toLowerCase()
-                        const titleMatch = event.title?.toLowerCase().includes(q)
-                        const descMatch = event.description?.toLowerCase().includes(q)
-                        if (!titleMatch && !descMatch) return false
-                    }
-                    return true
-                })
+                .filter(event => event.type === 'concert')
                 .sort((a, b) => {
                     const dateCompare = a.date.localeCompare(b.date)
                     return dateCompare || a.start_time.localeCompare(b.start_time)
@@ -266,7 +170,6 @@ export default {
     },
     methods: {
         ...mapActions(useBmsStore, ['fetchEvents']),
-        ...mapActions(useTrmsStore, { storeDeleteSchedule: 'deleteSchedule', createSchedule: 'createSchedule', updateSchedule: 'updateSchedule' }),
 
         formatTime(value) {
             return String(value || '').slice(0, 5)
@@ -298,23 +201,12 @@ export default {
         },
         typeBadgeClass(type) {
             const map = {
-                lesson: 'bg-primary',
-                practice: 'bg-success',
-                concert: 'bg-warning text-dark',
-                exam: 'bg-danger',
-                other: 'bg-secondary'
+                concert: 'bg-warning text-dark'
             }
             return map[type] || 'bg-secondary'
         },
         typeLabel(type) {
-            const map = {
-                lesson: 'Lesson',
-                practice: 'Practice',
-                concert: 'Concert',
-                exam: 'Exam',
-                other: 'Other'
-            }
-            return map[type] || type
+            return type ? type.charAt(0).toUpperCase() + type.slice(1) : ''
         },
         getProgramName(progId) {
             const map = {
@@ -325,87 +217,9 @@ export default {
             }
             return map[progId] || progId.toUpperCase()
         },
-        openAddModal() {
-            if (!this.canManageSchedule) return
-            this.clearFormMessages()
-            this.$refs.scheduleFormModal.openAdd('bms')
-        },
-        openEditModal(event) {
-            if (!this.canManageSchedule) return
-            this.clearFormMessages()
-            this.$refs.scheduleFormModal.openEdit(event)
-        },
         openDetailModal(event) {
             this.selectedEvent = event
             this.showDetailModal()
-        },
-        openEditFromDetail() {
-            if (!this.canManageSchedule) return
-            this.hideDetailModal()
-            setTimeout(() => {
-                this.openEditModal(this.selectedEvent)
-            }, 300)
-        },
-        async submitSchedule(payload) {
-            if (!this.canManageSchedule) return
-            this.loading = true
-            this.clearFormMessages()
-            try {
-                if (payload.mode === 'edit') {
-                    await this.updateSchedule(payload.scheduleId, payload.data)
-                    this.successMessage = 'Schedule updated successfully.'
-                } else {
-                    await this.createSchedule(payload.data)
-                    this.successMessage = 'Schedule added successfully.'
-                }
-                await this.fetchEvents()
-                if (payload.mode === 'add') {
-                    setTimeout(() => this.$refs.scheduleFormModal.hide(), 800)
-                }
-            } catch (error) {
-                this.errorMessage = error.message || 'Unable to save schedule.'
-            } finally {
-                this.loading = false
-            }
-        },
-        async deleteSchedule(scheduleId) {
-            if (!this.canManageSchedule) return
-            if (!confirm('Are you sure you want to delete this schedule?')) return
-
-            this.loading = true
-            this.clearFormMessages()
-            try {
-                await this.storeDeleteSchedule(scheduleId)
-                this.successMessage = 'Schedule deleted successfully.'
-                await this.fetchEvents()
-                setTimeout(() => this.$refs.scheduleFormModal.hide(), 800)
-            } catch (error) {
-                this.errorMessage = error.message || 'Unable to delete schedule.'
-            } finally {
-                this.loading = false
-            }
-        },
-        async deleteFromDetail() {
-            if (!this.canManageSchedule) return
-            if (!this.selectedEvent) return
-            if (!confirm('Are you sure you want to delete this schedule?')) return
-
-            this.loading = true
-            this.clearFormMessages()
-            try {
-                await this.storeDeleteSchedule(this.selectedEvent.id)
-                this.successMessage = 'Schedule deleted successfully.'
-                await this.fetchEvents()
-                this.hideDetailModal()
-            } catch (error) {
-                this.errorMessage = error.message || 'Unable to delete schedule.'
-            } finally {
-                this.loading = false
-            }
-        },
-        clearFormMessages() {
-            this.successMessage = ''
-            this.errorMessage = ''
         },
         showDetailModal() {
             const el = this.$refs.scheduleDetailModal
