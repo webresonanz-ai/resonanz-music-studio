@@ -341,6 +341,64 @@
             </div>
         </transition>
     </Teleport>
+
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <!-- ── Error Modal (ticket not found) ──────────────────────── -->
+    <!-- ════════════════════════════════════════════════════════════ -->
+    <Teleport to="body">
+        <transition name="scan-modal">
+            <div
+                v-if="showErrorModal"
+                class="scan-modal-overlay"
+                @click.self="closeErrorModal"
+            >
+                <div class="scan-modal-sheet" role="dialog" aria-modal="true" aria-label="Scan error">
+
+                    <button
+                        type="button"
+                        class="scan-modal-close"
+                        aria-label="Close"
+                        @click="closeErrorModal"
+                    >
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+
+                    <div class="scan-modal-status">
+                        <div class="scan-status-icon scan-status-icon--error">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="scan-status-text">
+                            <div class="scan-status-title">Ticket Not Found</div>
+                            <div class="scan-status-sub">This registration number or QR code is not recognized.</div>
+                        </div>
+                    </div>
+
+                    <div class="scan-modal-details">
+                        <div class="scan-detail-row">
+                            <div class="scan-detail-label">
+                                <i class="bi bi-hash"></i>
+                                <span>Code Scanned</span>
+                            </div>
+                            <div class="scan-detail-value" style="font-family: monospace; font-size: 0.82rem; word-break: break-all;">
+                                {{ manualValue || lastScannedCode }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="scan-modal-actions">
+                        <button
+                            type="button"
+                            class="btn btn-outline-gold flex-fill"
+                            @click="closeErrorModal"
+                        >
+                            <i class="bi bi-arrow-counterclockwise me-2"></i>Try Again
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </transition>
+    </Teleport>
 </template>
 
 <script>
@@ -364,6 +422,8 @@ export default {
             manualValue: '',
             scanning: false,
             showScanResultModal: false,
+            showErrorModal: false,
+            lastScannedCode: '',
 
             // Camera
             cameraActive: false,
@@ -404,6 +464,8 @@ export default {
             this.alreadyAttended = false
             this.errorMessage = ''
             this.manualValue = ''
+            this.lastScannedCode = ''
+            this.showErrorModal = false
             if (this.mode === 'camera') {
                 this.startCamera()
             }
@@ -436,6 +498,7 @@ export default {
             } catch (err) {
                 this.state = 'error'
                 this.errorMessage = err.message || 'Registration not found.'
+                this.showErrorModal = true
             } finally {
                 this.scanning = false
             }
@@ -462,6 +525,7 @@ export default {
             // Numeric-only → treat as registration ID; otherwise treat as qr_code
             const isNumeric = /^\d+$/.test(value)
             const payload = isNumeric ? { reg_number: value } : { qr_code: value }
+            this.lastScannedCode = value
 
             this.lookup(payload)
         },
@@ -520,12 +584,22 @@ export default {
 
                 if (code && code.data && !this.scanning && this.state !== 'found') {
                     this.stopCamera()
+                    this.lastScannedCode = code.data
                     this.lookup({ qr_code: code.data })
                     return
                 }
             }
 
             this.scanLoopId = requestAnimationFrame(() => this.scanLoop())
+        },
+
+        // ── Error modal ───────────────────────────────────────────────
+        closeErrorModal() {
+            this.showErrorModal = false
+            this.state = 'idle'
+            if (this.mode === 'camera') {
+                this.$nextTick(() => this.startCamera())
+            }
         },
 
         // ── Result modal ──────────────────────────────────────────────
@@ -814,6 +888,12 @@ export default {
     background: rgba(255, 193, 7, 0.12);
     color: #ffc107;
     box-shadow: 0 0 0 4px rgba(255, 193, 7, 0.08);
+}
+
+.scan-status-icon--error {
+    background: rgba(220, 53, 69, 0.12);
+    color: #dc3545;
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.08);
 }
 
 .scan-status-text {
