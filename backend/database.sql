@@ -305,6 +305,12 @@ CREATE INDEX idx_ca_schedule_id ON concert_audiences (schedule_id);
 -- Index for fast seat availability lookup
 CREATE INDEX idx_ca_schedule_seat ON concert_audiences (schedule_id, seat_number);
 
+-- Index for fast QR code scan lookup (CRITICAL for ConcertScan performance)
+CREATE INDEX idx_ca_qr_code ON concert_audiences (qr_code);
+
+-- Index for fast bulk email pending lookups
+CREATE INDEX idx_ca_send_email_status ON concert_audiences (send_email_status);
+
 -- Library — Sheet Music
 CREATE TABLE library_scores (
     id INT AUTO_INCREMENT PRIMARY KEY,

@@ -11,7 +11,7 @@
 
       <AppSidebar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @navigate="closeSidebar" />
 
-      <div class="main-content" :class="[{ 'main-content-full': hideShellNav }, mainContentBgClass]">
+      <div class="main-content" :class="['main-content-bg', { 'main-content-full': hideShellNav }, mainContentBgClass]">
         <AppNavbar v-if="!hideShellNav" :sidebar-open="sidebarOpen" @toggle-sidebar="toggleSidebar" />
 
         <div class="content-area mt-4">
@@ -62,13 +62,29 @@ export default {
     const navigationStore = useNavigationStore()
     const bannerStore = useBannerStore()
     const hideShellNav = computed(() => route.meta.hideShellNav === true)
+    const bgImageMap = {
+      '/bms/home':  { src: '/bms_bg.jpg',  cls: 'main-content-bms-home' },
+      '/jco/home':  { src: '/jco_bg.webp', cls: 'main-content-jco-home' },
+      '/trcc/home': { src: '/trcc_bg.webp', cls: 'main-content-trcc-home' },
+    }
+
     const mainContentBgClass = computed(() => {
-      const path = route.path
-      if (path === '/bms/home') return 'main-content-bms-home'
-      if (path === '/jco/home') return 'main-content-jco-home'
-      if (path === '/trcc/home') return 'main-content-trcc-home'
-      return ''
+      return bgImageMap[route.path]?.cls ?? ''
     })
+
+    const preloadBgImage = (path) => {
+      const entry = bgImageMap[path]
+      if (!entry) return
+      const img = new Image()
+      img.src = entry.src
+    }
+
+    // Preload background on route change so the image is cached before the next transition
+    watch(
+      () => route.path,
+      (newPath) => { preloadBgImage(newPath) },
+      { immediate: true }
+    )
 
     onMounted(() => {
       router.isReady().then(() => {
@@ -216,6 +232,12 @@ export default {
   margin-left: 0;
 }
 
+/* Skip off-screen rendering for better paint performance */
+.content-area {
+  content-visibility: auto;
+  contain-intrinsic-size: 800px;
+}
+
 /* Concert banner silhouette */
 body.has-concert-banner {
   background: #0a0a12 !important;
@@ -242,24 +264,31 @@ body.has-concert-banner::after {
   to   { opacity: 1; }
 }
 
-/* BMS Home — full main-content background */
+/* ── Program background images ────────────────────────────────
+ * Uses CSS custom properties so switching class only changes the
+ * variable values, not the entire background shorthand.
+ * Preloaded in index.html via <link rel="preload"> for zero-lag switch.
+ * ───────────────────────────────────────────────────────────── */
+.main-content-bg {
+  /* Composite layer hint for smoother painting */
+  will-change: background;
+  background:
+    var(--bg-overlay, none),
+    var(--bg-image, none) no-repeat center center / cover fixed;
+}
+
 .main-content-bms-home {
-  background:
-    linear-gradient(180deg, rgba(10, 12, 20, 0.78) 0%, rgba(10, 12, 20, 0.25) 35%, rgba(10, 12, 20, 0.35) 65%, rgba(10, 12, 20, 0.82) 100%),
-    url('/bms_bg.jpg') no-repeat center center / cover fixed;
+  --bg-image: url('/bms_bg.jpg');
+  --bg-overlay: linear-gradient(180deg, rgba(10, 12, 20, 0.78) 0%, rgba(10, 12, 20, 0.25) 35%, rgba(10, 12, 20, 0.35) 65%, rgba(10, 12, 20, 0.82) 100%);
 }
 
-/* JCO Home — full main-content background */
 .main-content-jco-home {
-  background:
-    linear-gradient(180deg, rgba(10, 12, 20, 0.78) 0%, rgba(10, 12, 20, 0.25) 35%, rgba(10, 12, 20, 0.35) 65%, rgba(10, 12, 20, 0.82) 100%),
-    url('/jco_bg.webp') no-repeat center center / cover fixed;
+  --bg-image: url('/jco_bg.webp');
+  --bg-overlay: linear-gradient(180deg, rgba(10, 12, 20, 0.78) 0%, rgba(10, 12, 20, 0.25) 35%, rgba(10, 12, 20, 0.35) 65%, rgba(10, 12, 20, 0.82) 100%);
 }
 
-/* TRCC Home — full main-content background */
 .main-content-trcc-home {
-  background:
-    linear-gradient(180deg, rgba(10, 12, 20, 0.82) 0%, rgba(10, 12, 20, 0.30) 30%, rgba(10, 12, 20, 0.40) 65%, rgba(10, 12, 20, 0.85) 100%),
-    url('/trcc_bg.webp') no-repeat center center / cover fixed;
+  --bg-image: url('/trcc_bg.webp');
+  --bg-overlay: linear-gradient(180deg, rgba(10, 12, 20, 0.82) 0%, rgba(10, 12, 20, 0.30) 30%, rgba(10, 12, 20, 0.40) 65%, rgba(10, 12, 20, 0.85) 100%);
 }
 </style>

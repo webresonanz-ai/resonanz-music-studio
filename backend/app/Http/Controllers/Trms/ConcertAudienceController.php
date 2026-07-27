@@ -565,11 +565,12 @@ class ConcertAudienceController
      * POST /api/trms/concert/scan
      *
      * Accepts { "qr_code": "SDG_42_..." } OR { "reg_number": "42" }
-     * Looks up the registration, marks attended_at on first scan, and returns the record.
+     * Looks up the registration, marks attended_at with server timestamp, and returns the record.
+     * Uses in-memory update to avoid an extra SELECT query.
      *
      * Response shape:
-     *   { success: true, already_attended: false, data: {...} }  — first check-in
-     *   { success: true, already_attended: true,  data: {...} }  — duplicate scan
+     *   { success: true, already_attended: false, data: {...} }  -- first check-in
+     *   { success: true, already_attended: true,  data: {...} }  -- duplicate scan
      */
     public function scan(): void
     {
@@ -604,14 +605,12 @@ class ConcertAudienceController
 
         if (!$alreadyAttended) {
             $localAttendedAt = trim((string) ($data['attended_at'] ?? ''));
-
-            if ($localAttendedAt !== '') {
-                $this->model->markAttended((int) $audience['id'], $localAttendedAt);
-            } else {
-                $this->model->markAttended((int) $audience['id']);
+            if ($localAttendedAt === '') {
+                $localAttendedAt = date('Y-m-d H:i:s');
             }
-
-            $audience = $this->model->find((int) $audience['id']);
+            $this->model->markAttended((int) $audience['id'], $localAttendedAt);
+            // Update in-memory instead of re-fetching the full record from DB
+            $audience['attended_at'] = $localAttendedAt;
         }
 
         echo json_encode([

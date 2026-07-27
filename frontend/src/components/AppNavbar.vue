@@ -174,6 +174,7 @@
 
         <!-- Mobile menu toggle -->
         <button
+          ref="mobileToggleRef"
           class="nav-mobile-toggle"
           type="button"
           :aria-expanded="mobileMenuOpen"
@@ -237,7 +238,8 @@
     <div
       class="navbar-mobile-menu"
       :class="{ 'is-open': mobileMenuOpen }"
-      aria-hidden="!mobileMenuOpen"
+      :aria-hidden="!mobileMenuOpen"
+      :inert="!mobileMenuOpen"
     >
       <template v-for="item in filteredNavItems" :key="item.label">
         <div v-if="item.children" class="mobile-nav-group">
@@ -332,6 +334,7 @@ export default {
     const openDropdown = ref(null);
     const openMobileGroup = ref(null);
     const userMenuOpen = ref(false);
+    const mobileToggleRef = ref(null);
     const mobileMenuOpen = ref(false);
     const searchFocused = ref(false);
     const searchQuery = ref("");
@@ -363,6 +366,7 @@ export default {
     const closeMobileMenu = () => {
       mobileMenuOpen.value = false;
       openMobileGroup.value = null;
+      mobileToggleRef.value?.focus();
     };
 
     const getUserInitials = (name) => {
@@ -405,6 +409,7 @@ export default {
       openDropdown,
       openMobileGroup,
       userMenuOpen,
+      mobileToggleRef,
       mobileMenuOpen,
       searchFocused,
       searchQuery,

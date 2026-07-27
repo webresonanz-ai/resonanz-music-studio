@@ -773,23 +773,24 @@ export default {
     async executeAttend() {
       this.attendModal.loading = true;
       try {
-        const now = new Date();
-        const localTimestamp = now.getFullYear() + '-' +
-          String(now.getMonth() + 1).padStart(2, '0') + '-' +
-          String(now.getDate()).padStart(2, '0') + ' ' +
-          String(now.getHours()).padStart(2, '0') + ':' +
-          String(now.getMinutes()).padStart(2, '0') + ':' +
-          String(now.getSeconds()).padStart(2, '0');
-        await this.trmsStore.scanConcertRegistration({
-          reg_number: this.attendModal.audience.id,
-          attended_at: localTimestamp
+        const result = await this.trmsStore.scanConcertRegistration({
+          reg_number: this.attendModal.audience.id
         });
+        // Update local store state to avoid full page re-fetch
+        if (result?.data) {
+          const idx = this.trmsStore.concertAudiences.findIndex(
+            a => a.id === this.attendModal.audience.id
+          );
+          if (idx !== -1) {
+            this.trmsStore.concertAudiences[idx] = result.data;
+          }
+        }
         this.showSuccess(`${this.attendModal.audience.name} marked as attended.`);
         this.closeAttendModal();
-        this.fetchAudiences();
       } catch (error) {
-        this.attendModal.loading = false;
         this.errorMessage = error.message || "Failed to mark as attended.";
+      } finally {
+        this.attendModal.loading = false;
       }
     },
 
