@@ -81,6 +81,20 @@
               <option value="Invitation">Invitation</option>
             </select>
 
+            <!-- Filter: Attended -->
+            <select
+              v-model="filterAttended"
+              class="form-select form-select-dark form-select-sm"
+              style="width: auto"
+              :disabled="loading"
+              aria-label="Filter by attendance"
+              @change="onFilterChange"
+            >
+              <option value="">All Attendance</option>
+              <option value="attend">Attend</option>
+              <option value="not_attend">Not Attend</option>
+            </select>
+
             <div class="d-flex align-items-center gap-2">
               <label for="per-page-select" class="text-champagne-muted small mb-0 text-nowrap"
                 >Rows per page:</label
@@ -632,6 +646,7 @@ export default {
       debounceTimer: null,
       filterConcert: "",
       filterNotes: "",
+      filterAttended: "",
       concertOptions: [],
       editModal: {
         visible: false,
@@ -704,6 +719,7 @@ export default {
           search: this.search,
           concert: this.filterConcert,
           notes: this.filterNotes,
+          attended: this.filterAttended,
         });
       } catch (error) {
         this.errorMessage = error.message || "Unable to load audiences.";

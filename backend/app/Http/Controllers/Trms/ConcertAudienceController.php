@@ -47,13 +47,14 @@ class ConcertAudienceController
      {
          header('Content-Type: application/json');
 
-         $page    = max(1, (int) ($_GET['page'] ?? 1));
-         $perPage = max(1, min(100, (int) ($_GET['per_page'] ?? 10)));
-         $search  = trim($_GET['search'] ?? '');
-         $concert = trim($_GET['concert'] ?? '');
-         $notes   = trim($_GET['notes'] ?? '');
+         $page     = max(1, (int) ($_GET['page'] ?? 1));
+         $perPage  = max(1, min(100, (int) ($_GET['per_page'] ?? 10)));
+         $search   = trim($_GET['search'] ?? '');
+         $concert  = trim($_GET['concert'] ?? '');
+         $notes    = trim($_GET['notes'] ?? '');
+         $attended = trim($_GET['attended'] ?? '');
 
-         $result = $this->model->paginate($perPage, $page, $search, $concert, $notes);
+         $result = $this->model->paginate($perPage, $page, $search, $concert, $notes, $attended);
 
         echo json_encode([
             'data' => $result['items'],

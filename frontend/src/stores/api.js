@@ -200,6 +200,7 @@ async fetchConcertAudiences(params = {}) {
        if (params.search) query.set('search', params.search)
        if (params.concert) query.set('concert', params.concert)
        if (params.notes) query.set('notes', params.notes)
+       if (params.attended) query.set('attended', params.attended)
        const qs = query.toString()
        const response = await useApiStore().get('/trms/concert/audiences' + (qs ? `?${qs}` : ''))
        this.concertAudiences = response.data

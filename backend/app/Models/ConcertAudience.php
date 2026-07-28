@@ -120,7 +120,7 @@ class ConcertAudience extends Model
         return array_column($stmt->fetchAll(\PDO::FETCH_ASSOC), 'concert_title');
     }
 
-    public function paginate(int $perPage = 10, int $page = 1, string $search = '', string $concert = '', string $notes = ''): array
+    public function paginate(int $perPage = 10, int $page = 1, string $search = '', string $concert = '', string $notes = '', string $attended = ''): array
     {
         $offset = ($page - 1) * $perPage;
 
@@ -141,6 +141,12 @@ class ConcertAudience extends Model
         if ($notes !== '') {
             $conditions[] = "notes = :notes";
             $params[':notes'] = $notes;
+        }
+
+        if ($attended === 'attend') {
+            $conditions[] = "attended_at IS NOT NULL";
+        } elseif ($attended === 'not_attend') {
+            $conditions[] = "attended_at IS NULL";
         }
 
         $whereClause = $conditions ? 'WHERE ' . implode(' AND ', $conditions) : '';
